@@ -27,8 +27,8 @@ for i = 1:M.Nsteps
     M.i = M.i+1;
 
     % set these counts here to be updated as cells proliferate or are found
-    % to be in G0
-    M.tracked.tumor_types(M.i,:) = [0,M.NT,0]; % [G0,can proliferate,did proliferate]
+    % to be in interphase
+    M.tracked.tumor_types(M.i,:) = [0,M.NT,0]; % [interphase,ready to proliferate,did proliferate]
 
     M = updateTumor(M);
 
@@ -47,6 +47,11 @@ for i = 1:M.Nsteps
     %% plot
     if M.plot_pars.plot_fig && mod(M.i,M.plot_pars.plot_every)==M.plot_pars.plot_offset
         plotFunction_EndStep(M)
+    end
+
+    %% movie
+    if M.plot_pars.plot_fig && M.plot_pars.make_movie
+        writeVideo(M.vid,print(M.fig.handle,'-r100','-RGBImage'))
     end
 
     %% save any "big" data

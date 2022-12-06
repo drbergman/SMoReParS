@@ -76,6 +76,11 @@ for ord_ind=1:length(in.active_ind)
                 M.L(n_ind(ind)) = M.val.tum; % set value at lattice site based on original cell (this should work instead of above commented out line)
             end
 
+        case 4 % spontaneous apoptosis
+            %%
+            M.L(M.tumor(j,M.I.ind)) = M.val.tum_apop;
+            M.tracked.tum_chemo_death(M.i) = M.tracked.tum_chemo_death(M.i)+1;
+
         otherwise
             %%
             error('should not do nothing')

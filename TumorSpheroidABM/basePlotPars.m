@@ -10,3 +10,5 @@ plot_pars.plot_offset = 0;
 
 % each axis: [-m m]
 plot_pars.m=30;
+
+plot_pars.default_font_size = 16;

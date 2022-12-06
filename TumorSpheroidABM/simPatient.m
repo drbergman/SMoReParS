@@ -21,6 +21,12 @@ else
     M.next_save_time = Inf;
 end
 
+if M.plot_pars.make_movie
+    M = initializeMovie(M);
+    warning("off",'MATLAB:audiovideo:VideoWriter:mp4FramePadded')
+    writeVideo(M.vid,print(M.fig.handle,'-r100','-RGBImage'))
+end
+
 for ei = 1:M.events.n % event index
     M = finishParameterSetup_Event(M,M.events.times(ei)-M.t);
     M = simForward(M);
@@ -37,4 +43,9 @@ end
 
 if M.save_pars.dt < Inf
     M = saveFinalModelData(M);
+end
+
+if M.plot_pars.make_movie
+    close(M.vid)
+    warning("on",'MATLAB:audiovideo:VideoWriter:mp4FramePadded')
 end

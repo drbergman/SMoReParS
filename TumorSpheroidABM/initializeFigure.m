@@ -56,9 +56,9 @@ if M.plot_pars.plot_location
         M.fig.ax(scatter_ind).YColor = 'none';
         M.fig.ax(scatter_ind).ZColor = 'none';
 
-        M.fig.scatter_plots(1) = scatter3([],[],[],90,tumor_colors(1,:),'o','filled',...
+        M.fig.scatter_plots(1) = scatter3(M.tumor(:,M.I.subs(1))-M.grid.center(1),M.tumor(:,M.I.subs(2))-M.grid.center(2),M.tumor(:,M.I.subs(3))-M.grid.center(3),90,tumor_colors(1,:),'o','filled',...
             'DisplayName','Tumor Cells');
-        view([0 30 40])
+        view(M.fig.ax(M.fig.scatter_ind),[36*M.t 30 40])
         legend(M.fig.ax(M.fig.scatter_ind),'Location','SouthWest','AutoUpdate','off','Color',"none")
 
         M.fig.ax(M.fig.scatter_ind).Legend.Position(1) = M.fig.ax(M.fig.scatter_ind).Position(1) - M.fig.ax(M.fig.scatter_ind).Legend.Position(3);
@@ -74,7 +74,7 @@ if M.plot_pars.plot_location
         M.fig.ax(scatter_ind).XColor = 'none';
         M.fig.ax(scatter_ind).YColor = 'none';
 
-        M.fig.scatter_plots(1) = scatter([],[],90,tumor_colors(1,:),'o','filled',...
+        M.fig.scatter_plots(1) = scatter(M.tumor(:,M.I.subs(1))-M.grid.center(1),M.tumor(:,M.I.subs(2))-M.grid.center(2),90,tumor_colors(1,:),'o','filled',...
             'DisplayName','Tumor Cells');
         legend(M.fig.ax(M.fig.scatter_ind),'Location','Northwest','AutoUpdate','off','Color',"none")
 
@@ -95,6 +95,12 @@ if M.setup.ndims==3
     M.fig.ax(cell_slice_ind).YLim = [1,M.grid.size(2)];
     M.fig.cell_slice_plot(1) = scatter3([],[],[],60,tumor_colors(1,:),'o','filled',...
         'DisplayName','Tumor Cells','MarkerFaceAlpha',0.75);
+
+    z_mid_log_tumor = M.tumor(:,M.I.subs(3))==M.grid.center(3);
+    M.fig.cell_slice_plot(1).XData = M.tumor(z_mid_log_tumor,M.I.subs(1));
+    M.fig.cell_slice_plot(1).YData = M.tumor(z_mid_log_tumor,M.I.subs(2));
+    M.fig.cell_slice_plot(1).ZData = ones(length(M.fig.cell_slice_plot(1).XData),1);
+
     M.fig.ax(cell_slice_ind).Title.String = 'Cell Slice (z=z_{mid})';
     M.fig.ax(cell_slice_ind).XLabel.String = 'X coord (cells)';
     M.fig.ax(cell_slice_ind).YLabel.String = 'Y coord (cells)';
@@ -113,6 +119,15 @@ if M.setup.ndims==3
     M.fig.ax(tum_density_ind).XLabel.String = 'X coord (cells)';
     M.fig.ax(tum_density_ind).YLabel.String = 'Y coord (cells)';
     M.fig.tum_density_colorbar = colorbar;
+
+    if M.NT>1
+        [N,~,~] = histcounts2(M.tumor(:,M.I.subs(1)),M.tumor(:,M.I.subs(2)),(M.grid.xx(1)-.5):(M.grid.xx(end)+.5),(M.grid.yy(1)-.5):(M.grid.yy(end)+.5),'Normalization','countdensity');
+        if all(size(N)>1)
+            M.fig.tum_density_plot.ZData = N';
+        else
+            M.fig.tum_density_plot.ZData = [];
+        end
+    end
 
     colormap(M.fig.ax(tum_density_ind),tumor_colormap);
 
@@ -142,10 +157,11 @@ M.fig.ax(population_ind).Title.String = 'Population Numbers';
 M.fig.ax(population_ind).NextPlot = 'add';
 M.fig.ax(population_ind).XAxis.TickValues = xtick_vals;
 M.fig.ax(population_ind).XAxis.TickLabels = xtick_labels;
+M.fig.ax(population_ind).YLabel.String = 'Count';
 M.fig.ax(population_ind).XLim = xx;
 M.fig.ax(population_ind).Color = [0 0 0];
 
-M.fig.population_plots(1) = plot(M.t,M.setup.N0,'w-','LineWidth',2,'DisplayName','N_T');
+M.fig.population_plots(1) = plot(M.t,M.setup.N0,'w-','LineWidth',2,'DisplayName','Tumor');
 % M.fig.population_plots(2) = plot(M.t,M.setup.NI0,'b-','LineWidth',2,'DisplayName','N_I');
 
 legend(M.fig.ax(population_ind),'Location','northwest','AutoUpdate','off','Color',M.fig.handle.Color)
@@ -156,23 +172,25 @@ M.fig.ax(subpop_ind).Title.String = 'Sub-Population Proportions';
 M.fig.ax(subpop_ind).NextPlot = 'add';
 M.fig.ax(subpop_ind).XAxis.TickValues = xtick_vals;
 M.fig.ax(subpop_ind).XAxis.TickLabels = xtick_labels;
+M.fig.ax(subpop_ind).YLabel.String = 'Proportion';
 M.fig.ax(subpop_ind).XLim = xx;
 M.fig.ax(subpop_ind).YLim = [0 1];
 M.fig.ax(subpop_ind).Color = [0 0 0];
 
-M.fig.subpop_plots(1) = plot(M.t,0,'Color',tumor_colors(1,:),'LineStyle','-','LineWidth',2,'DisplayName','G0 Proportion');
-M.fig.subpop_plots(2) = plot(M.t,0,'Color',tumor_colors(1,:),'LineStyle','--','LineWidth',2,'DisplayName','G1 Proportion');
+M.fig.subpop_plots(1) = plot(M.t,0,'Color',tumor_colors(1,:),'LineStyle','-','LineWidth',2,'DisplayName','G1 Proportion');
+M.fig.subpop_plots(2) = plot(M.t,0,'Color',tumor_colors(1,:),'LineStyle','--','LineWidth',2,'DisplayName','G2 Proportion');
 M.fig.subpop_plots(3) = plot(M.t,0,'Color',tumor_colors(1,:),'LineStyle',':','LineWidth',2,'DisplayName','M Proportion');
 
 M.fig.subpop_plots(4) = plot(M.t,0,'Color',tumor_colors(2,:),'LineStyle','-','LineWidth',2,'DisplayName','Not proliferate');
 M.fig.subpop_plots(5) = plot(M.t,0,'Color',tumor_colors(2,:),'LineStyle',':','LineWidth',2,'DisplayName','Proliferate');
 
-legend(M.fig.ax(subpop_ind),'Location','northwest','AutoUpdate','off','Color',M.fig.handle.Color)
-
+L = legend(M.fig.ax(subpop_ind),'Location','northwest','AutoUpdate','off','Color',M.fig.handle.Color);
+L.Position(1) = 0.52;
 %% event plot
 M.fig.ax(event_ind) = subplot(nrows,ncols,event_locs);
 M.fig.ax(event_ind).Title.String = 'Event Rates in Update';
 M.fig.ax(event_ind).XLabel.String = 'Days';
+M.fig.ax(event_ind).YLabel.String = 'Rate (days^{-1})';
 M.fig.ax(event_ind).NextPlot = 'add';
 % M.fig.ax(event_ind).XAxis.TickValues = xtick_vals;
 % M.fig.ax(event_ind).XAxis.TickLabels = xtick_labels;
@@ -180,11 +198,13 @@ M.fig.ax(event_ind).XLim = xx;
 M.fig.ax(event_ind).YScale = 'log';
 M.fig.ax(event_ind).Color = [0 0 0];
 
-M.fig.events_plots(1) = plot(M.t,0,'Color',tumor_colors(1,:),'LineStyle','-','LineWidth',2,'DisplayName','Tumor Proliferation');
-M.fig.events_plots(2) = plot(M.t,0,'Color',tumor_colors(1,:),'LineStyle','--','LineWidth',2,'DisplayName','Tumor Contact Inhibitions');
-M.fig.events_plots(3) = plot(M.t,0,'Color',tumor_colors(1,:),'LineStyle',':','LineWidth',2,'DisplayName','Tumor Apoptosis');
+M.fig.events_plots(1) = plot(M.t,0,'Color',tumor_colors(1,:),'LineStyle','-','LineWidth',2,'DisplayName','Proliferation');
+M.fig.events_plots(2) = plot(M.t,0,'Color',tumor_colors(1,:),'LineStyle','--','LineWidth',2,'DisplayName','Contact Inhibitions');
+M.fig.events_plots(3) = plot(M.t,0,'Color',[0.9,0.1,0.1],'LineStyle','-','LineWidth',2,'DisplayName','Apoptosis');
+M.fig.events_plots(4) = plot(M.t,0,'Color',[0.9,0.1,0.1],'LineStyle','--','LineWidth',2,'DisplayName','Chemo Death');
 
-legend(M.fig.ax(event_ind),'Location','northwest','AutoUpdate','off','Color',M.fig.handle.Color)
+L = legend(M.fig.ax(event_ind),'Location','northwest','AutoUpdate','off','Color',M.fig.handle.Color);
+L.Position(1) = 0.52;
 
 %% not time series
 %% tumor probabilities
@@ -193,11 +213,20 @@ max_tum_prob = sum(1-exp(-[M.pars.prolif_rate,M.pars.apop_rate,M.pars.move_rate]
 M.fig.ax(tum_prob_ind).YLim = [0 max_tum_prob];
 M.fig.ax(tum_prob_ind).Title.String = 'Tum Outcome Probabilities';
 M.fig.ax(tum_prob_ind).NextPlot = 'replacechildren';
+M.fig.ax(tum_prob_ind).XAxis.Visible = "off";
 
-M.fig.tum_prob_bar = bar(NaN,NaN(3,1),1,'stacked','EdgeAlpha',0);
+M.fig.tum_prob_bar = bar(NaN,NaN(4,1),1,'stacked','EdgeAlpha',0);
 
-events = {'prolif','apop','move'};
-order = [3,2,1];
-legend(M.fig.ax(tum_prob_ind),flip(M.fig.tum_prob_bar),flip(events(order)),'AutoUpdate','off','Location','northwest')
+events = {'prolif','apop','move','chemo death'};
+order = [3,2,4,1];
+L = legend(M.fig.ax(tum_prob_ind),flip(M.fig.tum_prob_bar),flip(events(order)),'AutoUpdate','off','Location','northwest');
+L.Position(1) = 0.7;
+
+%% set font size
+for i = 1:length(M.fig.ax)
+    if ishandle(M.fig.ax(i))
+        M.fig.ax(i).FontSize = M.plot_pars.default_font_size;
+    end
+end
 
 drawnow

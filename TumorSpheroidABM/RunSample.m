@@ -16,13 +16,16 @@ M.setup.grid_size_microns_z = 1000;
 M.pars.max_dt = 2 / 24; % number of days per step
 
 M.pars.occmax = 23;
-M.pars.prolif_rate = 2;
-% M.pars.move_rate_microns = 0;
+M.pars.prolif_rate = 4;
+% M.pars.move_rate_microns = 60;
 
-M.setup.censor_date = 20;
+M.setup.censor_date = 3;
 M.setup.N0 = 1e2;
 
 M.plot_pars.plot_fig = true;
 M.plot_pars.plot_location = true;
+M.plot_pars.make_movie = true;
 
+tic;
 M = simPatient(M);
+toc;
