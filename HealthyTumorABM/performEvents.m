@@ -19,7 +19,8 @@ for ord_ind=1:length(in.active_ind)
 
                 M.L(n_ind(ind)) = M.L(M.(cell_type)(j,M.I.ind)); % set value at lattice site based on original cell (this should work instead of above commented out line)
 
-                M.tracked.healthy_types(M.i,[2,3]) = M.tracked.healthy_types(M.i,[2,3]) + (min(M.pars.mitosis_duration,M.dt-M.(cell_type)(j,M.I.proliferation_timer))/M.dt) * [-1,1];
+                type_name = sprintf("%s_types",cell_type);
+                M.tracked.(type_name)(M.i,[2,3]) = M.tracked.(type_name)(M.i,[2,3]) + (min(M.pars.mitosis_duration,M.dt-M.(cell_type)(j,M.I.proliferation_timer))/M.dt) * [-1,1];
                 M.(cell_type)([j,end],M.I.proliferation_timer) = M.(cell_pars_field).min_prolif_wait + in.time_to_event(ord_ind); % must wait M.(cell_pars_field).min_prolif_wait days before proliferating; assume the proliferation happened sometime in the interval [M.(cell_type)(j,M.I.proliferation_timer),M.dt] so some progress towards next prolif has happened (will subtract off M.dt with all cells in simForward)
     
                 prolf_name = sprintf("%s_prolif",cell_type);
