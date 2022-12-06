@@ -6,6 +6,8 @@ addpath("~/Documents/MATLAB/myfunctions/")
 M = allBaseParameters();
 
 %%
+M.setup.ndims = 2;
+
 M.save_pars.dt = Inf; % set to Inf to not save anything; otherwise dt is in days
 
 M.setup.grid_size_microns_x = 1000;

@@ -44,59 +44,80 @@ tumor_colors = winter(3);
 tumor_colormap = flipud(winter);
 
 if M.plot_pars.plot_location
-    M.fig.ax(scatter_ind) = subplot(nrows,ncols,scatter_locs);
-    M.fig.ax(scatter_ind).Box = 'off';
-    M.fig.ax(scatter_ind).NextPlot = 'add';
-    M.fig.ax(scatter_ind).Color = M.fig.ax(scatter_ind).Parent.Color;
-    M.fig.ax(scatter_ind).XTick = [];
-    M.fig.ax(scatter_ind).YTick = [];
-    M.fig.ax(scatter_ind).ZTick = [];
-    M.fig.ax(scatter_ind).XColor = 'none';
-    M.fig.ax(scatter_ind).YColor = 'none';
-    M.fig.ax(scatter_ind).ZColor = 'none';
+    if M.setup.ndims==3
+        M.fig.ax(scatter_ind) = subplot(nrows,ncols,scatter_locs);
+        M.fig.ax(scatter_ind).Box = 'off';
+        M.fig.ax(scatter_ind).NextPlot = 'add';
+        M.fig.ax(scatter_ind).Color = M.fig.ax(scatter_ind).Parent.Color;
+        M.fig.ax(scatter_ind).XTick = [];
+        M.fig.ax(scatter_ind).YTick = [];
+        M.fig.ax(scatter_ind).ZTick = [];
+        M.fig.ax(scatter_ind).XColor = 'none';
+        M.fig.ax(scatter_ind).YColor = 'none';
+        M.fig.ax(scatter_ind).ZColor = 'none';
 
-    M.fig.scatter_plots(1) = scatter3([],[],[],90,tumor_colors(1,:),'o','filled',...
-        'DisplayName','Tumor Cells');
-    view([0 30 40])
-    legend(M.fig.ax(M.fig.scatter_ind),'Location','SouthWest','AutoUpdate','off','Color',"none")
+        M.fig.scatter_plots(1) = scatter3([],[],[],90,tumor_colors(1,:),'o','filled',...
+            'DisplayName','Tumor Cells');
+        view([0 30 40])
+        legend(M.fig.ax(M.fig.scatter_ind),'Location','SouthWest','AutoUpdate','off','Color',"none")
 
-    M.fig.ax(M.fig.scatter_ind).Legend.Position(1) = M.fig.ax(M.fig.scatter_ind).Position(1) - M.fig.ax(M.fig.scatter_ind).Legend.Position(3);
-    axis(M.fig.ax(M.fig.scatter_ind),[1,M.grid.size(1),1,M.grid.size(2),1,M.grid.size(3)] - repelem(M.grid.center,1,2))
+        M.fig.ax(M.fig.scatter_ind).Legend.Position(1) = M.fig.ax(M.fig.scatter_ind).Position(1) - M.fig.ax(M.fig.scatter_ind).Legend.Position(3);
+        axis(M.fig.ax(M.fig.scatter_ind),[1,M.grid.size(1),1,M.grid.size(2),1,M.grid.size(3)] - repelem(M.grid.center,1,2))
 
-    axis square
+        axis square
+    else
+        M.fig.ax(scatter_ind) = subplot(nrows,ncols,scatter_locs);
+        M.fig.ax(scatter_ind).Box = 'off';
+        M.fig.ax(scatter_ind).NextPlot = 'add';
+        M.fig.ax(scatter_ind).XTick = [];
+        M.fig.ax(scatter_ind).YTick = [];
+        M.fig.ax(scatter_ind).XColor = 'none';
+        M.fig.ax(scatter_ind).YColor = 'none';
+
+        M.fig.scatter_plots(1) = scatter([],[],90,tumor_colors(1,:),'o','filled',...
+            'DisplayName','Tumor Cells');
+        legend(M.fig.ax(M.fig.scatter_ind),'Location','Northwest','AutoUpdate','off','Color',"none")
+
+        axis(M.fig.ax(M.fig.scatter_ind),[1,M.grid.size(1),1,M.grid.size(2)] - repelem(M.grid.center,1,2))
+
+        axis square
+
+    end
 end
 
 %% slice plots
-warning('off','MATLAB:contour:NonFiniteData')
-%% cell slice plot
-M.fig.ax(cell_slice_ind) = subplot(nrows,ncols,cell_slice_locs);
-M.fig.ax(cell_slice_ind).NextPlot = 'add';
-M.fig.ax(cell_slice_ind).XLim = [1,M.grid.size(1)];
-M.fig.ax(cell_slice_ind).YLim = [1,M.grid.size(2)];
-M.fig.cell_slice_plot(1) = scatter3([],[],[],60,tumor_colors(1,:),'o','filled',...
-    'DisplayName','Tumor Cells','MarkerFaceAlpha',0.75);
-M.fig.ax(cell_slice_ind).Title.String = 'Cell Slice (z=z_{mid})';
-M.fig.ax(cell_slice_ind).XLabel.String = 'X coord (cells)';
-M.fig.ax(cell_slice_ind).YLabel.String = 'Y coord (cells)';
+if M.setup.ndims==3
+    warning('off','MATLAB:contour:NonFiniteData')
+    %% cell slice plot
+    M.fig.ax(cell_slice_ind) = subplot(nrows,ncols,cell_slice_locs);
+    M.fig.ax(cell_slice_ind).NextPlot = 'add';
+    M.fig.ax(cell_slice_ind).XLim = [1,M.grid.size(1)];
+    M.fig.ax(cell_slice_ind).YLim = [1,M.grid.size(2)];
+    M.fig.cell_slice_plot(1) = scatter3([],[],[],60,tumor_colors(1,:),'o','filled',...
+        'DisplayName','Tumor Cells','MarkerFaceAlpha',0.75);
+    M.fig.ax(cell_slice_ind).Title.String = 'Cell Slice (z=z_{mid})';
+    M.fig.ax(cell_slice_ind).XLabel.String = 'X coord (cells)';
+    M.fig.ax(cell_slice_ind).YLabel.String = 'Y coord (cells)';
 
-axis square
+    axis square
 
-if ~M.plot_pars.plot_location
-    legend(M.fig.cell_slice_plot(1:6),'Location','bestoutside','AutoUpdate','off')
+    if ~M.plot_pars.plot_location
+        legend(M.fig.cell_slice_plot,'Location','bestoutside','AutoUpdate','off')
+    end
+
+    %% density projection plots
+    %% tumor density plot
+    M.fig.ax(tum_density_ind) = subplot(nrows,ncols,tumor_density_locs);
+    [~,M.fig.tum_density_plot] = contourf(M.grid.xx,M.grid.yy,NaN(M.grid.size(1:2))','LineColor','none');
+    M.fig.ax(tum_density_ind).Title.String = 'Tumor Projected onto (X,Y)';
+    M.fig.ax(tum_density_ind).XLabel.String = 'X coord (cells)';
+    M.fig.ax(tum_density_ind).YLabel.String = 'Y coord (cells)';
+    M.fig.tum_density_colorbar = colorbar;
+
+    colormap(M.fig.ax(tum_density_ind),tumor_colormap);
+
+    axis square
 end
-
-%% density projection plots
-%% tumor density plot
-M.fig.ax(tum_density_ind) = subplot(nrows,ncols,tumor_density_locs);
-[~,M.fig.tum_density_plot] = contourf(M.grid.xx,M.grid.yy,NaN(M.grid.size(1:2))','LineColor','none');
-M.fig.ax(tum_density_ind).Title.String = 'Tumor Projected onto (X,Y)';
-M.fig.ax(tum_density_ind).XLabel.String = 'X coord (cells)';
-M.fig.ax(tum_density_ind).YLabel.String = 'Y coord (cells)';
-M.fig.tum_density_colorbar = colorbar;
-
-colormap(M.fig.ax(tum_density_ind),tumor_colormap);
-
-axis square
 
 %% time series plots
 [xtick_vals,order] = sort(M.events.times);
@@ -114,7 +135,7 @@ for i = length(xtick_vals):-1:2
     end
 end
 xtick_vals = unique(xtick_vals);
-   
+
 %% population plot
 M.fig.ax(population_ind) = subplot(nrows,ncols,population_locs);
 M.fig.ax(population_ind).Title.String = 'Population Numbers';

@@ -8,7 +8,8 @@ pars.min_prolif_wait = 9/24; % number of days all cells must wait at minimum bet
 pars.max_tumor_size = Inf; % if tumor exceeds this, stop simulation
 
 %% neighbor parameters
-pars.occmax = 20; % below this threshold, a tumor/immune cell can divide; at and above, too many neighbors and so doesn't proliferate
+pars.occmax_2d = 6; % below this threshold, a tumor/immune cell can divide; at and above, too many neighbors and so doesn't proliferate
+pars.occmax_3d = 20; % below this threshold, a tumor/immune cell can divide; at and above, too many neighbors and so doesn't proliferate
 
 %% tumor parameters
 

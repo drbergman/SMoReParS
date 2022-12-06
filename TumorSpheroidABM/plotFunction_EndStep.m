@@ -2,30 +2,37 @@ function plotFunction_EndStep(M)
 
 %% cell locations
 if M.plot_pars.plot_location
+    if M.setup.ndims == 3
+        M.fig.scatter_plots(1).XData = M.tumor(:,M.I.subs(1))-M.grid.center(1);
+        M.fig.scatter_plots(1).YData = M.tumor(:,M.I.subs(2))-M.grid.center(2);
+        M.fig.scatter_plots(1).ZData = M.tumor(:,M.I.subs(3))-M.grid.center(3);
 
-    M.fig.scatter_plots(1).XData = M.tumor(:,M.I.subs(1))-M.grid.center(1);
-    M.fig.scatter_plots(1).YData = M.tumor(:,M.I.subs(2))-M.grid.center(2);
-    M.fig.scatter_plots(1).ZData = M.tumor(:,M.I.subs(3))-M.grid.center(3);
-    
-    view(M.fig.ax(M.fig.scatter_ind),[36*M.t 30 40])
+        view(M.fig.ax(M.fig.scatter_ind),[36*M.t 30 40])
+    else
+        M.fig.scatter_plots(1).XData = M.tumor(:,M.I.subs(1))-M.grid.center(1);
+        M.fig.scatter_plots(1).YData = M.tumor(:,M.I.subs(2))-M.grid.center(2);
+    end
 end
 
-%% slice
-z_mid_log_tumor = M.tumor(:,M.I.subs(3))==M.grid.center(3);
-M.fig.cell_slice_plot(1).XData = M.tumor(z_mid_log_tumor,M.I.subs(1));
-M.fig.cell_slice_plot(1).YData = M.tumor(z_mid_log_tumor,M.I.subs(2));
-M.fig.cell_slice_plot(1).ZData = ones(length(M.fig.cell_slice_plot(1).XData),1);
+if M.setup.ndims == 3
+    %% slice
+    z_mid_log_tumor = M.tumor(:,M.I.subs(3))==M.grid.center(3);
+    M.fig.cell_slice_plot(1).XData = M.tumor(z_mid_log_tumor,M.I.subs(1));
+    M.fig.cell_slice_plot(1).YData = M.tumor(z_mid_log_tumor,M.I.subs(2));
+    M.fig.cell_slice_plot(1).ZData = ones(length(M.fig.cell_slice_plot(1).XData),1);
 
-view(M.fig.ax(M.fig.cell_slice_ind),2);
+    view(M.fig.ax(M.fig.cell_slice_ind),2);
 
-%% projections
-if M.NT>1
-    [N,~,~] = histcounts2(M.tumor(:,M.I.subs(1)),M.tumor(:,M.I.subs(2)),(M.grid.xx(1)-.5):(M.grid.xx(end)+.5),(M.grid.yy(1)-.5):(M.grid.yy(end)+.5),'Normalization','countdensity');
-    if all(size(N)>1)
-        M.fig.tum_density_plot.ZData = N';
-    else
-        M.fig.tum_density_plot.ZData = [];        
+    %% projections
+    if M.NT>1
+        [N,~,~] = histcounts2(M.tumor(:,M.I.subs(1)),M.tumor(:,M.I.subs(2)),(M.grid.xx(1)-.5):(M.grid.xx(end)+.5),(M.grid.yy(1)-.5):(M.grid.yy(end)+.5),'Normalization','countdensity');
+        if all(size(N)>1)
+            M.fig.tum_density_plot.ZData = N';
+        else
+            M.fig.tum_density_plot.ZData = [];
+        end
     end
+
 end
 
 %% tracked quantities
