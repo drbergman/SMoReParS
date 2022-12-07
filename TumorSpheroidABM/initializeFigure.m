@@ -36,7 +36,7 @@ population_locs = 1*ncols + (4:5);
 event_locs = 3*ncols + (4:5);
 subpop_locs = 2*ncols + (4:5);
 
-tum_probs_locs = 0*ncols + 5;
+tum_probs_locs = 0*ncols + 4:5;
 
 
 %% scatter plot
@@ -76,7 +76,8 @@ if M.plot_pars.plot_location
 
         M.fig.scatter_plots(1) = scatter(M.tumor(:,M.I.subs(1))-M.grid.center(1),M.tumor(:,M.I.subs(2))-M.grid.center(2),90,tumor_colors(1,:),'o','filled',...
             'DisplayName','Tumor Cells');
-        legend(M.fig.ax(M.fig.scatter_ind),'Location','Northwest','AutoUpdate','off','Color',"none")
+        M.fig.ax(M.fig.scatter_ind).Position(1) = 0;
+        legend(M.fig.ax(M.fig.scatter_ind),'Location','Northwest','AutoUpdate','off','Color',"white")
 
         axis(M.fig.ax(M.fig.scatter_ind),[1,M.grid.size(1),1,M.grid.size(2)] - repelem(M.grid.center,1,2))
 
@@ -185,7 +186,8 @@ M.fig.subpop_plots(4) = plot(M.t,0,'Color',tumor_colors(2,:),'LineStyle','-','Li
 M.fig.subpop_plots(5) = plot(M.t,0,'Color',tumor_colors(2,:),'LineStyle',':','LineWidth',2,'DisplayName','Proliferate');
 
 L = legend(M.fig.ax(subpop_ind),'Location','northwest','AutoUpdate','off','Color',M.fig.handle.Color);
-L.Position(1) = 0.52;
+L.Position(1) = sum(M.fig.ax(scatter_ind).Position([1,3]));
+
 %% event plot
 M.fig.ax(event_ind) = subplot(nrows,ncols,event_locs);
 M.fig.ax(event_ind).Title.String = 'Event Rates in Update';
@@ -204,7 +206,7 @@ M.fig.events_plots(3) = plot(M.t,0,'Color',[0.9,0.1,0.1],'LineStyle','-','LineWi
 M.fig.events_plots(4) = plot(M.t,0,'Color',[0.9,0.1,0.1],'LineStyle','--','LineWidth',2,'DisplayName','Chemo Death');
 
 L = legend(M.fig.ax(event_ind),'Location','northwest','AutoUpdate','off','Color',M.fig.handle.Color);
-L.Position(1) = 0.52;
+L.Position(1) = sum(M.fig.ax(scatter_ind).Position([1,3]));
 
 %% not time series
 %% tumor probabilities
@@ -220,7 +222,7 @@ M.fig.tum_prob_bar = bar(NaN,NaN(4,1),1,'stacked','EdgeAlpha',0);
 events = {'prolif','apop','move','chemo death'};
 order = [3,2,4,1];
 L = legend(M.fig.ax(tum_prob_ind),flip(M.fig.tum_prob_bar),flip(events(order)),'AutoUpdate','off','Location','northwest');
-L.Position(1) = 0.7;
+L.Position(1) = sum(M.fig.ax(scatter_ind).Position([1,3]));
 
 %% set font size
 for i = 1:length(M.fig.ax)

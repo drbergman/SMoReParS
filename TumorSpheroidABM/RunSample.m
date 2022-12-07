@@ -17,7 +17,7 @@ M.pars.max_dt = 2 / 24; % number of days per step
 
 M.pars.occmax = 23;
 M.pars.prolif_rate = 4;
-% M.pars.move_rate_microns = 60;
+M.pars.move_rate_microns = 60;
 
 M.setup.censor_date = 3;
 M.setup.N0 = 1e2;
