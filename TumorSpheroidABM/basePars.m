@@ -17,7 +17,7 @@ pars.prolif_rate = 3; % proliferation rate of tumor cells (per day); from Global
 pars.apop_rate = .05; % max death rate of tumor cells (per day)
 pars.move_rate_microns = 1 / (1/24); % move rate in microns per day
 
-pars.mitosis_duration = 2/24; % duration of mitsosis in hours
+pars.mitosis_duration = 5/24; % duration of G2/mitosis in hours
 
 %% chemo pars
 pars.chemo_death_rate = 1;
