@@ -21,7 +21,7 @@ else
     M.next_save_time = Inf;
 end
 
-if M.plot_pars.make_movie
+if M.plot_pars.plot_fig && M.plot_pars.make_movie
     M = initializeMovie(M);
     warning("off",'MATLAB:audiovideo:VideoWriter:mp4FramePadded')
     writeVideo(M.vid,print(M.fig.handle,'-r100','-RGBImage'))
@@ -45,7 +45,7 @@ if M.save_pars.dt < Inf
     M = saveFinalModelData(M);
 end
 
-if M.plot_pars.make_movie
+if M.plot_pars.plot_fig && M.plot_pars.make_movie
     close(M.vid)
     warning("on",'MATLAB:audiovideo:VideoWriter:mp4FramePadded')
 end

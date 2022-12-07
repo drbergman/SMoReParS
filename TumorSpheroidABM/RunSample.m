@@ -19,7 +19,7 @@ M.pars.occmax = 23;
 M.pars.prolif_rate = 4;
 % M.pars.move_rate_microns = 60;
 
-M.setup.censor_date = 3;
+M.setup.censor_date = 1;
 M.setup.N0 = 1e2;
 
 M.plot_pars.plot_fig = true;
