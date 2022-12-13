@@ -28,7 +28,7 @@ path_to_sim_folder = sprintf("../data/%s",sim_name);
 
 load(sprintf("%s/output_final.mat",path_to_sim_folder),"tracked")
 
-a = tracked.tumor_types./tracked.NT;
+a = tracked.phase_cell_hours./tracked.NT;
 a = reshape(a,[],4)';
 
 

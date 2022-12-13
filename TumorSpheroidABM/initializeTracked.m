@@ -7,10 +7,10 @@ just_did_M = M.tumor(:,M.I.proliferation_timer)>=M.pars.min_prolif_wait-M.pars.m
 still_in_g0 = ~just_did_M & M.tumor(:,M.I.proliferation_timer)>0;
 in_g1 = ~just_did_M & ~still_in_g0;
 
-tumor_types = [sum(still_in_g0),sum(in_g1),sum(just_did_M)]; % G1, G2, M
+phase_cell_hours = [sum(still_in_g0),sum(in_g1),sum(just_did_M)] * M.pars.max_dt; % G1, G2, M
 
-M.tracked.tumor_types = tumor_types;
-M.tracked.simple_types = [sum(tumor_types(1:2)),tumor_types(3)]; % did not just proliferate, just proliferated
+M.tracked.phase_cell_hours = phase_cell_hours;
+M.tracked.simple_types = [sum(phase_cell_hours(1:2)),phase_cell_hours(3)]; % did not just proliferate, just proliferated
 
 M.tracked.tum_apop = 0;
 M.tracked.tum_prolif = 0;

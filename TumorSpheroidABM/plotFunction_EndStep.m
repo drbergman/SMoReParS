@@ -42,11 +42,11 @@ M.fig.population_plots(1).YData(end+1) = M.NT;
 
 %% subpopulations proportion plot
 M.fig.subpop_plots(1).XData(end+1) = M.t;
-M.fig.subpop_plots(1).YData(end+1) = M.tracked.tumor_types(M.i,1)/M.tracked.NT(M.i-1);
+M.fig.subpop_plots(1).YData(end+1) = M.tracked.phase_cell_hours(M.i,1)/(M.dt*M.tracked.NT(M.i-1));
 M.fig.subpop_plots(2).XData(end+1) = M.t;
-M.fig.subpop_plots(2).YData(end+1) = M.tracked.tumor_types(M.i,2)/M.tracked.NT(M.i-1);
+M.fig.subpop_plots(2).YData(end+1) = M.tracked.phase_cell_hours(M.i,2)/(M.dt*M.tracked.NT(M.i-1));
 M.fig.subpop_plots(3).XData(end+1) = M.t;
-M.fig.subpop_plots(3).YData(end+1) = M.tracked.tumor_types(M.i,3)/M.tracked.NT(M.i-1);
+M.fig.subpop_plots(3).YData(end+1) = M.tracked.phase_cell_hours(M.i,3)/(M.dt*M.tracked.NT(M.i-1));
 
 M.fig.subpop_plots(4).XData(end+1) = M.t;
 M.fig.subpop_plots(4).YData(end+1) = M.tracked.simple_types(M.i,1)/M.tracked.NT(M.i-1);

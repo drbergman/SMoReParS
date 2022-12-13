@@ -2,7 +2,7 @@ function [M,out] = eventSelection_Tumor(M)
 
 rate_matrix = computeRateMatrix(M);
 
-M.tracked.tumor_types(M.i,1:2) = M.tracked.tumor_types(M.i,1:2) + sum(min(M.dt,M.tumor(:,M.I.proliferation_timer)))/M.dt * [1,-1];
+M.tracked.phase_cell_hours(M.i,1:2) = M.tracked.phase_cell_hours(M.i,1:2) + sum(min(M.dt,M.tumor(:,M.I.proliferation_timer))) * [1,-1];
 
 prob_matrix = 1-exp(-rate_matrix.*[max(0,M.dt-M.tumor(:,M.I.proliferation_timer)),M.dt*ones(M.NT,2),min(M.dt,M.tumor(:,M.I.proliferation_timer))]); % use M.dt as time step except for proliferation, use M.dt - remaining time to wait before next proliferation
 

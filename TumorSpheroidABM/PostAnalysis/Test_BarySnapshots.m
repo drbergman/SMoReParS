@@ -20,7 +20,7 @@ for si = 1:total_runs
     sim_name = ids(si);
     path_to_sim_folder = sprintf("../data/%s",sim_name);
     load(sprintf("%s/output_final.mat",path_to_sim_folder),"tracked")
-    temp = reshape(tracked.tumor_types,[],4);
+    temp = reshape(tracked.phase_cell_hours,[],4);
     temp = temp(:,[1,2,4]);
     if T<=tracked.t(end)
         temp = interp1(tracked.t,temp,T,"linear");
@@ -65,7 +65,7 @@ for fdi = 1:4 % fig dimensions index
 % 
 %         load(sprintf("%s/output_final.mat",path_to_sim_folder),"tracked")
 % 
-%         a = reshape(tracked.tumor_types,[],4);
+%         a = reshape(tracked.phase_cell_hours,[],4);
 %         a = a(:,[1,2,4])';
 %         a = a./sum(a,1);
 % 
