@@ -1,5 +1,14 @@
 function M = finishParameterSetup_Patient(M)
 
+if M.setup.use_carrying_capacity_for_grid_size
+    K = M.setup.carrying_capacity * M.pars.cell_width^M.setup.ndims; % carrying capacity in cubic microns
+    M.setup.grid_size_microns_x = ceil(nthroot(K,M.setup.ndims));
+    M.setup.grid_size_microns_y = ceil(nthroot(K/M.setup.grid_size_microns_x,M.setup.ndims-1));
+    if M.setup.ndims==3
+        M.setup.grid_size_microns_z = ceil(K/(M.setup.grid_size_microns_x*M.setup.grid_size_microns_x));
+    end
+end
+
 if M.setup.ndims == 3
     M.setup.grid_size_microns = [M.setup.grid_size_microns_x,M.setup.grid_size_microns_y,M.setup.grid_size_microns_z];
 
