@@ -2,7 +2,11 @@ function [M,out] = eventSelection_Tumor(M)
 
 rate_matrix = computeRateMatrix(M);
 
-M.tracked.phase_cell_hours(M.i,1:2) = M.tracked.phase_cell_hours(M.i,1:2) + sum(min(M.dt,M.tumor(:,M.I.proliferation_timer))) * [1,-1];
+M.tracked.phase_cell_days(M.i,1:2) = M.tracked.phase_cell_days(M.i,1:2) + sum(min(M.dt,M.tumor(:,M.I.proliferation_timer))) * [1,-1];
+
+wholly_on_clock_log = M.tumor(:,M.I.proliferation_timer)>=M.dt;
+M.tumor(wholly_on_clock_log,M.I.phase) = M.val.phase_g0;
+M.tumor(~wholly_on_clock_log,M.I.phase) = M.val.phase_g1;
 
 % prob_matrix = 1-exp(-rate_matrix.*[max(0,M.dt-M.tumor(:,M.I.proliferation_timer)),M.dt*ones(M.NT,2),min(M.dt,M.tumor(:,M.I.proliferation_timer))]); % use M.dt as time step except for proliferation, use M.dt - remaining time to wait before next proliferation
 prob_matrix = 1-exp(-rate_matrix.*[max(0,M.dt-M.tumor(:,M.I.proliferation_timer)),M.dt*ones(M.NT,3)]); % same as above commented line except all cells are susceptible to chemo-induced death

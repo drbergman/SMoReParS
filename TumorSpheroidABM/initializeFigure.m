@@ -40,24 +40,35 @@ tum_probs_locs = 0*ncols + 4:5;
 
 
 %% scatter plot
+phase_colors = [0.23,0.7,0.34;... % color for m phase
+                0.05,0.06,0.58;... % color for g0
+                0.95,0.98,0.06]; % color for g1
 tumor_colors = winter(3);
 tumor_colormap = flipud(winter);
 
 if M.plot_pars.plot_location
+    M.fig.ax(scatter_ind) = subplot(nrows,ncols,scatter_locs);
+    M.fig.ax(scatter_ind).Box = 'off';
+    M.fig.ax(scatter_ind).NextPlot = 'add';
+    M.fig.ax(scatter_ind).Color = M.fig.ax(scatter_ind).Parent.Color;
+    M.fig.ax(scatter_ind).XTick = [];
+    M.fig.ax(scatter_ind).YTick = [];
+    M.fig.ax(scatter_ind).XColor = 'none';
+    M.fig.ax(scatter_ind).YColor = 'none';
+
+    m_ind = M.tumor(:,M.I.phase)==M.val.phase_m;
+    g0_ind = M.tumor(:,M.I.phase)==M.val.phase_g0;
+    g1_ind = M.tumor(:,M.I.phase)==M.val.phase_g1;
     if M.setup.ndims==3
-        M.fig.ax(scatter_ind) = subplot(nrows,ncols,scatter_locs);
-        M.fig.ax(scatter_ind).Box = 'off';
-        M.fig.ax(scatter_ind).NextPlot = 'add';
-        M.fig.ax(scatter_ind).Color = M.fig.ax(scatter_ind).Parent.Color;
-        M.fig.ax(scatter_ind).XTick = [];
-        M.fig.ax(scatter_ind).YTick = [];
         M.fig.ax(scatter_ind).ZTick = [];
-        M.fig.ax(scatter_ind).XColor = 'none';
-        M.fig.ax(scatter_ind).YColor = 'none';
         M.fig.ax(scatter_ind).ZColor = 'none';
 
-        M.fig.scatter_plots(1) = scatter3(M.tumor(:,M.I.subs(1))-M.grid.center(1),M.tumor(:,M.I.subs(2))-M.grid.center(2),M.tumor(:,M.I.subs(3))-M.grid.center(3),90,tumor_colors(1,:),'o','filled',...
-            'DisplayName','Tumor Cells');
+        M.fig.scatter_plots(M.val.phase_m) = scatter3(M.tumor(m_ind,M.I.subs(1))-M.grid.center(1),M.tumor(m_ind,M.I.subs(2))-M.grid.center(2),M.tumor(m_ind,M.I.subs(3))-M.grid.center(3),30,phase_colors(1,:),'o','filled',...
+            'DisplayName','Cells in M');
+        M.fig.scatter_plots(M.val.phase_g0) = scatter3(M.tumor(g0_ind,M.I.subs(1))-M.grid.center(1),M.tumor(g0_ind,M.I.subs(2))-M.grid.center(2),M.tumor(g0_ind,M.I.subs(3))-M.grid.center(3),45,phase_colors(2,:),'o','filled',...
+            'DisplayName','Cells in G0');
+        M.fig.scatter_plots(M.val.phase_g1) = scatter3(M.tumor(g1_ind,M.I.subs(1))-M.grid.center(1),M.tumor(g1_ind,M.I.subs(2))-M.grid.center(2),M.tumor(g1_ind,M.I.subs(3))-M.grid.center(3),60,phase_colors(3,:),'o','filled',...
+            'DisplayName','Cells in G1');
         view(M.fig.ax(M.fig.scatter_ind),[36*M.t 30 40])
         legend(M.fig.ax(M.fig.scatter_ind),'Location','SouthWest','AutoUpdate','off','Color',"none")
 
@@ -66,16 +77,13 @@ if M.plot_pars.plot_location
 
         axis square
     else
-        M.fig.ax(scatter_ind) = subplot(nrows,ncols,scatter_locs);
-        M.fig.ax(scatter_ind).Box = 'off';
-        M.fig.ax(scatter_ind).NextPlot = 'add';
-        M.fig.ax(scatter_ind).XTick = [];
-        M.fig.ax(scatter_ind).YTick = [];
-        M.fig.ax(scatter_ind).XColor = 'none';
-        M.fig.ax(scatter_ind).YColor = 'none';
 
-        M.fig.scatter_plots(1) = scatter(M.tumor(:,M.I.subs(1))-M.grid.center(1),M.tumor(:,M.I.subs(2))-M.grid.center(2),90,tumor_colors(1,:),'o','filled',...
-            'DisplayName','Tumor Cells');
+        M.fig.scatter_plots(M.val.phase_m) = scatter(M.tumor(m_ind,M.I.subs(1))-M.grid.center(1),M.tumor(m_ind,M.I.subs(2))-M.grid.center(2),30,phase_colors(1,:),'o','filled',...
+            'DisplayName','Cells in M');
+        M.fig.scatter_plots(M.val.phase_g0) = scatter(M.tumor(g0_ind,M.I.subs(1))-M.grid.center(1),M.tumor(g0_ind,M.I.subs(2))-M.grid.center(2),45,phase_colors(2,:),'o','filled',...
+            'DisplayName','Cells in G0');
+        M.fig.scatter_plots(M.val.phase_g1) = scatter(M.tumor(g1_ind,M.I.subs(1))-M.grid.center(1),M.tumor(g1_ind,M.I.subs(2))-M.grid.center(2),60,phase_colors(3,:),'o','filled',...
+            'DisplayName','Cells in G1');
         M.fig.ax(M.fig.scatter_ind).Position(1) = 0;
         legend(M.fig.ax(M.fig.scatter_ind),'Location','Northwest','AutoUpdate','off','Color',"white")
 
@@ -88,6 +96,7 @@ end
 
 %% slice plots
 if M.setup.ndims==3
+    warning("Do not color the slice for a 3d sim by phase yet")
     warning('off','MATLAB:contour:NonFiniteData')
     %% cell slice plot
     M.fig.ax(cell_slice_ind) = subplot(nrows,ncols,cell_slice_locs);

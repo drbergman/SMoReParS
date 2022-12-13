@@ -27,7 +27,7 @@ for si = 1:total_runs
 
     load(sprintf("%s/output_final.mat",path_to_sim_folder),"tracked")
 
-    a = reshape(tracked.phase_cell_hours,[],4);
+    a = reshape(tracked.phase_cell_days,[],4);
     a = a(:,[1,2,4])';
     a = a./sum(a,1);
 

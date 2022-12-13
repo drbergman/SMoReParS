@@ -52,7 +52,16 @@ x(i1) = u(i1)*(1+M.pars.min_prolif_wait*prolif_rate)/prolif_rate - 1/prolif_rate
 x(i2) = log((1+M.pars.min_prolif_wait*prolif_rate)*u(i2))/prolif_rate - M.pars.min_prolif_wait;
 M.tumor(:,M.I.proliferation_timer) = max(0,x+M.pars.min_prolif_wait); % time until next possible proliferation (days)
 
-%% set event
+%% set event and phase
 M.tumor(:,M.I.event) = 0; % event index
+
+just_did_M = M.tumor(:,M.I.proliferation_timer)>=M.pars.min_prolif_wait-M.pars.max_dt;
+still_in_g0 = ~just_did_M & M.tumor(:,M.I.proliferation_timer)>0;
+in_g1 = ~just_did_M & ~still_in_g0;
+
+M.tumor(just_did_M,M.I.phase) = M.val.phase_m;
+M.tumor(still_in_g0,M.I.phase) = M.val.phase_g0;
+M.tumor(in_g1,M.I.phase) = M.val.phase_g1;
+
 
 M.NT = size(M.tumor,1);

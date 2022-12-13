@@ -28,7 +28,7 @@ for i = 1:M.Nsteps
 
     % set these counts here to be updated as cells proliferate or are found
     % to be in interphase
-    M.tracked.phase_cell_hours(M.i,:) = [0,M.NT * M.dt,0]; % [interphase,ready to proliferate,did proliferate]
+    M.tracked.phase_cell_days(M.i,:) = [0,M.NT * M.dt,0]; % [interphase,ready to proliferate,did proliferate]
 
     M = updateTumor(M);
 
