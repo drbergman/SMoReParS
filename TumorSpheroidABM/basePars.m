@@ -1,6 +1,6 @@
 function pars = basePars()
 
-pars.max_dt = 9 / 24; % number of days per step
+pars.max_dt = 4 / 24; % number of days per step
 
 
 pars.cell_width = 20; % in micrometers; cell is about 20micrometers in diameter
@@ -17,7 +17,7 @@ pars.prolif_rate = 3; % proliferation rate of tumor cells (per day); from Global
 pars.apop_rate = .05; % max death rate of tumor cells (per day)
 pars.move_rate_microns = 1 / (1/24); % move rate in microns per day
 
-pars.mitosis_duration = 5/24; % duration of G2/mitosis in hours
+pars.mitosis_duration = 4/24; % duration of G2/mitosis in hours
 
 %% chemo pars
 pars.chemo_death_rate = 1;

@@ -13,7 +13,7 @@ M.save_pars.dt = Inf; % set to Inf to not save anything; otherwise dt is in days
 M.setup.grid_size_microns_x = 1000;
 M.setup.grid_size_microns_y = 1000;
 M.setup.grid_size_microns_z = 1000;
-M.pars.max_dt = 2 / 24; % number of days per step
+M.pars.max_dt = 4 / 24; % number of days per step
 
 M.pars.occmax = 23;
 M.pars.prolif_rate = 4;

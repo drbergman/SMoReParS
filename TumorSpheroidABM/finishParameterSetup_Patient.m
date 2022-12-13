@@ -59,3 +59,8 @@ M.val = buildLatticeVals();
 
 %% events
 M = initializeEvents(M);
+
+%% issue warning if model time step and mitosis duration mismatch
+if M.pars.max_dt ~= M.pars.mitosis_duration
+    warning("Mismatch between (desired) dt and mitosis duration, which will result in recorded M proportions being erroneous. Post-processing can fix this, but no such script exists yet.")
+end
