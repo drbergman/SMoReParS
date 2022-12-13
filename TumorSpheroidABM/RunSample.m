@@ -15,7 +15,7 @@ M.setup.grid_size_microns_y = 2000;
 M.setup.grid_size_microns_z = 2000;
 M.pars.max_dt = 4 / 24; % number of days per step
 
-M.pars.chemo_death_rate = 1;
+M.pars.chemo_death_rate = 0.5;
 
 M.pars.occmax_3d = 20;
 M.pars.occmax_2d = 6;

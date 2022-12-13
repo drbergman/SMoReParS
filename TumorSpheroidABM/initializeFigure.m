@@ -211,7 +211,7 @@ L.Position(1) = sum(M.fig.ax(scatter_ind).Position([1,3]));
 %% not time series
 %% tumor probabilities
 M.fig.ax(tum_prob_ind) = subplot(nrows,ncols,tum_probs_locs);
-max_tum_prob = sum(1-exp(-[M.pars.prolif_rate,M.pars.apop_rate,M.pars.move_rate]*M.pars.max_dt));
+max_tum_prob = sum(1-exp(-[M.pars.prolif_rate,M.pars.apop_rate,M.pars.move_rate,M.pars.chemo_death_rate]*M.pars.max_dt));
 M.fig.ax(tum_prob_ind).YLim = [0 max_tum_prob];
 M.fig.ax(tum_prob_ind).Title.String = 'Tum Outcome Probabilities';
 M.fig.ax(tum_prob_ind).NextPlot = 'replacechildren';

@@ -82,6 +82,7 @@ for ord_ind=1:length(in.active_ind)
             %%
             M.L(M.tumor(j,M.I.ind)) = M.val.tum_apop;
             M.tracked.tum_chemo_death(M.i) = M.tracked.tum_chemo_death(M.i)+1;
+            M.tumor(j,M.I.event) = 2; % mark it as apoptotic to be removed later
 
         otherwise
             %%
