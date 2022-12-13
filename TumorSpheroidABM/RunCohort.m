@@ -3,41 +3,36 @@ clearvars;
 addpath("~/Documents/MATLAB/myfunctions/")
 
 %% cohort structure
-cohort_pars.nsamps_per_condition = 20;
-cohort_pars.min_parfor_num = 4e5;
+cohort_pars.nsamps_per_condition = 6;
+cohort_pars.min_parfor_num = 4;
 cohort_pars.last_dose_is_no_dose = false;
 
 %%
 M = allBaseParameters();
 %%
+
+M.setup.ndims = 2;
+M.setup.grid_size_microns_x = 2000;
+M.setup.grid_size_microns_y = 2000;
+M.setup.grid_size_microns_z = 2000;
+M.setup.censor_date = 3;
+M.setup.N0 = 1e3;
+M.setup.agent_initialization_location = "uniform";
+M.setup.carrying_capacity = [6e3;6500];
+
 M.save_pars.dt = 0.25;
 
-M.flags.fgfr3_affects_cytotoxicity = true;
-M.flags.fgfr3_affects_immune_recruit = true;
-
-M.setup.grid_size_microns_x = 1000;
-M.setup.grid_size_microns_y = 1000;
-M.setup.grid_size_microns_z = 1000;
-
-M.pars.max_dt = 2 / 24; % number of days per step
-
-M.pars.prolif_rate = 2;
-M.pars.tum_prolif_up = 0.5;
-
-M.setup.censor_date = 0.5;
-M.setup.N0 = 100;
-
-M.fgfr3.n_doses = 500;
-M.fgfr3.dose_val = 1e3; % initial concentration of circulating inhibitor in nM (based on Grunewald and the max plasma concentration with 75mg/kg given to a mouse; I have eyeballed the number, extrapolating back to t=0)
+M.pars.max_dt = 4 / 24; % number of days per step
+M.pars.chemo_death_rate = [0;0.2;0.5];
+M.pars.occmax_3d = 20;
+M.pars.occmax_2d = 6;
+M.pars.min_prolif_wait = [9/24;12/24];
+M.pars.prolif_rate = [1.8;2];
+M.pars.apop_rate = [0.01;0.05];
+M.pars.move_rate_microns = [0;20];
 
 M.plot_pars.plot_fig = false;
-M.plot_pars.plot_location = true;
-
-M.immune_stimulatory_factor_pars.length_scale = 20;
-M.immune_pars.steps_per_move = 4;
-
-M.checkpoint.diffusivity_apd1 = 0.1 * 60*60*24;
-M.checkpoint.dose_val = 100;
+M.plot_pars.plot_location = false;
 
 %%
 simCohort(M,cohort_pars);
