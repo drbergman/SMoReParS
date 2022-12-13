@@ -9,5 +9,7 @@ setup.ndims = 3;
 setup.censor_date = 25;
 setup.N0 = 1000;
 
+setup.agent_initialization_location = "uniform";
+
 setup.c = -3.603357085551339; % see Test_findInitialization for code that got to this number
 setup.e = 2.986939791722032; % see Test_findInitialization for code that got to this number
