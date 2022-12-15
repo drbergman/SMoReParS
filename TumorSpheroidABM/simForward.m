@@ -28,7 +28,7 @@ for i = 1:M.Nsteps
 
     % set these counts here to be updated as cells proliferate or are found
     % to be in interphase
-    M.tracked.phase_cell_days(M.i,:) = [0,M.NT * M.dt,0]; % [interphase,ready to proliferate,did proliferate]
+    M.tracked.phase_cell_days(M.i,M.val.phase_g1) = M.NT * M.dt;
 
     M = updateTumor(M);
 
@@ -55,7 +55,7 @@ for i = 1:M.Nsteps
     end
 
     %% save any "big" data
-    if M.t >= M.next_save_time - 0.5 * M.dt % then it appears that this is the closest time to the desired save time
+    if M.save_pars.save_model_state &&  M.t >= M.next_save_time - 0.5 * M.dt % then it appears that this is the closest time to the desired save time
         M = saveModelData(M);
     end
 

@@ -187,9 +187,9 @@ M.fig.ax(subpop_ind).XLim = xx;
 M.fig.ax(subpop_ind).YLim = [0 1];
 M.fig.ax(subpop_ind).Color = [0 0 0];
 
-M.fig.subpop_plots(1) = plot(M.t,0,'Color',tumor_colors(1,:),'LineStyle','-','LineWidth',2,'DisplayName','G1 Proportion');
-M.fig.subpop_plots(2) = plot(M.t,0,'Color',tumor_colors(1,:),'LineStyle','--','LineWidth',2,'DisplayName','G2 Proportion');
-M.fig.subpop_plots(3) = plot(M.t,0,'Color',tumor_colors(1,:),'LineStyle',':','LineWidth',2,'DisplayName','M Proportion');
+M.fig.subpop_plots(M.val.phase_g0) = plot(M.t,0,'Color',tumor_colors(1,:),'LineStyle','-','LineWidth',2,'DisplayName','G1 Proportion');
+M.fig.subpop_plots(M.val.phase_g1) = plot(M.t,0,'Color',tumor_colors(1,:),'LineStyle','--','LineWidth',2,'DisplayName','G2 Proportion');
+M.fig.subpop_plots(M.val.phase_m) = plot(M.t,0,'Color',tumor_colors(1,:),'LineStyle',':','LineWidth',2,'DisplayName','M Proportion');
 
 M.fig.subpop_plots(4) = plot(M.t,0,'Color',tumor_colors(2,:),'LineStyle','-','LineWidth',2,'DisplayName','Not proliferate');
 M.fig.subpop_plots(5) = plot(M.t,0,'Color',tumor_colors(2,:),'LineStyle',':','LineWidth',2,'DisplayName','Proliferate');

@@ -2,7 +2,8 @@ function [M,out] = eventSelection_Tumor(M)
 
 rate_matrix = computeRateMatrix(M);
 
-M.tracked.phase_cell_days(M.i,1:2) = M.tracked.phase_cell_days(M.i,1:2) + sum(min(M.dt,M.tumor(:,M.I.proliferation_timer))) * [1,-1];
+% M.tracked.phase_cell_days(M.i,1:2) = M.tracked.phase_cell_days(M.i,1:2) + sum(min(M.dt,M.tumor(:,M.I.proliferation_timer))) * [1,-1];
+M.tracked.phase_cell_days(M.i,[M.val.phase_g0,M.val.phase_g1]) = M.tracked.phase_cell_days(M.i,[M.val.phase_g0,M.val.phase_g1]) + sum(min(M.dt,M.tumor(:,M.I.proliferation_timer))) * [1,-1];
 
 wholly_on_clock_log = M.tumor(:,M.I.proliferation_timer)>=M.dt;
 M.tumor(wholly_on_clock_log,M.I.phase) = M.val.phase_g0;

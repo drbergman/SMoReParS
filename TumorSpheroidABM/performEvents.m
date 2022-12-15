@@ -22,8 +22,7 @@ for ord_ind=1:length(in.active_ind)
                     M.L(n_ind(ind)) = M.val.tum; % set value at lattice site
                     M.tumor([j,end],M.I.phase) = M.val.phase_m;
 
-%                     M.tracked.phase_cell_days(M.i,[2,3]) = M.tracked.phase_cell_days(M.i,[2,3]) + (min(M.pars.mitosis_duration,M.dt-M.tumor(j,M.I.proliferation_timer))/M.dt) * [-1,1];
-                    M.tracked.phase_cell_days(M.i,[2,3]) = M.tracked.phase_cell_days(M.i,[2,3]) + M.pars.mitosis_duration * [-1,1]; % if the mitosis duration is longer than dt, this will result in negative looking values, but otherwise I have to try to keep track of this info into the next step, which would be tedious
+                    M.tracked.phase_cell_days(M.i,[M.val.phase_g1,M.val.phase_m]) = M.tracked.phase_cell_days(M.i,[M.val.phase_g1,M.val.phase_m]) + M.pars.mitosis_duration * [-1,1]; % if the mitosis duration is longer than dt, this will result in negative looking values, but otherwise I have to try to keep track of this info into the next step, which would be tedious
 
                     M.tumor([j,end],M.I.proliferation_timer) = M.pars.min_prolif_wait + in.time_to_event(ord_ind); % must wait M.pars.min_prolif_wait days before proliferating; assume the proliferation happened sometime in the interval [M.tumor(j,M.I.proliferation_timer),M.dt] so some progress towards next prolif has happened (will subtract off M.dt with all cells in simForward)
 
@@ -47,8 +46,7 @@ for ord_ind=1:length(in.active_ind)
                     M.L(n_ind(ind)) = M.val.tum; % set value at lattice site
                     M.tumor([j,end],M.I.phase) = M.val.phase_m;
 
-                    %                     M.tracked.phase_cell_days(M.i,[2,3]) = M.tracked.phase_cell_days(M.i,[2,3]) + (min(M.pars.mitosis_duration,M.dt-M.tumor(j,M.I.proliferation_timer))/M.dt) * [-1,1];
-                    M.tracked.phase_cell_days(M.i,[2,3]) = M.tracked.phase_cell_days(M.i,[2,3]) + M.pars.mitosis_duration * [-1,1]; % if the mitosis duration is longer than dt, this will result in negative looking values, but otherwise I have to try to keep track of this info into the next step, which would be tedious
+                    M.tracked.phase_cell_days(M.i,[M.val.phase_g1,M.val.phase_m]) = M.tracked.phase_cell_days(M.i,[M.val.phase_g1,M.val.phase_m]) + M.pars.mitosis_duration * [-1,1]; % if the mitosis duration is longer than dt, this will result in negative looking values, but otherwise I have to try to keep track of this info into the next step, which would be tedious
 
                     M.tumor([j,end],M.I.proliferation_timer) = M.pars.min_prolif_wait + in.time_to_event(ord_ind); % must wait M.pars.min_prolif_wait days before proliferating; assume the proliferation happened sometime in the interval [M.tumor(j,M.I.proliferation_timer),M.dt] so some progress towards next prolif has happened (will subtract off M.dt with all cells in simForward)
 

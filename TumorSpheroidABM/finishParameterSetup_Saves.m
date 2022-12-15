@@ -1,7 +1,12 @@
 function M = finishParameterSetup_Saves(M)
 
-M.next_save_time = 0;
-M.save_index = 0;
+if M.save_pars.dt < Inf
+    M.save_pars.save_model_state = true;
+    M.next_save_time = 0;
+    M.save_index = 0;
+else
+    M.save_pars.save_model_state = false;
+end
 
 if ~isfield(M.save_pars,"sim_identifier")
     M.save_pars.sim_identifier = string(datetime("now","Format","yyMMddHHmmssSSS")); % default to this for determining an id if none given
@@ -9,6 +14,10 @@ end
 
 while exist(sprintf("data/%s",M.save_pars.sim_identifier),"dir") % just in case this directory already exists somehow (not sure how to processes could start at the same time to the millisecond and then one create this folder before the other looks for it)
     M.save_pars.sim_identifier = string(datetime("now","Format","yyMMddHHmmssSSS")); % default to this for determining an id if none given
+end
+
+if isfield(M.save_pars,"idx_in_cohort")
+    M.save_pars.sim_identifier = sprintf("%s_%02d",M.save_pars.sim_identifier,M.save_pars.idx_in_cohort);
 end
 
 mkdir(sprintf("data/%s",M.save_pars.sim_identifier))

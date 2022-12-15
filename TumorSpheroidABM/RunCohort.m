@@ -5,7 +5,6 @@ addpath("~/Documents/MATLAB/myfunctions/")
 %% cohort structure
 cohort_pars.nsamps_per_condition = 6;
 cohort_pars.min_parfor_num = 4;
-cohort_pars.last_dose_is_no_dose = false;
 
 %%
 M = allBaseParameters();
@@ -18,18 +17,19 @@ M.setup.grid_size_microns_z = 2000;
 M.setup.censor_date = 3;
 M.setup.N0 = 1e3;
 M.setup.agent_initialization_location = "uniform";
-M.setup.carrying_capacity = [6e3;6500];
+M.setup.carrying_capacity = [6e3;6500;7e3];
 
-M.save_pars.dt = 0.25;
+M.save_pars.make_save = true;
+M.save_pars.dt = Inf;
 
 M.pars.max_dt = 4 / 24; % number of days per step
 M.pars.chemo_death_rate = [0;0.2;0.5];
 M.pars.occmax_3d = 20;
-M.pars.occmax_2d = 6;
-M.pars.min_prolif_wait = [9/24;12/24];
-M.pars.prolif_rate = [1.8;2];
-M.pars.apop_rate = [0.01;0.05];
-M.pars.move_rate_microns = [0;20];
+M.pars.occmax_2d = 5:7;
+M.pars.min_prolif_wait = [8/24;12/24];
+M.pars.prolif_rate = [1.8;2;2.2];
+M.pars.apop_rate = [0.01;0.05;0.1];
+M.pars.move_rate_microns = [0;20;60];
 
 M.plot_pars.plot_fig = false;
 M.plot_pars.plot_location = false;

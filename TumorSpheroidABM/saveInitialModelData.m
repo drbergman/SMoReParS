@@ -9,4 +9,6 @@ save_pars = M.save_pars;
 
 save(sprintf("data/%s/output_constants",M.save_pars.sim_identifier),'-regexp','[^M]','-v7.3')
 
-M = saveModelData(M);
+if M.save_pars.dt < Inf
+    M = saveModelData(M);
+end

@@ -10,23 +10,7 @@ for i = 1:numel(fn)
     cohort.lattice_parameters = grabFields(M.(fn(i)),cohort.lattice_parameters,current_struct_path);
 end
 
-% non-lattice parameter varying (for dosing schedule, rectangle sizes...and others?)
-if cohort_pars.last_dose_is_no_dose
-    dose_start_inds = [];
-    vals = {};
-    paths = {};
-    for i = 1:numel(cohort.lattice_parameters)
-        if cohort.lattice_parameters(i).path(end)=="start_day"
-            dose_start_inds(end+1) = i;
-            vals{end+1} = cohort.lattice_parameters(i).values;
-            paths{end+1} = cohort.lattice_parameters(i).path;
-        end
-    end
-    cohort.lattice_parameters(end+1).values = allCombos(vals{:},'matlab');
-    cohort.lattice_parameters(end).values(end,:) = Inf;
-    cohort.lattice_parameters(end).path = paths;
-    cohort.lattice_parameters(dose_start_inds) = [];
-end
+
 cohort_size = arrayfun(@(i) size(cohort.lattice_parameters(i).values,1),1:numel(cohort.lattice_parameters));
 total_runs = prod(cohort_size) * nsamps_per_condition;
 cohort_pars.total_runs = total_runs;
@@ -127,6 +111,7 @@ if total_runs>=cohort_pars.min_parfor_num
             end
             [sim_this,sims_to_check,start_ind,sim_id] = findSimilarSims(M,sims_to_check,start_ind);
             if sim_this || any(ids(:,vp_ind{:})==sim_id) % make sure that we didn't already record this sim for these parameter values
+                M.save_pars.idx_in_cohort = ri;
                 F(ri) = parfeval(ppool,@simPatient,1,M);
             else % if the above code did not (somehow) grab this sim, then grab this sim data now
                 F(ri) = parfeval(ppool,@grabSimData,1,sim_id);
@@ -159,6 +144,7 @@ for ri = total_runs:-1:1
             end
             [sim_this,sims_to_check,start_ind,sim_id] = findSimilarSims(M,sims_to_check,start_ind);
             if sim_this || any(ids(:,vp_ind{:})==sim_id) % make sure that we didn't already record this sim for these parameter values
+                M.save_pars.idx_in_cohort = ri;
                 out_temp = simPatient(M);
             else % if the above code did not (somehow) grab this sim, then grab this sim data now
                 out_temp = grabSimData(sim_id);
@@ -171,7 +157,7 @@ for ri = total_runs:-1:1
     end
 end
 
-if M.save_pars.dt < Inf
+if M.save_pars.make_save < Inf
     cohort.ids = reshape(cohort.ids,[nsamps_per_condition,cohort_size,1]);
 end
 
@@ -187,9 +173,10 @@ end
 
 mkdir(sprintf("data/cohort_%s",cohort_pars.cohort_identifier))
 
-save(sprintf("data/cohort_%s/cohort_%s",cohort_pars.cohort_identifier,cohort_pars.cohort_identifier),"nsamps_per_condition","total_runs","cohort_size")
-save(sprintf("data/cohort_%s/cohort_%s",cohort_pars.cohort_identifier,cohort_pars.cohort_identifier),'-struct',"cohort","-append")
+save(sprintf("data/cohort_%s/output",cohort_pars.cohort_identifier),"nsamps_per_condition","total_runs","cohort_size")
+save(sprintf("data/cohort_%s/output",cohort_pars.cohort_identifier),'-struct',"cohort","-append")
 
+fprintf("Finished cohort. Folder is: cohort_%s\n",cohort_pars.cohort_identifier)
 end
 
 function lattice_parameters = grabFields(S,lattice_parameters,incoming_struct_path)

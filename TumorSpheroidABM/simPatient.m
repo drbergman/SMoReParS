@@ -14,10 +14,11 @@ if M.plot_pars.plot_fig
 end
 
 %%
-if M.save_pars.dt < Inf
+if M.save_pars.make_save
     M = finishParameterSetup_Saves(M);
     M = saveInitialModelData(M);
 else
+    M.save_pars.save_model_state = false;
     M.next_save_time = Inf;
 end
 
@@ -41,7 +42,7 @@ for ei = 1:M.events.n % event index
     end
 end
 
-if M.save_pars.dt < Inf
+if M.save_pars.make_save
     M = saveFinalModelData(M);
 end
 
