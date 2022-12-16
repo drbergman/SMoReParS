@@ -2,33 +2,19 @@ function plotFunction_EndStep(M)
 
 %% cell locations
 if M.plot_pars.plot_location
-    m_ind = M.tumor(:,M.I.phase)==M.val.phase_m;
-    g0_ind = M.tumor(:,M.I.phase)==M.val.phase_g0;
-    g1_ind = M.tumor(:,M.I.phase)==M.val.phase_g1;
+    for i = 1:4
+        ind = M.tumor(:,M.I.phase)==i;
 
-    if M.setup.ndims == 3
-        M.fig.scatter_plots(M.val.phase_m).XData = M.tumor(m_ind,M.I.subs(1))-M.grid.center(1);
-        M.fig.scatter_plots(M.val.phase_m).YData = M.tumor(m_ind,M.I.subs(2))-M.grid.center(2);
-        M.fig.scatter_plots(M.val.phase_m).ZData = M.tumor(m_ind,M.I.subs(3))-M.grid.center(3);
+        if M.setup.ndims == 3
+            M.fig.scatter_plots(i).XData = M.tumor(ind,M.I.subs(1))-M.grid.center(1);
+            M.fig.scatter_plots(i).YData = M.tumor(ind,M.I.subs(2))-M.grid.center(2);
+            M.fig.scatter_plots(i).ZData = M.tumor(ind,M.I.subs(3))-M.grid.center(3);
 
-        M.fig.scatter_plots(M.val.phase_g0).XData = M.tumor(g0_ind,M.I.subs(1))-M.grid.center(1);
-        M.fig.scatter_plots(M.val.phase_g0).YData = M.tumor(g0_ind,M.I.subs(2))-M.grid.center(2);
-        M.fig.scatter_plots(M.val.phase_g0).ZData = M.tumor(g0_ind,M.I.subs(3))-M.grid.center(3);
-
-        M.fig.scatter_plots(M.val.phase_g1).XData = M.tumor(g1_ind,M.I.subs(1))-M.grid.center(1);
-        M.fig.scatter_plots(M.val.phase_g1).YData = M.tumor(g1_ind,M.I.subs(2))-M.grid.center(2);
-        M.fig.scatter_plots(M.val.phase_g1).ZData = M.tumor(g1_ind,M.I.subs(3))-M.grid.center(3);
-
-        view(M.fig.ax(M.fig.scatter_ind),[36*M.t 30 40])
-    else
-        M.fig.scatter_plots(M.val.phase_m).XData = M.tumor(m_ind,M.I.subs(1))-M.grid.center(1);
-        M.fig.scatter_plots(M.val.phase_m).YData = M.tumor(m_ind,M.I.subs(2))-M.grid.center(2);
-
-        M.fig.scatter_plots(M.val.phase_g0).XData = M.tumor(g0_ind,M.I.subs(1))-M.grid.center(1);
-        M.fig.scatter_plots(M.val.phase_g0).YData = M.tumor(g0_ind,M.I.subs(2))-M.grid.center(2);
-
-        M.fig.scatter_plots(M.val.phase_g1).XData = M.tumor(g1_ind,M.I.subs(1))-M.grid.center(1);
-        M.fig.scatter_plots(M.val.phase_g1).YData = M.tumor(g1_ind,M.I.subs(2))-M.grid.center(2);
+            view(M.fig.ax(M.fig.scatter_ind),[36*M.t 30 40])
+        else
+            M.fig.scatter_plots(i).XData = M.tumor(ind,M.I.subs(1))-M.grid.center(1);
+            M.fig.scatter_plots(i).YData = M.tumor(ind,M.I.subs(2))-M.grid.center(2);
+        end
     end
 end
 
@@ -59,17 +45,10 @@ M.fig.population_plots(1).XData(end+1) = M.t;
 M.fig.population_plots(1).YData(end+1) = M.NT;
 
 %% subpopulations proportion plot
-M.fig.subpop_plots(M.val.phase_g0).XData(end+1) = M.t;
-M.fig.subpop_plots(M.val.phase_g0).YData(end+1) = M.tracked.phase_cell_days(M.i,M.val.phase_g0)/(M.dt*M.tracked.NT(M.i-1));
-M.fig.subpop_plots(M.val.phase_g1).XData(end+1) = M.t;
-M.fig.subpop_plots(M.val.phase_g1).YData(end+1) = M.tracked.phase_cell_days(M.i,M.val.phase_g1)/(M.dt*M.tracked.NT(M.i-1));
-M.fig.subpop_plots(M.val.phase_m).XData(end+1) = M.t;
-M.fig.subpop_plots(M.val.phase_m).YData(end+1) = M.tracked.phase_cell_days(M.i,M.val.phase_m)/(M.dt*M.tracked.NT(M.i-1));
-
-M.fig.subpop_plots(4).XData(end+1) = M.t;
-M.fig.subpop_plots(4).YData(end+1) = M.tracked.simple_types(M.i,1)/M.tracked.NT(M.i-1);
-M.fig.subpop_plots(5).XData(end+1) = M.t;
-M.fig.subpop_plots(5).YData(end+1) = M.tracked.simple_types(M.i,2)/M.tracked.NT(M.i-1);
+for i = 1:4
+    M.fig.subpop_plots(i).XData(end+1) = M.t;
+    M.fig.subpop_plots(i).YData(end+1) = M.tracked.phases(M.i,i)/(M.NT);
+end
 
 %% event plots
 M.fig.events_plots(1).XData(end+1) = M.t;

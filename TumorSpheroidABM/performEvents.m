@@ -47,7 +47,7 @@ for ord_ind=1:length(in.active_ind)
                         M.tumor(end,M.I.ind) = n_ind(ind); % store new array-specific locations
 
                         M.L(n_ind(ind)) = M.val.tum; % set value at lattice site
-                        M.tumor([j,end],M.I.phase) = M.cycle.m;
+                        M.tumor([j,end],M.I.phase) = M.cycle.g1;
 
                         M.tracked.tum_prolif(M.i) = M.tracked.tum_prolif(M.i)+1;
 

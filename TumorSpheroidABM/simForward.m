@@ -26,18 +26,11 @@ for i = 1:M.Nsteps
     M.t = M.t + M.dt;
     M.i = M.i+1;
 
-    % set these counts here to be updated as cells proliferate or are found
-    % to be in interphase
-    M.tracked.phase_cell_days(M.i,M.val.phase_g1) = M.NT * M.dt;
-
     M = updateTumor(M);
 
     %% clean up tumor stuff
     M = removeApoptotic(M);
-
-    %% advance tumor proliferation timers
-    M.tumor(:,M.I.proliferation_timer) = max(0,M.tumor(:,M.I.proliferation_timer)-M.dt); % update time until tumor cells can proliferate for all that did not proliferate (1) or were just created (0) because those timers were updated in updateTumor
-
+    
     %% update these vals
     M.NT = size(M.tumor,1);
 

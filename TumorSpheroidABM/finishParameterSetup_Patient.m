@@ -86,8 +86,3 @@ M.cycle_pars.transition_rates = [M.cycle_pars.g1_to_s,M.cycle_pars.s_to_g2,M.cyc
 
 %% events
 M = initializeEvents(M);
-
-%% issue warning if model time step and mitosis duration mismatch
-if M.pars.max_dt ~= M.pars.mitosis_duration
-    warning("Mismatch between (desired) dt and mitosis duration, which will result in recorded M proportions being erroneous. Post-processing can fix this, but no such script exists yet.")
-end

@@ -15,21 +15,31 @@ M.setup.grid_size_microns_x = 2000;
 M.setup.grid_size_microns_y = 2000;
 M.setup.grid_size_microns_z = 2000;
 M.setup.censor_date = 3;
-M.setup.N0 = 1e3;
+M.setup.N0 = 1e2;
 M.setup.agent_initialization_location = "uniform";
-M.setup.carrying_capacity = [6e3;6500;7e3];
+M.setup.carrying_capacity = [6e2;650;7e2];
 
 M.save_pars.make_save = true;
 M.save_pars.dt = Inf;
 
-M.pars.max_dt = 4 / 24; % number of days per step
+M.pars.max_dt = 0.25 / 24; % number of days per step
 M.pars.chemo_death_rate = [0;0.2;0.5];
 M.pars.occmax_3d = 20;
 M.pars.occmax_2d = [5;6;7];
 M.pars.min_prolif_wait = [8/24;12/24];
-M.pars.prolif_rate = [1.8;2;2.2];
+% M.pars.prolif_rate = [1.8;2;2.2];
 M.pars.apop_rate = [0.01;0.05;0.1];
 M.pars.move_rate_microns = [0;20;60];
+
+M.cycle_pars.dna_check_g1 = true;
+M.cycle_pars.dna_check_s = false;
+M.cycle_pars.dna_check_g2 = true;
+M.cycle_pars.dna_check_m = false;
+
+M.cycle_pars.arrest_prob_g1 = 0.05;
+M.cycle_pars.arrest_prob_s = 0.05;
+M.cycle_pars.arrest_prob_g2 = 0.05;
+M.cycle_pars.arrest_prob_m = 0.05;
 
 M.plot_pars.plot_fig = false;
 M.plot_pars.plot_location = false;

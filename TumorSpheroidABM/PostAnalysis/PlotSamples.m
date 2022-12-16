@@ -2,7 +2,7 @@ clearvars;
 
 addpath("..")
 addpath("~/Documents/MATLAB/myfunctions/")
-cohort_id = "cohort_221215122756612";
+cohort_id = "cohort_221216105128763";
 
 load(sprintf("../data/%s/output.mat",cohort_id),"ids","lattice_parameters")
 
@@ -14,18 +14,18 @@ val_color = lines(max(size(ids,1:ndims(ids)-1)));
 nsamps = numel(ids)/ncohorts;
 
 figure;
-ax = gobjects(npars,3);
-for i = 1:3
+ax = gobjects(npars,4);
+for i = 1:4
     for j = 1:npars
-        ax(j,i) = subplot(npars,3,r2c(npars,3,[j,i]),"NextPlot","add");
+        ax(j,i) = subplot(npars,4,r2c(npars,4,[j,i]),"NextPlot","add");
     end
 end
 
-val = buildLatticeVals();
-S = 100;
+cycle = buildCycle();
+S = 10;
 
 for j = 1:npars
-    l_temp = gobjects(size(ids,j),S,3);
+    l_temp = gobjects(size(ids,j),S,4);
     for k = 1:size(ids,j)
         id_temp = sliceof(ids,j,k); % grab the ids for sims with the kth value of the jth parameter
         id_temp = id_temp(:);
@@ -35,17 +35,19 @@ for j = 1:npars
             [color_ind,~] = ind2sub([ncohorts,nsamps],i);
             load(sprintf("../data/%s/output_final.mat",id_temp(l)),"tracked")
             load(sprintf("../data/%s/output_constants.mat",id_temp(l)))
-            for m = 1:3
-                l_temp(k,l,m) = plot(ax(j,m),tracked.t,tracked.phase_cell_days(:,m) / (tracked.t(2)-tracked.t(1)),'Color',[val_color(k,:),0.2]);
+            for m = 1:4
+                l_temp(k,l,m) = plot(ax(j,m),tracked.t,tracked.phases(:,m),'Color',[val_color(k,:),0.2]);
                 l_temp(k,l,m).DisplayName = sprintf("%3.2f",lattice_parameters(j).values(k));
                 if l==1
                     if j==1
                         switch m
-                            case val.phase_g0
-                                title(ax(j,m),"G0")
-                            case val.phase_g1
+                            case cycle.g1
                                 title(ax(j,m),"G1")
-                            case val.phase_m
+                            case cycle.s
+                                title(ax(j,m),"S")
+                            case cycle.g2
+                                title(ax(j,m),"G2")
+                            case cycle.m
                                 title(ax(j,m),"M")
                         end
                     end
@@ -59,6 +61,6 @@ for j = 1:npars
     end
 end
 
-for m = 1:3
+for m = 1:4
 normalizeYLims(ax(:,m))
 end

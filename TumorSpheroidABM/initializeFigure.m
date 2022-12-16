@@ -40,9 +40,12 @@ tum_probs_locs = 0*ncols + 4:5;
 
 
 %% scatter plot
-phase_colors = [0.23,0.7,0.34;... % color for m phase
-                0.05,0.06,0.58;... % color for g0
-                0.95,0.98,0.06]; % color for g1
+% phase_colors = [0.23,0.7,0.34;... % color for m phase
+%                 0.05,0.06,0.58;... % color for g0
+%                 0.95,0.98,0.06]; % color for g1
+phase_names = ["G1","S","G2","M"];
+phase_size = [30,40,60,60];
+phase_colors = lines(4);
 tumor_colors = winter(3);
 tumor_colormap = flipud(winter);
 
@@ -56,19 +59,16 @@ if M.plot_pars.plot_location
     M.fig.ax(scatter_ind).XColor = 'none';
     M.fig.ax(scatter_ind).YColor = 'none';
 
-    m_ind = M.tumor(:,M.I.phase)==M.val.phase_m;
-    g0_ind = M.tumor(:,M.I.phase)==M.val.phase_g0;
-    g1_ind = M.tumor(:,M.I.phase)==M.val.phase_g1;
     if M.setup.ndims==3
         M.fig.ax(scatter_ind).ZTick = [];
         M.fig.ax(scatter_ind).ZColor = 'none';
 
-        M.fig.scatter_plots(M.val.phase_m) = scatter3(M.tumor(m_ind,M.I.subs(1))-M.grid.center(1),M.tumor(m_ind,M.I.subs(2))-M.grid.center(2),M.tumor(m_ind,M.I.subs(3))-M.grid.center(3),30,phase_colors(1,:),'o','filled',...
-            'DisplayName','Cells in M');
-        M.fig.scatter_plots(M.val.phase_g0) = scatter3(M.tumor(g0_ind,M.I.subs(1))-M.grid.center(1),M.tumor(g0_ind,M.I.subs(2))-M.grid.center(2),M.tumor(g0_ind,M.I.subs(3))-M.grid.center(3),45,phase_colors(2,:),'o','filled',...
-            'DisplayName','Cells in G0');
-        M.fig.scatter_plots(M.val.phase_g1) = scatter3(M.tumor(g1_ind,M.I.subs(1))-M.grid.center(1),M.tumor(g1_ind,M.I.subs(2))-M.grid.center(2),M.tumor(g1_ind,M.I.subs(3))-M.grid.center(3),60,phase_colors(3,:),'o','filled',...
-            'DisplayName','Cells in G1');
+        for i = 1:4
+            ind = M.tumor(:,M.I.phase)==i;
+            M.fig.scatter_plots(i) = scatter3(M.tumor(ind,M.I.subs(1))-M.grid.center(1),M.tumor(ind,M.I.subs(2))-M.grid.center(2),M.tumor(ind,M.I.subs(3))-M.grid.center(3),phase_size(i),phase_colors(i,:),'o','filled',...
+            'DisplayName',phase_names(i));
+        end
+
         view(M.fig.ax(M.fig.scatter_ind),[36*M.t 30 40])
         legend(M.fig.ax(M.fig.scatter_ind),'Location','SouthWest','AutoUpdate','off','Color',"none")
 
@@ -77,13 +77,12 @@ if M.plot_pars.plot_location
 
         axis square
     else
+        for i = 1:4
+            ind = M.tumor(:,M.I.phase)==i;
+            M.fig.scatter_plots(i) = scatter(M.tumor(ind,M.I.subs(1))-M.grid.center(1),M.tumor(ind,M.I.subs(2))-M.grid.center(2),phase_size(i),phase_colors(i,:),'o','filled',...
+            'DisplayName',phase_names(i));
+        end
 
-        M.fig.scatter_plots(M.val.phase_m) = scatter(M.tumor(m_ind,M.I.subs(1))-M.grid.center(1),M.tumor(m_ind,M.I.subs(2))-M.grid.center(2),30,phase_colors(1,:),'o','filled',...
-            'DisplayName','Cells in M');
-        M.fig.scatter_plots(M.val.phase_g0) = scatter(M.tumor(g0_ind,M.I.subs(1))-M.grid.center(1),M.tumor(g0_ind,M.I.subs(2))-M.grid.center(2),45,phase_colors(2,:),'o','filled',...
-            'DisplayName','Cells in G0');
-        M.fig.scatter_plots(M.val.phase_g1) = scatter(M.tumor(g1_ind,M.I.subs(1))-M.grid.center(1),M.tumor(g1_ind,M.I.subs(2))-M.grid.center(2),60,phase_colors(3,:),'o','filled',...
-            'DisplayName','Cells in G1');
         M.fig.ax(M.fig.scatter_ind).Position(1) = 0;
         legend(M.fig.ax(M.fig.scatter_ind),'Location','Northwest','AutoUpdate','off','Color',"white")
 
@@ -187,12 +186,9 @@ M.fig.ax(subpop_ind).XLim = xx;
 M.fig.ax(subpop_ind).YLim = [0 1];
 M.fig.ax(subpop_ind).Color = [0 0 0];
 
-M.fig.subpop_plots(M.val.phase_g0) = plot(M.t,0,'Color',tumor_colors(1,:),'LineStyle','-','LineWidth',2,'DisplayName','G1 Proportion');
-M.fig.subpop_plots(M.val.phase_g1) = plot(M.t,0,'Color',tumor_colors(1,:),'LineStyle','--','LineWidth',2,'DisplayName','G2 Proportion');
-M.fig.subpop_plots(M.val.phase_m) = plot(M.t,0,'Color',tumor_colors(1,:),'LineStyle',':','LineWidth',2,'DisplayName','M Proportion');
-
-M.fig.subpop_plots(4) = plot(M.t,0,'Color',tumor_colors(2,:),'LineStyle','-','LineWidth',2,'DisplayName','Not proliferate');
-M.fig.subpop_plots(5) = plot(M.t,0,'Color',tumor_colors(2,:),'LineStyle',':','LineWidth',2,'DisplayName','Proliferate');
+for i = 1:4
+    M.fig.subpop_plots(i) = plot(M.t,M.tracked.phases(1,i)/M.NT,'Color',phase_colors(i,:),'LineStyle','-','LineWidth',2,'DisplayName',phase_names(i));
+end
 
 L = legend(M.fig.ax(subpop_ind),'Location','northwest','AutoUpdate','off','Color',M.fig.handle.Color);
 L.Position(1) = sum(M.fig.ax(scatter_ind).Position([1,3]));
@@ -220,7 +216,7 @@ L.Position(1) = sum(M.fig.ax(scatter_ind).Position([1,3]));
 %% not time series
 %% tumor probabilities
 M.fig.ax(tum_prob_ind) = subplot(nrows,ncols,tum_probs_locs);
-max_tum_prob = sum(1-exp(-[M.pars.prolif_rate,M.pars.apop_rate,M.pars.move_rate,M.pars.chemo_death_rate]*M.pars.max_dt));
+max_tum_prob = sum(1-exp(-[max(M.cycle_pars.transition_rates),M.pars.apop_rate,M.pars.move_rate]*M.pars.max_dt));
 M.fig.ax(tum_prob_ind).YLim = [0 max_tum_prob];
 M.fig.ax(tum_prob_ind).Title.String = 'Tum Outcome Probabilities';
 M.fig.ax(tum_prob_ind).NextPlot = 'replacechildren';
