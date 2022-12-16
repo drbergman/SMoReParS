@@ -15,7 +15,7 @@ M.setup.grid_size_microns_x = 2000;
 M.setup.grid_size_microns_y = 2000;
 M.setup.grid_size_microns_z = 2000;
 
-M.save_pars.make_save = false;
+M.save_pars.make_save = true;
 M.save_pars.dt = 0.01; % set to Inf to not save anything; otherwise dt is in days
 
 M.pars.max_dt = 0.25 / 24; % number of days per step

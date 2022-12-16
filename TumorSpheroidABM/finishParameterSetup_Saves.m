@@ -12,7 +12,7 @@ if ~isfield(M.save_pars,"sim_identifier")
     M.save_pars.sim_identifier = string(datetime("now","Format","yyMMddHHmmssSSS")); % default to this for determining an id if none given
 end
 
-while exist(sprintf("data/%s",M.save_pars.sim_identifier),"dir") % just in case this directory already exists somehow (not sure how to processes could start at the same time to the millisecond and then one create this folder before the other looks for it)
+while exist(sprintf("data/sims/%s",M.save_pars.sim_identifier),"dir") % just in case this directory already exists somehow (not sure how to processes could start at the same time to the millisecond and then one create this folder before the other looks for it)
     M.save_pars.sim_identifier = string(datetime("now","Format","yyMMddHHmmssSSS")); % default to this for determining an id if none given
 end
 
@@ -20,7 +20,7 @@ if isfield(M.save_pars,"idx_in_cohort")
     M.save_pars.sim_identifier = sprintf("%s_%02d",M.save_pars.sim_identifier,M.save_pars.idx_in_cohort);
 end
 
-mkdir(sprintf("data/%s",M.save_pars.sim_identifier))
+mkdir(sprintf("data/sims/%s",M.save_pars.sim_identifier))
 
 max_grid_sub = max(M.grid.size);
 max_grid_sub_log2 = ceil(log2(max_grid_sub+1));

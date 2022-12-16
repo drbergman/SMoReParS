@@ -3,8 +3,8 @@ clearvars;
 addpath("~/Documents/MATLAB/myfunctions/")
 
 %% cohort structure
-cohort_pars.nsamps_per_condition = 6;
-cohort_pars.min_parfor_num = 4;
+cohort_pars.nsamps_per_condition = 1;
+cohort_pars.min_parfor_num = 4e5;
 
 %%
 M = allBaseParameters();
@@ -23,13 +23,15 @@ M.save_pars.make_save = true;
 M.save_pars.dt = Inf;
 
 M.pars.max_dt = 0.25 / 24; % number of days per step
-M.pars.chemo_death_rate = [0;0.2;0.5];
 M.pars.occmax_3d = 20;
 M.pars.occmax_2d = [5;6;7];
-M.pars.min_prolif_wait = [8/24;12/24];
-% M.pars.prolif_rate = [1.8;2;2.2];
 M.pars.apop_rate = [0.01;0.05;0.1];
 M.pars.move_rate_microns = [0;20;60];
+
+M.cycle_pars.g1_to_s = 24/11; % * [0.9;1;1.1];
+M.cycle_pars.s_to_g2 = 24/8; % * [0.9;1;1.1];
+M.cycle_pars.g2_to_m = 24/4; % * [0.9;1;1.1];
+M.cycle_pars.m_to_g1 = 24/1; % * [0.9;1;1.1];
 
 M.cycle_pars.dna_check_g1 = true;
 M.cycle_pars.dna_check_s = false;
@@ -47,31 +49,3 @@ M.plot_pars.plot_location = false;
 %%
 simCohort(M,cohort_pars);
 
-% if cohort.nsamps_per_condition>=cohort.min_parfor_num
-%     F(1:cohort.nsamps_per_condition) = parallel.FevalFuture;
-%     ppool = gcp;
-%     cohort.num_workers = ppool.NumWorkers;
-%     for i = 1:cohort.nsamps_per_condition
-%         F(i) = parfeval(ppool,@simPatient,1,M);
-%     end
-% else
-%     cohort.num_workers = 1;
-% end
-% cohort.mu_n = 0;
-% cohort.start = tic;
-% cohort.batch_start = tic;
-% 
-% for si = cohort.nsamps_per_condition:-1:1
-%     if cohort.nsamps_per_condition>=cohort.min_parfor_num
-%         [idx,out_temp] = fetchNext(F);
-%     else
-%         idx = si;
-%         out_temp = simPatient(M);
-%     end
-%     cohort = updateCohortTimer(cohort,cohort.nsamps_per_condition-si+1);
-%     cohort.tracked(idx) = out_temp.tracked;
-%     cohort.ids(idx) = out_temp.save_pars.sim_identifier;
-% end
-% 
-% 
-% save(sprintf("data/cohort_%d",tic),'-struct',"cohort")

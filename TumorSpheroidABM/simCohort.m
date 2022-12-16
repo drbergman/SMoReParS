@@ -9,6 +9,8 @@ for i = 1:numel(fn)
     current_struct_path = fn(i);
     cohort.lattice_parameters = grabFields(M.(fn(i)),cohort.lattice_parameters,current_struct_path);
 end
+cohort.all_parameters = flattenStruct(M);
+all_fn = fieldnames(cohort.all_parameters);
 
 
 cohort_size = arrayfun(@(i) size(cohort.lattice_parameters(i).values,1),1:numel(cohort.lattice_parameters));
@@ -18,13 +20,127 @@ cohort_pars.total_runs = total_runs;
 colons = repmat({':'},[1,length(cohort_size)]);
 vp_ind = cell(1,length(cohort_size));
 
-sims_to_check = dir("data/*");
+sims_to_check = dir("data/sims/*");
 sims_to_check = sims_to_check([sims_to_check.isdir]);
-for i = numel(sims_to_check):-1:1
-    if ~startsWith(sims_to_check(i).name,digitsPattern(1)) % I only want folders that start with a number 
-        sims_to_check(i) = [];
+cohort.ids = repmat("",[cohort_size,nsamps_per_condition]);
+used_ids = repmat("",[0,1]);
+
+
+%% check if previous cohorts ran these sims
+previous_cohorts = dir("data/cohort_*");
+for i = 1:numel(previous_cohorts)
+    PC = load(sprintf("data/%s/output.mat",previous_cohorts(i).name),"ids","all_parameters","lattice_parameters","nsamps_per_condition");
+    if ~isequal(sort(string(all_fn)),sort(string(fieldnames(PC.all_parameters))))
+        % these did not have the same parameters coming in, so move on
+        continue;
     end
+
+    skip_this_cohort = false;
+    restricted_dims = cell(length(cohort_size),1);
+    target_dims = cell(length(PC.lattice_parameters),1);
+
+    for j = 1:numel(all_fn)
+        current_val = cohort.all_parameters.(all_fn{j});
+        previous_val = PC.all_parameters.(all_fn{j});
+        if size(current_val,1)==1 % then this parameter is not currently being varied, check that at least one of
+            if size(previous_val,1)==1 % then this was also not varied previously
+                if ~isequal(current_val,previous_val)
+                    skip_this_cohort = true;
+                    break;
+                end
+            else % then need this was varied previously, need to see if the current val matches any of the previous, and then record where those are
+                [used_prev,prev_ind] = ismember(current_val,previous_val,"rows");
+                if ~used_prev % make sure the current value was one of the previously used
+                    skip_this_cohort = true;
+                    break;
+                end
+                for k = 1:numel(PC.lattice_parameters)
+                    if strcmp(all_fn{j},[PC.lattice_parameters(k).path{1},'_DOT_',PC.lattice_parameters(k).path{2}])
+                        prev_dim = k;
+                        break;
+                    end
+                end
+                sims_to_check = setdiff(sims_to_check,removeslice(PC.ids,prev_dim,prev_ind));
+                target_dims{prev_dim} = k;
+%                 PC.ids = sliceof(PC.ids,prev_dim,prev_ind);
+            end
+
+        else % then this parameter is currently being varied
+
+            if size(previous_val,1)==1 % then this was not varied previously
+                [re_use,current_ind] = ismember(previous_val,current_val,"rows");
+                if ~re_use % then none of these were used before, move on
+                    skip_this_cohort = true;
+                    break;
+                end
+                for k = 1:numel(cohort.lattice_parameters)
+                    if strcmp(all_fn{j},[cohort.lattice_parameters(k).path{1},'_DOT_',cohort.lattice_parameters(k).path{2}])
+                        current_dim = k;
+                        break;
+                    end
+                end
+                restricted_dims{current_dim} = current_ind;
+
+                
+
+            else % it was varied previously as well
+                for k = 1:numel(PC.lattice_parameters)
+                    if strcmp(all_fn{j},[PC.lattice_parameters(k).path{1},'_DOT_',PC.lattice_parameters(k).path{2}])
+                        prev_dim = k;
+                        break;
+                    end
+                end
+
+                for k = 1:numel(cohort.lattice_parameters)
+                    if strcmp(all_fn{j},[cohort.lattice_parameters(k).path{1},'_DOT_',cohort.lattice_parameters(k).path{2}])
+                        current_dim = k;
+                        break;
+                    end
+                end
+
+                for k = 1:size(previous_val,1)
+                    [re_use,current_ind] = ismember(previous_val(k,:),current_val,"rows");
+                    if ~re_use
+                        sims_to_check = setdiff(sims_to_check,sliceof(PC.ids,prev_dim,k));
+%                         delete_ind(k) = true;
+                    else
+                        restricted_dims{current_dim} = [restricted_dims{current_dim},current_ind];
+                        target_dims{prev_dim} = [target_dims{prev_dim},k];
+                    end
+                end
+
+
+
+
+            end
+
+        end
+
+
+
+    end
+
+    if skip_this_cohort
+        continue;
+    end
+
+    copy_ids = PC.ids(target_dims{:},:);
+    copy_ids(ismember(copy_ids,used_ids)) = "";
+    new_ids = copy_ids(copy_ids~="");
+    used_ids = [used_ids;new_ids(:)];
+    sims_to_check = setdiff(sims_to_check,new_ids);
+
+    cohort.ids(restricted_dims{:},:) = reuseSims(cohort.ids(restricted_dims{:},:),squeeze(copy_ids),length(cohort_size)+1);
+
+
+    [n_copied,q] = min([nsamps_per_condition,PC.nsamps_per_condition]);
+% 
+%     if q==2 % then the previous cohort had fewer samples, use them all
+
+
+
 end
+
 
 sims_to_check = sims_to_check(randperm(numel(sims_to_check))); % to not bias samples towards the first sims I ran
 cohort.ids = repmat("",[nsamps_per_condition,cohort_size]);
@@ -33,8 +149,8 @@ cohort.ids = repmat("",[nsamps_per_condition,cohort_size]);
 n_found = 0;
 fn = fieldnames(M);
 for i = 1:numel(sims_to_check)
-    if exist(sprintf("data/%s/output_constants.mat",sims_to_check(i).name),"file") && exist(sprintf("data/%s/output_final.mat",sims_to_check(i).name),"file")
-        X = load(sprintf("data/%s/output_constants.mat",sims_to_check(i).name));
+    if exist(sprintf("data/sims/%s/output_constants.mat",sims_to_check(i).name),"file") && exist(sprintf("data/sims/%s/output_final.mat",sims_to_check(i).name),"file")
+        X = load(sprintf("data/sims/%s/output_constants.mat",sims_to_check(i).name));
         these_match = true;
         for j = 1:numel(fn)
             if (~strcmp(fn{j},"plot_pars")) % don't worry about plot_pars being equal
@@ -86,37 +202,24 @@ for i = 1:numel(sims_to_check)
     end
 end
 
-sims_to_check(:) = [];
+inds_to_run = find(cohort.ids=="");
+total_runs = numel(inds_to_run);
 
 %% now fill out the rest of the sim array/grab the sim data identified above
 cohort.ids = cohort.ids(:);
-
-ids = reshape(cohort.ids,[nsamps_per_condition,cohort_size]); % use this to make sure we don't use a simulation 2x
 
 if total_runs>=cohort_pars.min_parfor_num
     F(1:total_runs) = parallel.FevalFuture;
     ppool = gcp;
     cohort_pars.num_workers = ppool.NumWorkers;
     for ri = 1:total_runs % run index
-        fprintf("Setting up simulation #%d...\n",ri)
-        [sample_ind,vp_ind{colons{:}}] = ind2sub([nsamps_per_condition,cohort_size],ri);
-        if sample_ind == 1
-            start_ind = 1;
+        fprintf("Setting up simulation %d of %d...\n",ri,total_runs)
+        [~,vp_ind{colons{:}}] = ind2sub([nsamps_per_condition,cohort_size],inds_to_run(ri));
+        for vpi = 1:numel(cohort.lattice_parameters)
+            M = setField(M,cohort.lattice_parameters(vpi).path,cohort.lattice_parameters(vpi).values(vp_ind{vpi},:));
         end
-        if cohort.ids(ri)~="" % if the above code found a sim here, then grab that
-            F(ri) = parfeval(ppool,@grabSimData,1,cohort.ids(ri));
-        else
-            for vpi = 1:numel(cohort.lattice_parameters)
-                M = setField(M,cohort.lattice_parameters(vpi).path,cohort.lattice_parameters(vpi).values(vp_ind{vpi},:));
-            end
-            [sim_this,sims_to_check,start_ind,sim_id] = findSimilarSims(M,sims_to_check,start_ind);
-            if sim_this || any(ids(:,vp_ind{:})==sim_id) % make sure that we didn't already record this sim for these parameter values
-                M.save_pars.idx_in_cohort = ri;
-                F(ri) = parfeval(ppool,@simPatient,1,M);
-            else % if the above code did not (somehow) grab this sim, then grab this sim data now
-                F(ri) = parfeval(ppool,@grabSimData,1,sim_id);
-            end
-        end
+        M.save_pars.idx_in_cohort = ri;
+        F(ri) = parfeval(ppool,@simPatient,1,M);
     end
 else
     cohort_pars.num_workers = 1;
@@ -129,27 +232,16 @@ cohort_pars.batch_start = tic;
 
 for ri = total_runs:-1:1
     if total_runs>=cohort_pars.min_parfor_num
-        [idx,out_temp] = fetchNext(F);
+        [temp,out_temp] = fetchNext(F);
+        idx = inds_to_run(temp);
     else
-        idx = ri;
-        [sample_ind,vp_ind{colons{:}}] = ind2sub([nsamps_per_condition,cohort_size],ri);
-        if sample_ind == nsamps_per_condition % going in reverse order here, so look for the highest sample ind to reset
-            start_ind = 1;
+        idx = inds_to_run(ri);
+        [~,vp_ind{colons{:}}] = ind2sub([nsamps_per_condition,cohort_size],idx);
+        for vpi = 1:numel(cohort.lattice_parameters)
+            M = setField(M,cohort.lattice_parameters(vpi).path,cohort.lattice_parameters(vpi).values(vp_ind{vpi},:));
         end
-        if cohort.ids(ri)~=""
-            out_temp = grabSimData(cohort.ids(ri));
-        else
-            for vpi = 1:numel(cohort.lattice_parameters)
-                M = setField(M,cohort.lattice_parameters(vpi).path,cohort.lattice_parameters(vpi).values(vp_ind{vpi},:));
-            end
-            [sim_this,sims_to_check,start_ind,sim_id] = findSimilarSims(M,sims_to_check,start_ind);
-            if sim_this || any(ids(:,vp_ind{:})==sim_id) % make sure that we didn't already record this sim for these parameter values
-                M.save_pars.idx_in_cohort = ri;
-                out_temp = simPatient(M);
-            else % if the above code did not (somehow) grab this sim, then grab this sim data now
-                out_temp = grabSimData(sim_id);
-            end
-        end
+        M.save_pars.idx_in_cohort = ri;
+        out_temp = simPatient(M);
     end
     cohort_pars = updateCohortTimer(cohort_pars,total_runs-ri+1);
     if isfield(out_temp.save_pars,"sim_identifier")
@@ -212,8 +304,8 @@ sim_id = "";
 new_start_ind = numel(sims_to_check)+1; % if no match is found for these pars, then don't search for a match next time
 sim_this = true;
 for i = start_ind:numel(sims_to_check) % look for the first one that matches the inputs here
-    if exist(sprintf("data/%s/output_constants.mat",sims_to_check(i).name),"file") && exist(sprintf("data/%s/output_final.mat",sims_to_check(i).name),"file")
-        X = load(sprintf("data/%s/output_constants.mat",sims_to_check(i).name));
+    if exist(sprintf("data/sims/%s/output_constants.mat",sims_to_check(i).name),"file") && exist(sprintf("data/sims/%s/output_final.mat",sims_to_check(i).name),"file")
+        X = load(sprintf("data/sims/%s/output_constants.mat",sims_to_check(i).name));
         fn = fieldnames(M);
         these_match = true;
         for j = 1:numel(fn)
@@ -257,8 +349,20 @@ end
 
 function out = grabSimData(folder_name)
 
-% load(sprintf("data/%s/output_final.mat",folder_name),"tracked")
-% out.tracked = tracked;
 out.save_pars.sim_identifier = folder_name;
 
+end
+
+function ids = reuseSims(ids,copy_ids,sample_dim)
+
+if sample_dim == 1 % then these are both vectors of IDs
+    n = length(ids);
+    ids = [ids;copy_ids(copy_ids~="")];
+    ids = ids(1:n);
+else
+    for i = 1:size(ids,1)
+        colons = repmat(':',1,sample_dim-1);
+        ids(i,colons{:}) = reuseSims(squeeze(ids(i,colons{:})),squeeze(copy_ids(i,colons{:})),sample_dim-1);
+    end
+end
 end

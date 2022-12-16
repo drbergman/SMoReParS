@@ -2,27 +2,25 @@ clearvars;
 
 addpath("..")
 addpath("~/Documents/MATLAB/myfunctions/")
-cohort_id = "cohort_221216105128763";
+cohort_id = "cohort_221216132209637";
 
-load(sprintf("../data/%s/output.mat",cohort_id),"ids","lattice_parameters")
+load(sprintf("../data/%s/output.mat",cohort_id),"ids","lattice_parameters","nsamps_per_condition")
 
-ncohorts = numel(ids)/size(ids,ndims(ids));
-npars = ndims(ids)-1;
+ncohorts = numel(ids)/nsamps_per_condition;
+npars = numel(lattice_parameters);
 x=(1:ncohorts)';
-val_color = lines(max(size(ids,1:ndims(ids)-1)));
-
-nsamps = numel(ids)/ncohorts;
+val_color = lines(max(size(ids,1:npars)));
 
 figure;
-ax = gobjects(npars,4);
-for i = 1:4
+ax = gobjects(npars,5);
+for i = 1:5
     for j = 1:npars
-        ax(j,i) = subplot(npars,4,r2c(npars,4,[j,i]),"NextPlot","add");
+        ax(j,i) = subplot(npars,5,r2c(npars,5,[j,i]),"NextPlot","add");
     end
 end
 
 cycle = buildCycle();
-S = 10;
+S = 40;
 
 for j = 1:npars
     l_temp = gobjects(size(ids,j),S,4);
@@ -32,9 +30,9 @@ for j = 1:npars
         id_temp = id_temp(randperm(numel(id_temp),S)); % sample S of these
         for l = 1:S
 
-            [color_ind,~] = ind2sub([ncohorts,nsamps],i);
-            load(sprintf("../data/%s/output_final.mat",id_temp(l)),"tracked")
-            load(sprintf("../data/%s/output_constants.mat",id_temp(l)))
+            [color_ind,~] = ind2sub([ncohorts,nsamps_per_condition],i);
+            load(sprintf("../data/sims/%s/output_final.mat",id_temp(l)),"tracked")
+            load(sprintf("../data/sims/%s/output_constants.mat",id_temp(l)))
             for m = 1:4
                 l_temp(k,l,m) = plot(ax(j,m),tracked.t,tracked.phases(:,m),'Color',[val_color(k,:),0.2]);
                 l_temp(k,l,m).DisplayName = sprintf("%3.2f",lattice_parameters(j).values(k));
@@ -56,6 +54,10 @@ for j = 1:npars
                         legend(ax(j,m),l_temp(:,1,1),"Location","northwest","AutoUpdate","off")
                     end
                 end
+            end
+            plot(ax(j,5),tracked.t,tracked.NT,'Color',[val_color(k,:),0.2]);
+            if l==1 && j==1
+                title(ax(j,5),"Total")
             end
         end
     end
