@@ -79,6 +79,6 @@ M.fig.events_plots(2).YData(end+1) = M.tracked.tum_contact_inhibition(M.i) / (M.
 M.fig.events_plots(3).XData(end+1) = M.t;
 M.fig.events_plots(3).YData(end+1) = M.tracked.tum_apop(M.i) / (M.tracked.NT(M.i-1)*M.dt);
 M.fig.events_plots(4).XData(end+1) = M.t;
-M.fig.events_plots(4).YData(end+1) = M.tracked.tum_chemo_death(M.i) / (M.tracked.NT(M.i-1)*M.dt);
+M.fig.events_plots(4).YData(end+1) = M.tracked.chemo_arrest(M.i) / (M.tracked.NT(M.i-1)*M.dt);
 
 drawnow

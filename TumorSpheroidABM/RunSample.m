@@ -24,12 +24,12 @@ M.pars.prolif_rate = 2;
 M.pars.move_rate_microns = 0;
 % M.pars.apop_rate = 5;
 
-M.setup.censor_date = 15;
+M.setup.censor_date = 3;
 M.setup.N0 = 1e2;
 M.setup.agent_initialization_location = "uniform";
 M.setup.carrying_capacity = 6500;
 
-M.plot_pars.plot_fig = true;
+M.plot_pars.plot_fig = false;
 M.plot_pars.plot_location = true;
 M.plot_pars.make_movie = true;
 

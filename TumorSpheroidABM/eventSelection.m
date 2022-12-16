@@ -1,16 +1,8 @@
-function [M,out] = eventSelection_Tumor(M)
+function [M,out] = eventSelection(M)
 
 rate_matrix = computeRateMatrix(M);
 
-% M.tracked.phase_cell_days(M.i,1:2) = M.tracked.phase_cell_days(M.i,1:2) + sum(min(M.dt,M.tumor(:,M.I.proliferation_timer))) * [1,-1];
-M.tracked.phase_cell_days(M.i,[M.val.phase_g0,M.val.phase_g1]) = M.tracked.phase_cell_days(M.i,[M.val.phase_g0,M.val.phase_g1]) + sum(min(M.dt,M.tumor(:,M.I.proliferation_timer))) * [1,-1];
-
-wholly_on_clock_log = M.tumor(:,M.I.proliferation_timer)>=M.dt;
-M.tumor(wholly_on_clock_log,M.I.phase) = M.val.phase_g0;
-M.tumor(~wholly_on_clock_log,M.I.phase) = M.val.phase_g1;
-
-% prob_matrix = 1-exp(-rate_matrix.*[max(0,M.dt-M.tumor(:,M.I.proliferation_timer)),M.dt*ones(M.NT,2),min(M.dt,M.tumor(:,M.I.proliferation_timer))]); % use M.dt as time step except for proliferation, use M.dt - remaining time to wait before next proliferation
-prob_matrix = 1-exp(-rate_matrix.*[max(0,M.dt-M.tumor(:,M.I.proliferation_timer)),M.dt*ones(M.NT,3)]); % same as above commented line except all cells are susceptible to chemo-induced death
+prob_matrix = 1-exp(-M.dt*rate_matrix);
 
 event_log_array = rand(size(prob_matrix))<prob_matrix; % choose whether events happen
 
@@ -21,11 +13,9 @@ final_event = zeros(M.NT,1,'uint8');
 final_event(inactive_log) = size(rate_matrix,2)+1; % all inactive tumor cells do nothing (which is marked by final event index + 1)
 
 u = rand(length(out.events),1); % random number to decide when event occurs
-min_wait = (out.events==1).*M.tumor(out.active_ind,M.I.proliferation_timer); % minimum time waited until proliferation event can possibly occur
 rates = rate_matrix(sub2ind(size(rate_matrix),out.active_ind,out.events)); % rates at which all the selected out.events happen
-dts = M.dt - min_wait; % adjust total dts for proliferation
 
-out.time_to_event = min_wait - log(1-u.*(1-exp(-rates.*dts)))./rates; % given that the event happens in this M.dt update, this determines when it occurs in that update step; this is why it's not just min_wait-log(rand())./rates
+out.time_to_event = - log(1-u.*(1-exp(-rates.*M.dt)))./rates; % given that the event happens in this M.dt update, this determines when it occurs in that update step; this is why it's not just min_wait-log(rand())./rates
 
 [out.time_to_event,event_order] = sort(out.time_to_event);
 out.active_ind = out.active_ind(event_order);
@@ -33,7 +23,7 @@ out.events = out.events(event_order);
 
 %% remove proliferations that happen after apoptosis
 
-apop_event_ind = find(any(out.events==[2,4],2));
+apop_event_ind = find(out.events==2);
 
 remove_ind = false(length(out.active_ind),1);
 for i = 1:length(apop_event_ind)

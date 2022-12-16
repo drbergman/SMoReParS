@@ -226,10 +226,10 @@ M.fig.ax(tum_prob_ind).Title.String = 'Tum Outcome Probabilities';
 M.fig.ax(tum_prob_ind).NextPlot = 'replacechildren';
 M.fig.ax(tum_prob_ind).XAxis.Visible = "off";
 
-M.fig.tum_prob_bar = bar(NaN,NaN(4,1),1,'stacked','EdgeAlpha',0);
+M.fig.tum_prob_bar = bar(NaN,NaN(3,1),1,'stacked','EdgeAlpha',0);
 
-events = {'prolif','apop','move','chemo death'};
-order = [3,2,4,1];
+events = {'transition','apop','move'};
+order = [3,2,1];
 L = legend(M.fig.ax(tum_prob_ind),flip(M.fig.tum_prob_bar),flip(events(order)),'AutoUpdate','off','Location','northwest');
 L.Position(1) = sum(M.fig.ax(scatter_ind).Position([1,3]));
 

@@ -5,59 +5,66 @@ for ord_ind=1:length(in.active_ind)
     j = in.active_ind(ord_ind);
 
     switch in.events(ord_ind)
-        case 1 % proliferation
+        case 1 % transition
             %%
             %             [n_ind,non_border_neighbors] = getCellNeighborIndsOnGrid_old(M.tumor(j,:),M); % neighbor indices
-            [n_ind,non_border_neighbors] = getCellNeighborIndsOnGrid(M.tumor(j,M.I.ind),M.tumor(j,M.I.subs),M); % neighbor indices
-            if M.setup.ndims==3
-                if (nnz(M.L(n_ind)) + (26-length(n_ind)))<=M.pars.occmax % check how many M.pars.neighbors are occupied
-                    weights = (M.L(n_ind)==0).*M.pars.neighbor_weights(non_border_neighbors);
-                    %                 ind = randsample(length(n_ind),1,true,weights); % weight by whether sites are empty and by the reciprocal of the distance
-                    ind = find(sum(weights)*rand() < cumsum(weights),1);
-                    rel_loc = M.pars.neighbors(non_border_neighbors(ind),:); % get the relative position of the new spot
-                    M.tumor(end+1,:) = 0;
-                    M.tumor(end,M.I.subs) = M.tumor(j,M.I.subs)+rel_loc;  % store new array-specific locations
-                    M.tumor(end,M.I.ind) = n_ind(ind); % store new array-specific locations
-
-                    M.L(n_ind(ind)) = M.val.tum; % set value at lattice site
-                    M.tumor([j,end],M.I.phase) = M.val.phase_m;
-
-                    M.tracked.phase_cell_days(M.i,[M.val.phase_g1,M.val.phase_m]) = M.tracked.phase_cell_days(M.i,[M.val.phase_g1,M.val.phase_m]) + M.pars.mitosis_duration * [-1,1]; % if the mitosis duration is longer than dt, this will result in negative looking values, but otherwise I have to try to keep track of this info into the next step, which would be tedious
-
-                    M.tumor([j,end],M.I.proliferation_timer) = M.pars.min_prolif_wait + in.time_to_event(ord_ind); % must wait M.pars.min_prolif_wait days before proliferating; assume the proliferation happened sometime in the interval [M.tumor(j,M.I.proliferation_timer),M.dt] so some progress towards next prolif has happened (will subtract off M.dt with all cells in simForward)
-
-                    M.tracked.tum_prolif(M.i) = M.tracked.tum_prolif(M.i)+1;
-
-                else
-                    M.tumor(j,M.I.proliferation_timer) = 0; % if not enough empty space, then allow this cell to try proliferating again
-                    M.tracked.tum_contact_inhibition(M.i) = M.tracked.tum_contact_inhibition(M.i)+1;
-                    M.tumor(j,M.I.phase) = M.val.phase_g1;
-                end
-            else
-                if (nnz(M.L(n_ind)) + (8-length(n_ind)))<=M.pars.occmax % check how many M.pars.neighbors are occupied
-                    weights = (M.L(n_ind)==0).*M.pars.neighbor_weights(non_border_neighbors);
-                    %                 ind = randsample(length(n_ind),1,true,weights); % weight by whether sites are empty and by the reciprocal of the distance
-                    ind = find(sum(weights)*rand() < cumsum(weights),1);
-                    rel_loc = M.pars.neighbors(non_border_neighbors(ind),:); % get the relative position of the new spot
-                    M.tumor(end+1,:) = 0;
-                    M.tumor(end,M.I.subs) = M.tumor(j,M.I.subs)+rel_loc;  % store new array-specific locations
-                    M.tumor(end,M.I.ind) = n_ind(ind); % store new array-specific locations
-
-                    M.L(n_ind(ind)) = M.val.tum; % set value at lattice site
-                    M.tumor([j,end],M.I.phase) = M.val.phase_m;
-
-                    M.tracked.phase_cell_days(M.i,[M.val.phase_g1,M.val.phase_m]) = M.tracked.phase_cell_days(M.i,[M.val.phase_g1,M.val.phase_m]) + M.pars.mitosis_duration * [-1,1]; % if the mitosis duration is longer than dt, this will result in negative looking values, but otherwise I have to try to keep track of this info into the next step, which would be tedious
-
-                    M.tumor([j,end],M.I.proliferation_timer) = M.pars.min_prolif_wait + in.time_to_event(ord_ind); % must wait M.pars.min_prolif_wait days before proliferating; assume the proliferation happened sometime in the interval [M.tumor(j,M.I.proliferation_timer),M.dt] so some progress towards next prolif has happened (will subtract off M.dt with all cells in simForward)
-
-                    M.tracked.tum_prolif(M.i) = M.tracked.tum_prolif(M.i)+1;
-
-                else
-                    M.tumor(j,M.I.proliferation_timer) = 0; % if not enough empty space, then allow this cell to try proliferating again
-                    M.tracked.tum_contact_inhibition(M.i) = M.tracked.tum_contact_inhibition(M.i)+1;
-                    M.tumor(j,M.I.phase) = M.val.phase_g1;
+            phase = M.tumor(j,M.I.phase);
+            if phase==M.cycle.m % then this cell proliferates
+                if M.cycle_pars.dna_check(M.cycle.m) && rand() < M.cycle_pars.arrest_prob(M.cycle.m)
+                    M.tumor(j,M.I.event) = 2; % mark the cell for apoptosis
+                    M.tracked.chemo_arrest(M.i) = M.tracked.chemo_arrest(M.i)+1;
+                    continue;
                 end
 
+                [n_ind,non_border_neighbors] = getCellNeighborIndsOnGrid(M.tumor(j,M.I.ind),M.tumor(j,M.I.subs),M); % neighbor indices
+                if M.setup.ndims==3
+                    if (nnz(M.L(n_ind)) + (26-length(n_ind)))<=M.pars.occmax % check how many M.pars.neighbors are occupied
+                        weights = (M.L(n_ind)==0).*M.pars.neighbor_weights(non_border_neighbors);
+                        %                 ind = randsample(length(n_ind),1,true,weights); % weight by whether sites are empty and by the reciprocal of the distance
+                        ind = find(sum(weights)*rand() < cumsum(weights),1);
+                        rel_loc = M.pars.neighbors(non_border_neighbors(ind),:); % get the relative position of the new spot
+                        M.tumor(end+1,:) = 0;
+                        M.tumor(end,M.I.subs) = M.tumor(j,M.I.subs)+rel_loc;  % store new array-specific locations
+                        M.tumor(end,M.I.ind) = n_ind(ind); % store new array-specific locations
+
+                        M.L(n_ind(ind)) = M.val.tum; % set value at lattice site
+                        M.tumor([j,end],M.I.phase) = M.cycle.g1;
+
+                        M.tracked.tum_prolif(M.i) = M.tracked.tum_prolif(M.i)+1;
+
+                    else
+                        M.tracked.tum_contact_inhibition(M.i) = M.tracked.tum_contact_inhibition(M.i)+1;
+                        M.tumor(j,M.I.phase) = M.cycle.g1;
+                    end
+                else
+                    if (nnz(M.L(n_ind)) + (8-length(n_ind)))<=M.pars.occmax % check how many M.pars.neighbors are occupied
+                        weights = (M.L(n_ind)==0).*M.pars.neighbor_weights(non_border_neighbors);
+                        %                 ind = randsample(length(n_ind),1,true,weights); % weight by whether sites are empty and by the reciprocal of the distance
+                        ind = find(sum(weights)*rand() < cumsum(weights),1);
+                        rel_loc = M.pars.neighbors(non_border_neighbors(ind),:); % get the relative position of the new spot
+                        M.tumor(end+1,:) = 0;
+                        M.tumor(end,M.I.subs) = M.tumor(j,M.I.subs)+rel_loc;  % store new array-specific locations
+                        M.tumor(end,M.I.ind) = n_ind(ind); % store new array-specific locations
+
+                        M.L(n_ind(ind)) = M.val.tum; % set value at lattice site
+                        M.tumor([j,end],M.I.phase) = M.cycle.m;
+
+                        M.tracked.tum_prolif(M.i) = M.tracked.tum_prolif(M.i)+1;
+
+                    else
+                        M.tracked.tum_contact_inhibition(M.i) = M.tracked.tum_contact_inhibition(M.i)+1;
+                        M.tumor(j,M.I.phase) = M.cycle.g1;
+                    end
+
+                end
+            else % then it just moves along the transition path
+                
+                if M.cycle_pars.dna_check(phase) && rand() < M.cycle_pars.arrest_prob(phase)
+                    M.tumor(j,M.I.event) = 2; % mark the cell for apoptosis
+                    M.tracked.chemo_arrest(M.i) = M.tracked.chemo_arrest(M.i)+1;
+                else
+                    M.tumor(j,M.I.phase) = M.cycle.advancer(M.tumor(j,M.I.phase));
+                end
             end
 
         case 2 % spontaneous apoptosis
@@ -82,8 +89,9 @@ for ord_ind=1:length(in.active_ind)
 
         case 4 % spontaneous apoptosis
             %%
+            error("no longer have this")
             M.L(M.tumor(j,M.I.ind)) = M.val.tum_apop;
-            M.tracked.tum_chemo_death(M.i) = M.tracked.tum_chemo_death(M.i)+1;
+            M.tracked.chemo_arrest(M.i) = M.tracked.chemo_arrest(M.i)+1;
             M.tumor(j,M.I.event) = 2; % mark it as apoptotic to be removed later
 
         otherwise

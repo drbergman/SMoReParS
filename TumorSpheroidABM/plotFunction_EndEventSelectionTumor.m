@@ -1,7 +1,7 @@
 function plotFunction_EndEventSelectionTumor(M, prob_matrix)
 
 %% tumor probabilities
-order = [3,2,4,1]; % first, separate by fast vs slow, then engaged/non-engaged
+order = [3,2,1]; % first, separate by fast vs slow, then engaged/non-engaged
 xs = linspace(0,1,size(prob_matrix,1));
 ys = sortrows(prob_matrix(:,order));
 for i = 1:size(prob_matrix,2)
