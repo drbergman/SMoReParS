@@ -22,9 +22,17 @@ vp_ind = cell(1,length(cohort_size));
 
 sims_to_check = dir("data/sims/*");
 sims_to_check = sims_to_check([sims_to_check.isdir]);
+for i = numel(sims_to_check):-1:1
+    if ~startsWith(sims_to_check(i).name,digitsPattern(1)) % I only want folders that start with a number (not "." or ".." etc)
+        sims_to_check(i) = [];
+    else
+        sims_to_check(i).name = string(sims_to_check(i).name);
+    end
+end
 sims_to_check = [sims_to_check.name];
 cohort.ids = repmat("",[cohort_size,nsamps_per_condition]);
 used_ids = repmat("",[0,1]);
+n_found = 0;
 
 
 %% check if previous cohorts ran these sims
@@ -32,12 +40,17 @@ previous_cohorts = dir("data/cohort_*");
 for i = 1:numel(previous_cohorts)
     
     PC = load(sprintf("data/%s/output.mat",previous_cohorts(i).name));
-
-    [cohort,sims_to_check] = grabSims(cohort,PC,sims_to_check);
+    sims_to_check = setdiff(sims_to_check,PC.ids(:));
+    if ~isequal(sort(string(all_fn)),sort(string(fieldnames(PC.all_parameters))))
+        % these did not have the same parameters coming in, so move on
+        return;
+    end
+%     [cohort,sims_to_check] = grabSims(cohort,PC,sims_to_check);
 
     skip_this_cohort = false;
-    restricted_dims = cell(length(cohort_size),1);
-    target_dims = cell(length(PC.lattice_parameters),1);
+    target_dims = cell(length(cohort_size),1);
+    copy_dims = cell(length(PC.lattice_parameters),1);
+    dim_match = zeros(0,2); % match target dims with copy dims (in case they are in different orders)
 
     for j = 1:numel(all_fn)
 
@@ -61,8 +74,8 @@ for i = 1:numel(previous_cohorts)
                         break;
                     end
                 end
-                sims_to_check = setdiff(sims_to_check,removeslice(PC.ids,prev_dim,prev_ind));
-                target_dims{prev_dim} = k;
+%                 sims_to_check = setdiff(sims_to_check,removeslice(PC.ids,prev_dim,prev_ind));
+                copy_dims{prev_dim} = prev_ind;
 %                 PC.ids = sliceof(PC.ids,prev_dim,prev_ind);
             end
 
@@ -80,9 +93,7 @@ for i = 1:numel(previous_cohorts)
                         break;
                     end
                 end
-                restricted_dims{current_dim} = current_ind;
-
-                
+                target_dims{current_dim} = current_ind;
 
             else % it was varied previously as well
                 for k = 1:numel(PC.lattice_parameters)
@@ -99,59 +110,90 @@ for i = 1:numel(previous_cohorts)
                     end
                 end
 
+                match_found = false;
+                
                 for k = 1:size(previous_val,1)
                     [re_use,current_ind] = ismember(previous_val(k,:),current_val,"rows");
                     if ~re_use
-                        sims_to_check = setdiff(sims_to_check,sliceof(PC.ids,prev_dim,k));
+%                         sims_to_check = setdiff(sims_to_check,sliceof(PC.ids,prev_dim,k));
 %                         delete_ind(k) = true;
                     else
-                        restricted_dims{current_dim} = [restricted_dims{current_dim},current_ind];
-                        target_dims{prev_dim} = [target_dims{prev_dim},k];
+                        match_found = true;
+                        target_dims{current_dim} = [target_dims{current_dim},current_ind];
+                        copy_dims{prev_dim} = [copy_dims{prev_dim},k];
                     end
                 end
 
-
-
-
+                if match_found
+                    dim_match = [dim_match;current_dim,prev_dim];
+                else
+                    skip_this_cohort = true;
+                    break;
+                end
             end
-
         end
-
-
-
     end
 
     if skip_this_cohort
         continue;
     end
 
-    copy_ids = PC.ids(target_dims{:},:);
-    copy_ids(ismember(copy_ids,used_ids)) = "";
-    new_ids = copy_ids(copy_ids~="");
-    used_ids = [used_ids;new_ids(:)];
-    sims_to_check = setdiff(sims_to_check,new_ids);
+    dim_match = sortrows(dim_match);
+    copy_dim_order = [dim_match(:,2);reshape(setdiff(1:length(copy_dims),dim_match(:,2)),[],1)];
+    PC.ids = permute(PC.ids,[copy_dim_order;length(PC.cohort_size)+1]);
+    copy_dims = copy_dims(copy_dim_order);
 
-    cohort.ids(restricted_dims{:},:) = reuseSims(cohort.ids(restricted_dims{:},:),squeeze(copy_ids),length(cohort_size)+1);
+    target_sz = cellfun(@numel,target_dims);
+    copy_id_sz = cellfun(@numel,copy_dims);
 
+    target_inds = cell(length(target_sz),1);
+    ti = cell(length(target_sz),1);
+    copy_inds = cell(length(copy_id_sz),1);
+    ci = cell(length(copy_id_sz),1);
+    for j = 1:prod(target_sz)
+        [target_inds{:}] = ind2sub(target_sz,j);
+        for k = 1:length(target_sz)
+            ti{k} = target_dims{k}(target_inds{k});
+        end
+        [copy_inds{:}] = ind2sub(copy_id_sz,j);
+        for k = 1:length(copy_id_sz)
+            ci{k} = copy_dims{k}(copy_inds{k});
+        end
+        temp_ids = cohort.ids(ti{:},:);
+        blank_log = temp_ids=="";
+        n_blank = sum(blank_log);
+        if n_blank==0 % then all have been found, move on
+            continue;
+        end
+        new_ids_temp = PC.ids(ci{:},:);
+        new_ids_temp = setdiff(new_ids_temp,temp_ids);
+        blanks_to_fill = find(blank_log);
+        if numel(new_ids_temp) > n_blank
+            new_ids_temp = new_ids_temp(randperm(numel(new_ids_temp),n_blank)); % select random ids from before
+        elseif numel(new_ids_temp) < n_blank
+            blanks_to_fill = blanks_to_fill(1:numel(new_ids_temp));
+        end
+        temp_ids(blanks_to_fill) = new_ids_temp;
+        cohort.ids(ti{:},:) = sort(temp_ids);
+        n_found = n_found + numel(blanks_to_fill);
+    end
 
-    [n_copied,q] = min([nsamps_per_condition,PC.nsamps_per_condition]);
-% 
-%     if q==2 % then the previous cohort had fewer samples, use them all
-
-
+    if n_found == total_runs || isempty(sims_to_check)
+        break;
+    end
 
 end
 
+cohort.ids = squeeze(permute(cohort.ids,[length(cohort_size)+1,1:length(cohort_size)])); % put the sample dimension along first dimension for sims
+
 
 sims_to_check = sims_to_check(randperm(numel(sims_to_check))); % to not bias samples towards the first sims I ran
-cohort.ids = repmat("",[nsamps_per_condition,cohort_size]);
 
 %% record which previous sims have the right parameters
-n_found = 0;
 fn = fieldnames(M);
 for i = 1:numel(sims_to_check)
-    if exist(sprintf("data/sims/%s/output_constants.mat",sims_to_check(i).name),"file") && exist(sprintf("data/sims/%s/output_final.mat",sims_to_check(i).name),"file")
-        X = load(sprintf("data/sims/%s/output_constants.mat",sims_to_check(i).name));
+    if exist(sprintf("data/sims/%s/output_constants.mat",sims_to_check(i)),"file") && exist(sprintf("data/sims/%s/output_final.mat",sims_to_check(i)),"file")
+        X = load(sprintf("data/sims/%s/output_constants.mat",sims_to_check(i)));
         these_match = true;
         for j = 1:numel(fn)
             if (~strcmp(fn{j},"plot_pars")) % don't worry about plot_pars being equal
@@ -192,7 +234,7 @@ for i = 1:numel(sims_to_check)
         if these_match
             sample_ind = find(cohort.ids(:,vp_ind{:})=="",1);
             if ~isempty(sample_ind) && sample_ind <= nsamps_per_condition
-                cohort.ids(sample_ind,vp_ind{:}) = sims_to_check(i).name;
+                cohort.ids(sample_ind,vp_ind{:}) = sims_to_check(i);
                 n_found = n_found+1;
                 if n_found>=total_runs
                     break;
@@ -230,6 +272,7 @@ end
 cohort_pars.mu_n = 0;
 cohort_pars.start = tic;
 cohort_pars.batch_start = tic;
+cohort_pars.total_runs = total_runs; % set this for calculating time remaining
 
 for ri = total_runs:-1:1
     if total_runs>=cohort_pars.min_parfor_num
@@ -305,8 +348,8 @@ sim_id = "";
 new_start_ind = numel(sims_to_check)+1; % if no match is found for these pars, then don't search for a match next time
 sim_this = true;
 for i = start_ind:numel(sims_to_check) % look for the first one that matches the inputs here
-    if exist(sprintf("data/sims/%s/output_constants.mat",sims_to_check(i).name),"file") && exist(sprintf("data/sims/%s/output_final.mat",sims_to_check(i).name),"file")
-        X = load(sprintf("data/sims/%s/output_constants.mat",sims_to_check(i).name));
+    if exist(sprintf("data/sims/%s/output_constants.mat",sims_to_check(i)),"file") && exist(sprintf("data/sims/%s/output_final.mat",sims_to_check(i)),"file")
+        X = load(sprintf("data/sims/%s/output_constants.mat",sims_to_check(i)));
         fn = fieldnames(M);
         these_match = true;
         for j = 1:numel(fn)
@@ -325,7 +368,7 @@ for i = start_ind:numel(sims_to_check) % look for the first one that matches the
                     if ~isfield(X,fn{j}) || ~isfield(X.(fn{j}),par_fn{k}) || ~isequal(M.(fn{j}).(par_fn{k}),X.(fn{j}).(par_fn{k}))
 %                         disp(fn{j})
 %                         disp(par_fn{k})
-%                         if strcmp(sims_to_check(i).name,"221012070214082")
+%                         if strcmp(sims_to_check(i),"221012070214082")
 %                             disp('')
 %                         end
                         these_match = false;
@@ -339,7 +382,7 @@ for i = start_ind:numel(sims_to_check) % look for the first one that matches the
         end
         if these_match
             sim_this = false;
-            sim_id = string(sims_to_check(i).name);
+            sim_id = string(sims_to_check(i));
             sims_to_check(i) = [];
             new_start_ind = i;
             return;
