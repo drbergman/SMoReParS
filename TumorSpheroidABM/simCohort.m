@@ -22,6 +22,7 @@ vp_ind = cell(1,length(cohort_size));
 
 sims_to_check = dir("data/sims/*");
 sims_to_check = sims_to_check([sims_to_check.isdir]);
+sims_to_check = [sims_to_check.name];
 cohort.ids = repmat("",[cohort_size,nsamps_per_condition]);
 used_ids = repmat("",[0,1]);
 
@@ -29,20 +30,20 @@ used_ids = repmat("",[0,1]);
 %% check if previous cohorts ran these sims
 previous_cohorts = dir("data/cohort_*");
 for i = 1:numel(previous_cohorts)
-    PC = load(sprintf("data/%s/output.mat",previous_cohorts(i).name),"ids","all_parameters","lattice_parameters","nsamps_per_condition");
-    if ~isequal(sort(string(all_fn)),sort(string(fieldnames(PC.all_parameters))))
-        % these did not have the same parameters coming in, so move on
-        continue;
-    end
+    
+    PC = load(sprintf("data/%s/output.mat",previous_cohorts(i).name));
+
+    [cohort,sims_to_check] = grabSims(cohort,PC,sims_to_check);
 
     skip_this_cohort = false;
     restricted_dims = cell(length(cohort_size),1);
     target_dims = cell(length(PC.lattice_parameters),1);
 
     for j = 1:numel(all_fn)
+
         current_val = cohort.all_parameters.(all_fn{j});
         previous_val = PC.all_parameters.(all_fn{j});
-        if size(current_val,1)==1 % then this parameter is not currently being varied, check that at least one of
+        if size(current_val,1)==1 % then this parameter is not currently being varied, check that at least one of previous used it
             if size(previous_val,1)==1 % then this was also not varied previously
                 if ~isequal(current_val,previous_val)
                     skip_this_cohort = true;
