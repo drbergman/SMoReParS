@@ -2,7 +2,7 @@ clearvars;
 
 addpath("..")
 addpath("~/Documents/MATLAB/myfunctions/")
-cohort_id = "cohort_221216132209637";
+cohort_id = "cohort_221218090258558";
 
 load(sprintf("../data/%s/output.mat",cohort_id),"ids","lattice_parameters","nsamps_per_condition")
 
@@ -66,3 +66,5 @@ end
 for m = 1:4
 normalizeYLims(ax(:,m))
 end
+
+rmpath("..")

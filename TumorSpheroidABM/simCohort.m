@@ -30,7 +30,7 @@ for i = numel(sims_to_check):-1:1
     end
 end
 sims_to_check = [sims_to_check.name];
-cohort.ids = repmat("",[cohort_size,nsamps_per_condition]);
+cohort.ids = repmat("",[cohort_size,nsamps_per_condition,1]); % put the 1 at the end in case cohort_size = []; this way it creates a 1D vector of ids rather than a square array of ids...silly matlab
 used_ids = repmat("",[0,1]);
 n_found = 0;
 
@@ -74,9 +74,7 @@ for i = 1:numel(previous_cohorts)
                         break;
                     end
                 end
-%                 sims_to_check = setdiff(sims_to_check,removeslice(PC.ids,prev_dim,prev_ind));
                 copy_dims{prev_dim} = prev_ind;
-%                 PC.ids = sliceof(PC.ids,prev_dim,prev_ind);
             end
 
         else % then this parameter is currently being varied
@@ -114,10 +112,7 @@ for i = 1:numel(previous_cohorts)
                 
                 for k = 1:size(previous_val,1)
                     [re_use,current_ind] = ismember(previous_val(k,:),current_val,"rows");
-                    if ~re_use
-%                         sims_to_check = setdiff(sims_to_check,sliceof(PC.ids,prev_dim,k));
-%                         delete_ind(k) = true;
-                    else
+                    if re_use
                         match_found = true;
                         target_dims{current_dim} = [target_dims{current_dim},current_ind];
                         copy_dims{prev_dim} = [copy_dims{prev_dim},k];
@@ -140,7 +135,9 @@ for i = 1:numel(previous_cohorts)
 
     dim_match = sortrows(dim_match);
     copy_dim_order = [dim_match(:,2);reshape(setdiff(1:length(copy_dims),dim_match(:,2)),[],1)];
-    PC.ids = permute(PC.ids,[copy_dim_order;length(PC.cohort_size)+1]);
+    if ~isempty(PC.cohort_size) % otherwise no need to permute order
+        PC.ids = permute(PC.ids,[copy_dim_order;length(PC.cohort_size)+1]);
+    end
     copy_dims = copy_dims(copy_dim_order);
 
     target_sz = cellfun(@numel,target_dims);
@@ -184,8 +181,9 @@ for i = 1:numel(previous_cohorts)
 
 end
 
-cohort.ids = squeeze(permute(cohort.ids,[length(cohort_size)+1,1:length(cohort_size)])); % put the sample dimension along first dimension for sims
-
+if ~isempty(cohort_size) % if its empty, then cohort.ids should just be a column vector already, as desired
+    cohort.ids = squeeze(permute(cohort.ids,[length(cohort_size)+1,1:length(cohort_size)])); % put the sample dimension along first dimension for sims
+end
 
 sims_to_check = sims_to_check(randperm(numel(sims_to_check))); % to not bias samples towards the first sims I ran
 
@@ -297,7 +295,9 @@ if M.save_pars.make_save < Inf
     cohort.ids = reshape(cohort.ids,[nsamps_per_condition,cohort_size,1]);
 end
 
-cohort.ids = squeeze(permute(cohort.ids,[2:length(cohort_size)+1,1])); % put the sample dimension back along last dimension
+if ~isempty(cohort_size)
+    cohort.ids = squeeze(permute(cohort.ids,[2:length(cohort_size)+1,1])); % put the sample dimension back along last dimension
+end
 
 if ~isfield(cohort_pars,"cohort_identifier")
     cohort_pars.cohort_identifier = string(datetime("now","Format","yyMMddHHmmssSSS")); % default to this for determining an id if none given
@@ -366,11 +366,6 @@ for i = start_ind:numel(sims_to_check) % look for the first one that matches the
                         continue; % if using the carrying capacity, then the grid size does not matter at this point
                     end
                     if ~isfield(X,fn{j}) || ~isfield(X.(fn{j}),par_fn{k}) || ~isequal(M.(fn{j}).(par_fn{k}),X.(fn{j}).(par_fn{k}))
-%                         disp(fn{j})
-%                         disp(par_fn{k})
-%                         if strcmp(sims_to_check(i),"221012070214082")
-%                             disp('')
-%                         end
                         these_match = false;
                         break;
                     end

@@ -17,7 +17,7 @@ while exist(sprintf("data/sims/%s",M.save_pars.sim_identifier),"dir") % just in 
 end
 
 if isfield(M.save_pars,"idx_in_cohort")
-    M.save_pars.sim_identifier = sprintf("%s_%02d",M.save_pars.sim_identifier,M.save_pars.idx_in_cohort);
+    M.save_pars.sim_identifier = sprintf("%s_%d",M.save_pars.sim_identifier,M.save_pars.idx_in_cohort);
 end
 
 mkdir(sprintf("data/sims/%s",M.save_pars.sim_identifier))
