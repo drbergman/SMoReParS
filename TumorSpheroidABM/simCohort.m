@@ -31,7 +31,6 @@ for i = numel(sims_to_check):-1:1
 end
 sims_to_check = [sims_to_check.name];
 cohort.ids = repmat("",[cohort_size,nsamps_per_condition,1]); % put the 1 at the end in case cohort_size = []; this way it creates a 1D vector of ids rather than a square array of ids...silly matlab
-used_ids = repmat("",[0,1]);
 n_found = 0;
 
 
@@ -43,7 +42,7 @@ for i = 1:numel(previous_cohorts)
     sims_to_check = setdiff(sims_to_check,PC.ids(:));
     if ~isequal(sort(string(all_fn)),sort(string(fieldnames(PC.all_parameters))))
         % these did not have the same parameters coming in, so move on
-        return;
+        continue;
     end
 %     [cohort,sims_to_check] = grabSims(cohort,PC,sims_to_check);
 
@@ -300,11 +299,11 @@ if ~isempty(cohort_size)
 end
 
 if ~isfield(cohort_pars,"cohort_identifier")
-    cohort_pars.cohort_identifier = string(datetime("now","Format","yyMMddHHmmssSSS")); % default to this for determining an id if none given
+    cohort_pars.cohort_identifier = cohort_start_time; % default to this for determining an id if none given
 end
 
 while exist(sprintf("data/cohort_%s",cohort_pars.cohort_identifier),"dir") % just in case this directory already exists somehow (not sure how to processes could start at the same time to the millisecond and then one create this folder before the other looks for it)
-    cohort_pars.cohort_identifier = string(datetime("now","Format","yyMMddHHmmssSSS")); % default to this for determining an id if none given
+    cohort_pars.cohort_identifier = string(datetime("now","Format","yyMMddHHmm")); % default to this for determining an id if none given
 end
 
 mkdir(sprintf("data/cohort_%s",cohort_pars.cohort_identifier))
