@@ -49,10 +49,10 @@ if relative_spread > ci_relative_spread
         temp = simPatient(M);
         NT(end+1) = temp.NT;
         relative_spread = tinv(1-0.5*alpha,numel(NT)-1)*std(NT)/(sqrt(numel(NT))*mean(NT));
-        fprintf("  Spread after %d: %3.2f%%\n",numel(NT),100*relative_spread)
+%         fprintf("  Spread after %d: %3.2f%%\n",numel(NT),100*relative_spread)
     end
 else
-    fprintf("Spread after 10: %3.2f%%\n",100*relative_spread)
+%     fprintf("Spread after 10: %3.2f%%\n",100*relative_spread)
 end
 
 out = mean(NT);

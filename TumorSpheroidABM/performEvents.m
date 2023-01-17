@@ -7,12 +7,12 @@ for ord_ind=1:length(in.active_ind)
     switch in.events(ord_ind)
         case 1 % transition
             %%
-            %             [n_ind,non_border_neighbors] = getCellNeighborIndsOnGrid_old(M.tumor(j,:),M); % neighbor indices
             phase = M.tumor(j,M.I.phase);
             if phase==M.cycle.m % then this cell proliferates
                 if M.cycle_pars.dna_check(M.cycle.m) && rand() < M.cycle_pars.arrest_prob(M.cycle.m)
                     M.tumor(j,M.I.event) = 2; % mark the cell for apoptosis
                     M.tracked.chemo_arrest(M.i) = M.tracked.chemo_arrest(M.i)+1;
+                    in = stopFutureEvents(in,j,ord_ind);
                     continue;
                 end
 
@@ -62,6 +62,7 @@ for ord_ind=1:length(in.active_ind)
                 if M.cycle_pars.dna_check(phase) && rand() < M.cycle_pars.arrest_prob(phase)
                     M.tumor(j,M.I.event) = 2; % mark the cell for apoptosis
                     M.tracked.chemo_arrest(M.i) = M.tracked.chemo_arrest(M.i)+1;
+                    in = stopFutureEvents(in,j,ord_ind);
                 else
                     M.tumor(j,M.I.phase) = M.cycle.advancer(M.tumor(j,M.I.phase));
                 end
@@ -87,12 +88,12 @@ for ord_ind=1:length(in.active_ind)
                 M.L(n_ind(ind)) = M.val.tum; % set value at lattice site based on original cell (this should work instead of above commented out line)
             end
 
-        case 4 % spontaneous apoptosis
+        case 4 % arrested cell skipped some event
             %%
-            error("no longer have this")
-            M.L(M.tumor(j,M.I.ind)) = M.val.tum_apop;
-            M.tracked.chemo_arrest(M.i) = M.tracked.chemo_arrest(M.i)+1;
-            M.tumor(j,M.I.event) = 2; % mark it as apoptotic to be removed later
+%             error("no longer have this")
+%             M.L(M.tumor(j,M.I.ind)) = M.val.tum_apop;
+%             M.tracked.chemo_arrest(M.i) = M.tracked.chemo_arrest(M.i)+1;
+%             M.tumor(j,M.I.event) = 2; % mark it as apoptotic to be removed later
 
         otherwise
             %%
@@ -100,3 +101,9 @@ for ord_ind=1:length(in.active_ind)
 
     end % end of switch
 end % end of j for
+
+end
+
+function in = stopFutureEvents(in,j,ord_ind)
+in.events(ord_ind + find(in.active_ind(ord_ind+1:end)==j)) = 4;
+end

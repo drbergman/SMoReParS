@@ -21,7 +21,7 @@ M.save_pars.dt = 0.01; % set to Inf to not save anything; otherwise dt is in day
 M.pars.max_dt = 0.25 / 24; % number of days per step
 M.pars.occmax_3d = 20;
 M.pars.occmax_2d = 5;
-M.pars.move_rate_microns = 20;
+M.pars.move_rate_microns = 0;
 M.pars.apop_rate = .05;
 
 % M.cycle_pars.g1_to_s = 0.2;
@@ -36,7 +36,7 @@ M.cycle_pars.arrest_prob_s = 0.00;
 M.cycle_pars.arrest_prob_g2 = 0.05;
 M.cycle_pars.arrest_prob_m = 0.00;
 
-M.plot_pars.plot_fig = true;
+M.plot_pars.plot_fig = false;
 M.plot_pars.plot_location = true;
 M.plot_pars.make_movie = true;
 

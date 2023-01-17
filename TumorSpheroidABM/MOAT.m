@@ -103,6 +103,8 @@ nfac=numel(par_names);
 assert(nfac==numel(par_names)) % make sure that there is a value for each of the parameters to be varied
 assert(D.numEntries==numel(par_names)) % make sure each parameter has an associated distribution
 studied_function = @(x) moatSample(x,M,par_names,D,nsamps,alpha,ci_relative_spread);
+[mu_star,sigma,order] = morris_simple(studied_function,nfac,15);
+
 %% 3) Initialization of the variables
 table_outputs = []; % All the outputs of the simulations runs. One line = results around one point of the factors hyperspace. First column = output at a sampled point, second column = output after varying the first factor, etc...
 table_ee = []; % All the elementary effects. One line = elementary effects at one point of the factors hyperspace. First column = elementary effect of the first factor, etc... See the relation between the outputs of the simulation run and the elementary effects.
