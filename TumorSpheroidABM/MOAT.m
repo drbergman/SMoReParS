@@ -1,4 +1,7 @@
 %% Program to run
+
+addpath("~/Documents/MATLAB/myfunctions/")
+
 %
 % This algorithm is an adaptation of the method of Sensitivity Analysis
 % called the Morris method.
@@ -41,6 +44,9 @@ clearvars; % Clears the memory
 % Recommended value : (number of factors + 1) * 10
 % The algorithm will maybe exceed this value if it is considered necessary
 alpha = 0.05; % significance value for CI to determine if enough samples have been computed
+options.limit_factor = 0.5; % how to set the limit for separating low and high impact factors
+options.initialization_factor = 0.8; % how to determine when it has been sufficiently initialized
+ci_relative_spread = 0.1; % how much the confidence interval can spread around the mean of the stochastic simulation output
 nsim_max = 210;
 % Function studied :
 % Replace test_function by the name of your function. It must be a 
@@ -89,14 +95,14 @@ M.plot_pars.plot_location = false;
 
 nsamps = 10;
 par_names = ["carrying_capacity";"g1_to_s";"s_to_g2";"g2_to_m";"m_to_g1";"arrest_prob_g1";"arrest_prob_g2";"apop_rate";"move_rate_microns";"occmax_2d"];
-D = dictionary(par_names,[makedist("Uniform",500,1e3);makedist("Uniform",1.8,2.4);makedist("Uniform",2.5,3.5);makedist("Uniform",0,48);makedist("Uniform",0,100);makedist("Uniform",0.02,0.1);makedist("Uniform",0.02,0.1);makedist("Uniform",0.01,0.2);makedist("Uniform",0,60);makedist("Uniform",3,7)]);
+D = makeMOATDistributions(par_names);
 
 % Number of factors of uncertainty of the function studied :
 nfac=numel(par_names); 
 
 assert(nfac==numel(par_names)) % make sure that there is a value for each of the parameters to be varied
 assert(D.numEntries==numel(par_names)) % make sure each parameter has an associated distribution
-studied_function = @(x) moatSample(x,M,par_names,D,nsamps,alpha);
+studied_function = @(x) moatSample(x,M,par_names,D,nsamps,alpha,ci_relative_spread);
 %% 3) Initialization of the variables
 table_outputs = []; % All the outputs of the simulations runs. One line = results around one point of the factors hyperspace. First column = output at a sampled point, second column = output after varying the first factor, etc...
 table_ee = []; % All the elementary effects. One line = elementary effects at one point of the factors hyperspace. First column = elementary effect of the first factor, etc... See the relation between the outputs of the simulation run and the elementary effects.
@@ -116,7 +122,7 @@ while (nsim <= nsim_max) || (n<=size(table_ee,1)) || ~convergence
     % Application of the algorithm at the current step:
     [ table_outputs, table_ee, factors_over, n, points, initialization ] = moat_loop_function( nfac, studied_function, table_outputs, table_ee, factors_over, n, points, initialization );
     % Updating values
-    nsim = sum(table_ee(:)~=-1)+length(table_ee(:,1))+length(factors_over)+1;
+    nsim = sum(table_ee(:)~=-1)+size(table_ee,1)+length(factors_over)+1;
     table_factors_over(n,1:length(factors_over)) = factors_over;
     
     % Comparison of the factors over the limit over the three last steps
@@ -148,9 +154,9 @@ disp('* SUMMARY OF THE CALCULATIONS *');
 disp('*******************************');
 disp(['Number of factors : ' num2str(nfac)]);
 disp(['Chosen number of simulation runs : ' num2str(nsim_max)]);
-disp(['Actual number of simulation runs : ' num2str(sum(table_ee(:)~=-1)+length(table_ee(:,1)))]);
-disp(['Number of points tested in the hyperspace : ' num2str(length(table_ee(:,1)))]);
-disp(['Number of points normally tested with the same number of simulation runs  : ' num2str(floor((sum(table_ee(:)~=-1)+length(table_ee(:,1)))/nfac))]);
+disp(['Actual number of simulation runs : ' num2str(sum(table_ee(:)~=-1)+size(table_ee,1))]);
+disp(['Number of points tested in the hyperspace : ' num2str(size(table_ee,1))]);
+disp(['Number of points normally tested with the same number of simulation runs  : ' num2str(floor((sum(table_ee(:)~=-1)+size(table_ee,1))/nfac))]);
 disp('*******************************');
 %% 6) Figure
 max_ee = max(table_ee,[],1); % Maxima of the elementary effects of the factors.
@@ -158,19 +164,20 @@ max_ee = max(table_ee,[],1); % Maxima of the elementary effects of the factors.
 sort_Ab = [sort_A(1) sort_A(1:nfac-1)]; % New table where the first elementary effect is repeted twice.
 difference = sort_A-sort_Ab; % Variation between the successive maxima.
 dmax = max(difference); % Largest variation.
-sep = dmax/10; % Amplitude of the variation which can be considered as the limit.
+sep = dmax*options.limit_factor; % Amplitude of the variation which can be considered as the limit.
 sep_indic = find(difference>=sep, 1 ); % Index of the first factor after the limit
 % Opening the figure
 hfig = figure;
 hold on;
 for j=1:nfac % For each factor
    index_fac = sort_B(j);
-   for k=1:size(table_ee,1) % For each elementary effect
-       y = table_ee(k,index_fac); % Value of the elementary effect.
-       if y~=-1 % -1 represents a value which has not been calculated
-           plot(j,y,'*','linewidth',2); % Elementary effects.
-       end
-   end
+   plot(j,table_ee(table_ee(:,index_fac)~=-1,index_fac),'*','LineWidth',2);
+%    for k=1:size(table_ee,1) % For each elementary effect
+%        y = table_ee(k,index_fac); % Value of the elementary effect.
+%        if y~=-1 % -1 represents a value which has not been calculated
+%            plot(j,y,'*','linewidth',2); % Elementary effects.
+%        end
+%    end
 end
 plot([sep_indic-0.5 sep_indic-0.5], [0 1.1*max(table_ee(:))], 'k', 'linewidth', 2); % Limit.
 hold off;
@@ -184,3 +191,5 @@ axis([0 nfac+1 0 1.1*max(table_ee(:))]) % Limits of the axes.
 % Labels
 xlabel('Factors ordered by ascending maximum','FontSize',12)
 ylabel('Elementary effects','FontSize',12)
+
+rmpath("~/Documents/MATLAB/myfunctions/")

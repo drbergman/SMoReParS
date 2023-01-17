@@ -1,4 +1,4 @@
-function out = moatSample(x,M,par_names,D,nsamps,alpha)
+function out = moatSample(x,M,par_names,D,nsamps,alpha,ci_relative_spread)
 
 % runs nsamps at the point in parameter space defined by x. M has the base
 % parameters of the simulation. par_names stores the correspondence between
@@ -26,7 +26,7 @@ for i = 1:numel(x)
         case "move_rate_microns"
             M.pars.move_rate_microns = v_temp;
         case "occmax_2d"
-            M.pars.occmax_2d = floor(v_temp);
+            M.pars.occmax_2d = min(7,floor(v_temp)); % make sure that this value cannot exceed 7 (otherwise cells will proliferate even when no space exists)
 
         otherwise
             error("Have not yet planned for %s to be varied.",par_names(i))
@@ -42,14 +42,17 @@ for si = 1:nsamps
     NT(si) = temp.NT;
 end
 
-if tinv(1-0.5*alpha,numel(NT)-1)*std(NT)/(sqrt(numel(NT))*mean(NT)) > 0.1
-    while tinv(1-0.5*alpha,numel(NT)-1)*std(NT)/(sqrt(numel(NT))*mean(NT)) > 0.1 % while the confidence interval for the mean is wider than 10% of the mean, keep going
+relative_spread = tinv(1-0.5*alpha,numel(NT)-1)*std(NT)/(sqrt(numel(NT))*mean(NT));
+
+if relative_spread > ci_relative_spread
+    while relative_spread > ci_relative_spread % while the confidence interval for the mean is wider than 10% of the mean, keep going
         temp = simPatient(M);
         NT(end+1) = temp.NT;
-        fprintf("  Spread after %d: %3.2f%%\n",numel(NT),100*tinv(1-0.5*alpha,numel(NT)-1)*std(NT)/(sqrt(numel(NT))*mean(NT)))
+        relative_spread = tinv(1-0.5*alpha,numel(NT)-1)*std(NT)/(sqrt(numel(NT))*mean(NT));
+        fprintf("  Spread after %d: %3.2f%%\n",numel(NT),100*relative_spread)
     end
 else
-%     fprintf("Spread after 10: %3.2f%%\n",100*tinv(1-0.5*alpha,numel(NT)-1)*std(NT)/(sqrt(numel(NT))*mean(NT)))
+    fprintf("Spread after 10: %3.2f%%\n",100*relative_spread)
 end
 
 out = mean(NT);
