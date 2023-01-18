@@ -69,12 +69,13 @@ if M.plot_pars.plot_location
             'DisplayName',phase_names(i));
         end
 
-        view(M.fig.ax(M.fig.scatter_ind),[36*M.t 30 40])
         legend(M.fig.ax(M.fig.scatter_ind),'Location','SouthWest','AutoUpdate','off','Color',"none")
 
         M.fig.ax(M.fig.scatter_ind).Legend.Position(1) = M.fig.ax(M.fig.scatter_ind).Position(1) - M.fig.ax(M.fig.scatter_ind).Legend.Position(3);
         axis(M.fig.ax(M.fig.scatter_ind),[1,M.grid.size(1),1,M.grid.size(2),1,M.grid.size(3)] - repelem(M.grid.center,1,2))
 
+        M.plot_pars.m = sqrt(sum(M.grid.center.^2));
+        view(M.fig.ax(M.fig.scatter_ind), M.plot_pars.m*[0.8660,0,0.5])
         axis square
     else
         for i = 1:4
