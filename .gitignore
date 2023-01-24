@@ -1,6 +1,9 @@
 # files not to save
 .DS_Store
 
+# file forders not to save
+TumorSpheroidABM/data
+
 # file formats not to save
 **.asv
 **.mat

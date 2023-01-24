@@ -8,9 +8,9 @@ M = allBaseParameters();
 %%
 M.setup.ndims = 2;
 M.setup.censor_date = 3;
-M.setup.N0 = 1e4;
+M.setup.N0 = 1e2;
 M.setup.agent_initialization_location = "uniform";
-M.setup.carrying_capacity = 65000;
+M.setup.carrying_capacity = 1500;
 M.setup.grid_size_microns_x = 2000;
 M.setup.grid_size_microns_y = 2000;
 M.setup.grid_size_microns_z = 2000;
@@ -31,14 +31,14 @@ M.cycle_pars.dna_check_s = false;
 M.cycle_pars.dna_check_g2 = true;
 M.cycle_pars.dna_check_m = false;
 
-M.cycle_pars.arrest_prob_g1 = 0.05;
+M.cycle_pars.arrest_prob_g1 = 0.00;
 M.cycle_pars.arrest_prob_s = 0.00;
-M.cycle_pars.arrest_prob_g2 = 0.05;
+M.cycle_pars.arrest_prob_g2 = 0.00;
 M.cycle_pars.arrest_prob_m = 0.00;
 
 M.plot_pars.plot_fig = false;
 M.plot_pars.plot_location = true;
-M.plot_pars.make_movie = true;
+M.plot_pars.make_movie = false;
 
 tic;
 M = simPatient(M);

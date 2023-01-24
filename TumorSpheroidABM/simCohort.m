@@ -247,13 +247,16 @@ total_runs = numel(inds_to_run);
 
 %% now fill out the rest of the sim array/grab the sim data identified above
 cohort.ids = cohort.ids(:);
+cohort_start_time = string(datetime("now","Format","yyMMddHHmmssSSS"));
 
 if total_runs>=cohort_pars.min_parfor_num
     F(1:total_runs) = parallel.FevalFuture;
     ppool = gcp;
     cohort_pars.num_workers = ppool.NumWorkers;
     for ri = 1:total_runs % run index
-        fprintf("Setting up simulation %d of %d...\n",ri,total_runs)
+        if mod(ri,1000)==0
+            fprintf("Setting up simulation %d of %d...\n",ri,total_runs)
+        end
         [~,vp_ind{colons{:}}] = ind2sub([nsamps_per_condition,cohort_size],inds_to_run(ri));
         for vpi = 1:numel(cohort.lattice_parameters)
             M = setField(M,cohort.lattice_parameters(vpi).path,cohort.lattice_parameters(vpi).values(vp_ind{vpi},:));
