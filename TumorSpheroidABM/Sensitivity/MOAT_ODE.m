@@ -1,6 +1,8 @@
 %% Program to run
 
 addpath("~/Documents/MATLAB/myfunctions/")
+addpath("..")
+addpath("../ODEFitting/")
 
 %
 % This algorithm is an adaptation of the method of Sensitivity Analysis
@@ -43,10 +45,8 @@ clearvars; % Clears the memory
 % Large number = better estimation of the influence of the factors
 % Recommended value : (number of factors + 1) * 10
 % The algorithm will maybe exceed this value if it is considered necessary
-alpha = 0.05; % significance value for CI to determine if enough samples have been computed
 options.limit_factor = 0.5; % how to set the limit for separating low and high impact factors
 options.initialization_factor = 0.8; % how to determine when it has been sufficiently initialized
-ci_relative_spread = 0.1; % how much the confidence interval can spread around the mean of the stochastic simulation output
 nsim_max = 210;
 % Function studied :
 % Replace test_function by the name of your function. It must be a 
@@ -58,51 +58,16 @@ nsim_max = 210;
 % the factors by applying the inverse of their cumulative distribution 
 % function to each coordinate of x; Matlab includes such inverses: 
 % mathworks.com/help/stats/icdf.html ).
-M = allBaseParameters();
 
-M.setup.ndims = 2;
-M.setup.censor_date = 3;
-M.setup.N0 = 1e2;
-M.setup.agent_initialization_location = "uniform";
-M.setup.carrying_capacity = 700;
-
-M.save_pars.make_save = false;
-M.save_pars.dt = Inf;
-
-M.pars.max_dt = 0.25 / 24; % number of days per step
-M.pars.occmax_3d = 20;
-M.pars.occmax_2d = 5;
-M.pars.apop_rate = 0.1;
-M.pars.move_rate_microns = 20;
-
-M.cycle_pars.g1_to_s = 24/11; % * [0.9;1;1.1];
-M.cycle_pars.s_to_g2 = 24/8; % * [0.9;1;1.1];
-M.cycle_pars.g2_to_m = 24/4; % * [0.9;1;1.1];
-M.cycle_pars.m_to_g1 = 24/1; % * [0.9;1;1.1];
-
-M.cycle_pars.dna_check_g1 = true;
-M.cycle_pars.dna_check_s = false;
-M.cycle_pars.dna_check_g2 = true;
-M.cycle_pars.dna_check_m = false;
-
-M.cycle_pars.arrest_prob_g1 = 0.05;
-M.cycle_pars.arrest_prob_s = 0.05;
-M.cycle_pars.arrest_prob_g2 = 0.05;
-M.cycle_pars.arrest_prob_m = 0.05;
-
-M.plot_pars.plot_fig = false;
-M.plot_pars.plot_location = false;
-
-nsamps = 10;
-par_names = ["carrying_capacity";"g1_to_s";"s_to_g2";"g2_to_m";"m_to_g1";"arrest_prob_g1";"arrest_prob_g2";"apop_rate";"move_rate_microns";"occmax_2d"];
-D = makeMOATDistributions(par_names);
+par_names = ["lambda";"alpha";"K"];
+D = makeMOATDistributions_ODE(par_names);
 
 % Number of factors of uncertainty of the function studied :
 nfac=numel(par_names); 
 
 assert(nfac==numel(par_names)) % make sure that there is a value for each of the parameters to be varied
 assert(D.numEntries==numel(par_names)) % make sure each parameter has an associated distribution
-studied_function = @(x) moatSample(x,M,par_names,D,nsamps,alpha,ci_relative_spread);
+studied_function = @(x) moatSample_ODE(x,par_names,D);
 [mu_star,sigma,order] = morris_simple(studied_function,nfac,15);
 
 %% 3) Initialization of the variables
@@ -195,3 +160,5 @@ xlabel('Factors ordered by ascending maximum','FontSize',12)
 ylabel('Elementary effects','FontSize',12)
 
 rmpath("~/Documents/MATLAB/myfunctions/")
+rmpath("..")
+rmpath("../ODEFitting/")

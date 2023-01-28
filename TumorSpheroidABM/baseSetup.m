@@ -16,3 +16,5 @@ setup.agent_initialization_location = "uniform";
 
 setup.c = -3.603357085551339; % see Test_findInitialization for code that got to this number
 setup.e = 2.986939791722032; % see Test_findInitialization for code that got to this number
+
+setup.use_rates_for_intitial_proportions = true; % whether to use transition rates to approximate initial phase distributions or to use a fixed value based on data

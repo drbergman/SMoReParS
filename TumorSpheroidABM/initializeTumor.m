@@ -45,9 +45,12 @@ end
 M.tumor(:,M.I.event) = 0; % event index
 
 %% set phase
-p = 1./M.cycle_pars.transition_rates;
-p = p/sum(p);
-
+if M.setup.use_rates_for_intitial_proportions
+    p = 1./M.cycle_pars.transition_rates;
+    p = p/sum(p);
+else
+    p = [0.5708,0.3292,0.0805,0.0195]; % use these probabilities so that we start with 90% in G1/S and 10% in G2/M according to data
+end
 [M.tumor(:,M.I.phase),~] = find(diff(rand(M.setup.N0,1)<cumsum([0,p,1],2),1,2)');
 
 M.NT = size(M.tumor,1);

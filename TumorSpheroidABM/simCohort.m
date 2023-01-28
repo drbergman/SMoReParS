@@ -331,20 +331,6 @@ end
 
 end
 
-function S = setField(S,path,val)
-
-if iscell(path)
-    for i = 1:numel(path)
-        S = setField(S,path{i},val(i));
-    end
-elseif length(path)>1
-    S.(path(1)) = setField(S.(path(1)),path(2:end),val);
-else
-    S.(path(1)) = val;
-end
-
-end
-
 function [sim_this,sims_to_check,new_start_ind,sim_id] = findSimilarSims(M,sims_to_check,start_ind)
 sim_id = ""; 
 new_start_ind = numel(sims_to_check)+1; % if no match is found for these pars, then don't search for a match next time
