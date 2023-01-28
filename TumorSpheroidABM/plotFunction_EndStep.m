@@ -10,7 +10,7 @@ if M.plot_pars.plot_location
             M.fig.scatter_plots(i).YData = M.tumor(ind,M.I.subs(2))-M.grid.center(2);
             M.fig.scatter_plots(i).ZData = M.tumor(ind,M.I.subs(3))-M.grid.center(3);
 
-            view(M.fig.ax(M.fig.scatter_ind),[36*M.t 30 40])
+            view(M.fig.ax(M.fig.scatter_ind), M.plot_pars.m*[cos(M.t*2*pi)*0.8660,sin(M.t*2*pi)*0.8660,0.5])
         else
             M.fig.scatter_plots(i).XData = M.tumor(ind,M.I.subs(1))-M.grid.center(1);
             M.fig.scatter_plots(i).YData = M.tumor(ind,M.I.subs(2))-M.grid.center(2);
