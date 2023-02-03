@@ -1,5 +1,7 @@
 function D = makeMOATDistributions(par_names)
 
+% defines distributions on each of the varied abm parameters
+
 D = dictionary();
 for i = 1:numel(par_names)
     switch par_names(i)

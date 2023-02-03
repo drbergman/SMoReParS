@@ -1,3 +1,6 @@
+% a quick script to test the fitting of the ODE parameters to the ABM data
+% they fit
+
 clearvars;
 
 cohort_name = "cohort_230124175743017";

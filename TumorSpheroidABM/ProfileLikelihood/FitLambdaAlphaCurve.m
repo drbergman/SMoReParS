@@ -1,9 +1,12 @@
+% this script looked at the combination of (lambda,alpha) that was found in
+% main_data.m and fits a curve to that alpha = f(lambda)
+
 clearvars;
 
 load("ProfileLikelihoods_DataRestricted.mat","out")
 
-xx = out{1}(1,:);
-yy = out{1}(2,:);
+xx = out{1}(1,:); % lambda
+yy = out{1}(2,:); % alpha
 
 ind = yy>9.8;
 xx(ind) = [];

@@ -1,3 +1,9 @@
+% a script to summarize cohort data. not sure why I originally created this
+% as a function...but it seems more convenient to have this as a script.
+% saves mean cell counts, phase counts, ode state variable counts, and all their
+% SDs.
+
+clearvars;
 % function summarizeCohort(cohort_name)
 cohort_name = "cohort_230124175743017";
 addpath("~/Documents/MATLAB/myfunctions/")

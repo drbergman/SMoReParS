@@ -1,5 +1,8 @@
 function M = saveFinalModelData(M)
 
+% saves final spatial data (if save_model_state) and saves the tracked
+% field
+
 if M.save_pars.save_model_state
     load(sprintf("data/sims/%s/output_%08d.mat",M.save_pars.sim_identifier,M.save_index-1),"time");
     if M.t>time % make new save

@@ -1,5 +1,7 @@
 function setup = baseSetup()
 
+% set base values for setup parameters
+
 setup.use_carrying_capacity_for_grid_size = true;
 setup.carrying_capacity = 6500;
 

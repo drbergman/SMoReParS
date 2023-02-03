@@ -1,3 +1,5 @@
+% quick script to check stability of some equilibria of ODE
+
 clearvars;
 
 syms lambda alpha21 K delta1s delta2m

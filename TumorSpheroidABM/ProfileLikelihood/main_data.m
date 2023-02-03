@@ -1,6 +1,7 @@
 
-%% This script sets up and calls the profile likelihood method for
-%% identifiability.
+% This script sets up and calls the profile likelihood method for
+% identifiability for the ODE pars from the data. it then plots the
+% combinations
 
 clearvars;
 
@@ -33,7 +34,8 @@ N = size(para_ranges,1); % number of parameters
 %% compute profile likelihoods
 out = profileLikelihood(ODE_fit.pstar,ODE_fit.tt,ODE_fit.data,ODE_fit.data_std,para_ranges,lb,ub,opts,threshold,true);
 
-save("ProfileLikelihoods_Data.mat");
+%% save the output
+% save("ProfileLikelihoods_Data.mat");
 % ProfileLikelihoods_DataRestricted.mat used better bounds for the
 % parameters in fitting. Use that.
 
@@ -48,6 +50,20 @@ for i = 1:N-1
         xlabel(para_names{i});ylabel(para_names{j})
         subplot(2,3,r2c(2,3,[2,ci]))
         plot(out{j}(j,:),out{j}(i,:))
+        xlabel(para_names{j});ylabel(para_names{i})
+    end
+end
+
+%%  plot parameter combinations
+figure;
+ci=0;
+for i = 1:N-1
+    for j = i+1:N
+        ci = ci+1;
+        subplot(1,N,r2c(1,N,[1,ci])); hold on
+        plot(out{i}(i,:),out{i}(j,:)) % parameter j values as i was profiled
+        xlabel(para_names{i});ylabel(para_names{j})
+        plot(out{j}(i,:),out{j}(j,:)) % parameter i values as j was profiled (plotted as para i vs para j so it shares the same axes)
         xlabel(para_names{j});ylabel(para_names{i})
     end
 end

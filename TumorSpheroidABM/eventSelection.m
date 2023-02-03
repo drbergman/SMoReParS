@@ -1,5 +1,7 @@
 function [M,out] = eventSelection(M)
 
+% selects events for every tumor cell in the model
+
 rate_matrix = computeRateMatrix(M);
 
 prob_matrix = 1-exp(-M.dt*rate_matrix);

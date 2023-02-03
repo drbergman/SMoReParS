@@ -1,5 +1,9 @@
 function M = simForward(M)
 
+% simulates the patient from one event to the next (events being, e.g.,
+% start of simulation, censoring, drug administration, etc.; not to be 
+% confused with agent events such as proliferation and apoptosis)
+
 if M.Nsteps == 0 || isempty(M.tumor) % nothing to simulate here
     return;
 end

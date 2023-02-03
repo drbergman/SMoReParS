@@ -1,3 +1,5 @@
+% plots histograms of the sensitivities of the parameters in both models
+
 clearvars;
 
 load("ABM_Sensitivity_noapop.mat")

@@ -35,7 +35,7 @@ end
 PG = cell(npars_abm,1);
 [PG{:}] = ndgrid(par_grid{:});
 
-Vq = cell(npars_ode,2);
+Vq = cell(npars_ode,2); % [ , [lower;upper]] bounding hypersurfaces for the npars_ode ODE parameters
 for pi = 1:npars_ode
     Vq{pi,1} = interpn(pars{:},squeeze(BS(pi,:,:,:,:,:,:,:,1)),PG{:});
     Vq{pi,2} = interpn(pars{:},squeeze(BS(pi,:,:,:,:,:,:,:,2)),PG{:});
@@ -44,19 +44,19 @@ end
 %% see which abm pars have the best ode par within the bounding hypersurfaces
 load("../ODEFitting/ODEFittoData.mat","pstar")
 
-Z1 = true(size(Vq{1})); % bounded by lambda and alpha
+abm_region_1_log = true(size(Vq{1})); % bounded by lambda and alpha
 for pi = 1:2
-    Z1 = Z1 & Vq{pi,1} <= pstar(pi) & Vq{pi,2} >= pstar(pi);
+    abm_region_1_log = abm_region_1_log & Vq{pi,1} <= pstar(pi) & Vq{pi,2} >= pstar(pi);
 end
 
-Z2 = Z1 & Vq{3,1} <= pstar(3) & Vq{3,2} >= pstar(3); % also bounded by hypersurface from K
+abm_region_2_log = abm_region_1_log & Vq{3,1} <= pstar(3) & Vq{3,2} >= pstar(3); % also bounded by hypersurface from K
 
 %% store the parameter vectors by both restrictions
 I = cell(7,1);
-[I{:}] = ind2sub(size(Z1),find(Z1));
+[I{:}] = ind2sub(size(abm_region_1_log),find(abm_region_1_log));
 
 I2 = cell(7,1);
-[I2{:}] = ind2sub(size(Z2),find(Z2));
+[I2{:}] = ind2sub(size(abm_region_2_log),find(abm_region_2_log));
 
 LP1 =  C.lattice_parameters;
 for i = 1:7

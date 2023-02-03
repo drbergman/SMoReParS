@@ -1,5 +1,8 @@
 function M = initializeTumor(M)
 
+% initialize the tumor on the grid and all the necessary features of the
+% tumor
+
 M.tumor = zeros(M.setup.N0,M.I.phase);
 switch M.setup.agent_initialization_location
     case "center"

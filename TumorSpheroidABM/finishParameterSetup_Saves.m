@@ -1,5 +1,8 @@
 function M = finishParameterSetup_Saves(M)
 
+% finished any necessary setup for save parameters, including making
+% necessary output folders
+
 if M.save_pars.dt < Inf
     M.save_pars.save_model_state = true;
     M.next_save_time = 0;

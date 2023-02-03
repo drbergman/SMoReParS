@@ -172,8 +172,8 @@ legend(ax(2,1))
 xlabel(ax(2,:),"RSS")
 ylabel(ax(2,:),"PDF")
 
-%%
-savefig("ItWorked")
+%% save figure
+% savefig("ItWorked")
 
 %%
 rmpath("~/Documents/MATLAB/myfunctions/")

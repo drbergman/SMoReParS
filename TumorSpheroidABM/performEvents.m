@@ -1,5 +1,7 @@
 function M = performEvents(M,in)
 
+% performs the assigned tumor events
+
 for ord_ind=1:length(in.active_ind)
 
     j = in.active_ind(ord_ind);

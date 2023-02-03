@@ -1,3 +1,6 @@
+% this script solves the ODE, but it may be duplicated in
+% TumorSpheroidABM/ODEFitting/TestODE.m
+
 clearvars;
 
 alpha21 = 0.16;

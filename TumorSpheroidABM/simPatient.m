@@ -1,5 +1,7 @@
 function M = simPatient(M)
 
+% this function simulates a single patient defined by the input M
+
 M = finishParameterSetup_Patient(M);
 
 %% initialize inputs

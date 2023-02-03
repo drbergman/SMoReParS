@@ -1,3 +1,5 @@
+% script that calls the MOAT routines for sensitivity of the ODE parameters
+
 %% Program to run
 
 addpath("~/Documents/MATLAB/myfunctions/")

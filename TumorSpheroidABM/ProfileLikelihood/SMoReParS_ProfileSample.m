@@ -28,7 +28,7 @@ BS = reshape(BS,[npars_ode,C.cohort_size,2]);
 
 pars = {C.lattice_parameters.values};
 npars_abm = numel(pars);
-nx = 5; % probably want to choose odd so the 3 calculated values along each dimension are used
+nx = 3; % probably want to choose odd so the 3 calculated values along each dimension are used
 par_grid = cell(npars_abm,1);
 for i = 1:npars_abm
     par_grid{i} = linspace(pars{i}(1),pars{i}(end),nx);
@@ -46,16 +46,16 @@ end
 %% see which abm pars have the best ode par within the bounding hypersurfaces
 load("ProfileLikelihoods_DataRestricted.mat","out");
 
-Z1 = false(size(Vq{1})); % bounded by lambda and alpha
+abm_region_1_log = false(size(Vq{1})); % bounded by lambda and alpha
 for i = 1:size(out{1},2)
     temp = true(size(Vq{1}));
     for pi = 1:2
         temp = temp & Vq{pi,1} <= out{1}(pi,i) & Vq{pi,2} >= out{1}(pi,i);
     end
-    Z1 = Z1 | temp;
-%     disp(sum(Z1,'all'))
+    abm_region_1_log = abm_region_1_log | temp;
+%     disp(sum(abm_region_1_log,'all'))
 end
-Z1 = Z1 & Vq{3,1} >= 597; % the K profile says don't go below 597
+abm_region_1_log = abm_region_1_log & Vq{3,1} >= 597; % the K profile says don't go below 597
 
 % lambda = linspace(1,10,40000);
 % lambda = [1.1,1.2,1.4,1.5341,1.6,2,2.5,3,5];
@@ -67,20 +67,22 @@ Z1 = Z1 & Vq{3,1} >= 597; % the K profile says don't go below 597
 %     for pi = 1:2
 %         temp = temp & Vq{pi,1} <= lamalph(pi,i) & Vq{pi,2} >= lamalph(pi,i);
 %     end
-%     Z1 = Z1 | temp;
+%     abm_region_1_log = abm_region_1_log | temp;
 % %     if mod(i,1000)==0
-%         disp(sum(Z1,'all'))
+%         disp(sum(abm_region_1_log,'all'))
 % %     end
 % end
+
+% load("ODEFittoData.mat","pstar"); % best ODE pars fit to data
 % for pi = 1:2
-%     Z1 = Z1 & Vq{pi,1} <= pstar(pi) & Vq{pi,2} >= pstar(pi);
+%     abm_region_1_log = abm_region_1_log & Vq{pi,1} <= pstar(pi) & Vq{pi,2} >= pstar(pi);
 % end
 % 
-% Z2 = Z1 & Vq{3,1} <= pstar(3) & Vq{3,2} >= pstar(3); % also bounded by hypersurface from K
+% abm_region_2_log = abm_region_1_log & Vq{3,1} <= pstar(3) & Vq{3,2} >= pstar(3); % also bounded by hypersurface from K
 
 %% store the parameter vectors by both restrictions
 I = cell(7,1);
-[I{:}] = ind2sub(size(Z1),find(Z1));
+[I{:}] = ind2sub(size(abm_region_1_log),find(abm_region_1_log));
 
 LP1 =  C.lattice_parameters;
 for i = 1:7
@@ -88,6 +90,11 @@ for i = 1:7
 end
 
 %%
-save("ABMParamEstimates_FromProfile2","LP1","Z1")
+if nx~=3
+    warning("abm_region_1_log does not correspond to the sampled 3^7 grid.")
+end
+save("ABMParamEstimates_FromProfile2","LP1","abm_region_1_log")
+
+% 
 
 

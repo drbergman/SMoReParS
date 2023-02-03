@@ -1,13 +1,16 @@
-% clearvars;
+% fits the ODE parameters to the experimental data. data is scaled so the
+% initial cell count is 100
+
+clearvars;
 
 % p.lambda = 10000;
 % p.alpha = 10;
 % p.K = 1e3;
 % p.delta = .1;
 % p.g1_prop0 = 0.1;
-p(1) = 24/19;
-p(2) = 24/5;
-p(3) = 1e3;
+p(1) = 24/19; % lambda
+p(2) = 24/5; % alpha
+p(3) = 1e3; % K
 
 lb = [0;0;0];
 ub = [Inf;Inf;1e4];

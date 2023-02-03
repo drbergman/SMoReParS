@@ -3,6 +3,11 @@
 % by smorepars. it will also look at parameter vectors outside of this set
 % to see if the rejected parameters produce a poor fit with the data
 
+% this script actually does not currently run samples, but rather uses the
+% original 3^7 grid and determines which of these are accepted based on
+% smorepars, looking at those trajectories for each of their 6 samples. It
+% looks at the RSS for these grouped by acceptance/rejection
+
 clearvars;
 
 addpath("~/Documents/MATLAB/myfunctions/")

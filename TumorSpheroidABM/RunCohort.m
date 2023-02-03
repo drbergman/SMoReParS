@@ -1,3 +1,8 @@
+% run the model on a grid of parameter values with nsamps_per_condition at
+% each lattice point. to vary a parameter, set its value to a column
+% vector. simCohort will look for all parameters with size("parameter",1)>1
+% and vary these.
+
 clearvars;
 
 addpath("~/Documents/MATLAB/myfunctions/")

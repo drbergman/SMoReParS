@@ -1,3 +1,5 @@
+% a script to visualize (projections of) the hypersurfaces
+
 clearvars;
 
 cohort_name = "cohort_230124175743017";
@@ -8,7 +10,7 @@ C = load(sprintf("../data/%s/output.mat",cohort_name),"cohort_size","lattice_par
 %%
 out = reshape(out,[size(out,1),C.cohort_size]);
 
-%%
+%% make the meshes
 temp = out(:,:,:,1);
 
 xx = C.lattice_parameters(1).values;
@@ -24,7 +26,7 @@ for i = 1:3
     end
 end
 
-%%
+%% surface for all three ODE parameters projected onto first two abm parameter dimensions
 figure;
 for pi = 1:3
     ax(pi) = subplot(3,1,pi); hold on
@@ -34,7 +36,7 @@ for pi = 1:3
     xlabel("x")
     ylabel("y")
 end
-%%
+%% surface for K projected onto first two abm parameter dimensions
 figure;
 hold on
 mesh(xx,yy,S_min(:,:,3)',"FaceColor","blue","FaceAlpha",0.2,"EdgeColor","none")
@@ -44,7 +46,7 @@ xlabel("x")
 ylabel("y")
 
 
-%%
+%% a more refined mesh for the three surface (projected onto the first two abm parameter dimensions)
 xxq = linspace(xx(1),xx(end),15);
 yyq = linspace(yy(1),yy(end),15);
 pars = {C.lattice_parameters.values};
