@@ -45,17 +45,34 @@ end
 
 %% see which abm pars have the best ode par within the bounding hypersurfaces
 load("ProfileLikelihoods_DataRestricted.mat","out");
+load("LambdaAlphaFn.mat","f")
+ODE_fit = load("../ODEFitting/ODEFittoData.mat");
+
+% specify parameter ranges
+para_ranges = [0,1e1;     % lambda
+               0,1e1;  % alpha
+               0,4e3];      % K
+
+lb = [0;0;0];
+ub = [1e1;1e1;4e3];
+opts = optimset('Display','off','TolFun',1e-12,'TolX',1e-12);
+
+threshold = chi2inv(0.95,3); % compute threshold value for the parameter confidence intervals
 
 abm_region_1_log = false(size(Vq{1})); % bounded by lambda and alpha
 for i = 1:size(out{1},2)
     temp = true(size(Vq{1}));
-    for pi = 1:2
+    for pi = 1:3
         temp = temp & Vq{pi,1} <= out{1}(pi,i) & Vq{pi,2} >= out{1}(pi,i);
     end
+%     K_temp = profileLikelihood_one_ind(3,out{1}(1:3,i),ODE_fit.tt,ODE_fit.data,ODE_fit.data_std,para_ranges,lb,ub,opts,threshold,false);
+%     plot(K_temp(1,:),K_temp(2,:))
+%     drawnow
+%     [~,min_ind] = min(K_temp(2,:),[],2);
+%     temp = temp & Vq{3,1} <= K_temp(1,min_ind) & Vq{3,2} >= K_temp(1,min_ind);
     abm_region_1_log = abm_region_1_log | temp;
-%     disp(sum(abm_region_1_log,'all'))
+    disp(sum(abm_region_1_log,'all'))
 end
-% abm_region_1_log = abm_region_1_log & Vq{3,1} >= 597; % the K profile says don't go below 597
 
 % lambda = linspace(1,10,40000);
 % lambda = [1.1,1.2,1.4,1.5341,1.6,2,2.5,3,5];
@@ -93,11 +110,7 @@ end
 if nx~=3
     warning("abm_region_1_log does not correspond to the sampled 3^7 grid.")
 end
-save("ABMParamEstimates_FromProfile3","LP1","abm_region_1_log")
+save("ABMParamEstimates_FromProfile_WithK","LP1","abm_region_1_log")
 
-% ABMParamEstimates.mat used just the best fit pars for the ODE
-% ABMParamEstimates_FromProfile used just the profile from lambda and alpha and a 5^7 grid
-% ABMParamEstimates_FromProfile2 used the profile from lambda and alpha and forced K>597
-% ABMParamEstimates_FromProfile3 used the profile from lambda and alpha on a 3^7 grid
 
 

@@ -47,7 +47,7 @@ M.plot_pars.plot_location = false;
 
 %% load the ABM parameters using the best fit values of lambda and alpha; simulate
 
-load("ProfileLikelihood/ABMParamEstimates_FromProfile2.mat","LP1","Z1");
+load("ProfileLikelihood/ABMParamEstimates_FromProfile_WithK.mat","LP1","abm_region_1_log")
 % for i = 1:numel(LP1(1).values)
 %     for vpi = 1:numel(LP1)
 %         M = setField(M,LP1(vpi).path,LP1(vpi).values(i,:));
@@ -92,27 +92,34 @@ ylabel(ax(1),"Cell Count")
 xlabel(ax(1),"Time (d)")
 
 %% plot results that do match these parameters 
-C = load("data/cohort_230124175743017/output.mat","ids","lattice_parameters");
+C = load("data/cohort_230124175743017/output.mat","ids","lattice_parameters","cohort_size");
 sz = size(C.ids);
 vpi = cell(7,1);
 par_vals = zeros(1,7);
 y_temp = [];
+use_abm_region_1_var = isequal(C.cohort_size,size(abm_region_1_log));
 for i = 1:numel(C.ids)
     [vpi{:},si] = ind2sub(sz,i);
-    for j = 1:7
-        par_vals(j) = C.lattice_parameters(j).values(vpi{j});
+    if use_abm_region_1_var
+        accepted = abm_region_1_log(vpi{:});
+    else
+        for j = 1:7
+            par_vals(j) = C.lattice_parameters(j).values(vpi{j});
+        end
+        accepted = ismember(par_vals,[LP1.values],"rows"); % If I just saved the logical array that I used to pick the abm pars, then use that
     end
-    if ismember(par_vals,[LP1.values],"rows") % If I just saved the logical array that I used to pick the 
+    if accepted
         load(sprintf("data/sims/%s/output_final.mat",C.ids(vpi{:},si)),"tracked")
         y_temp = [y_temp,tracked.NT];
-        abm_line(i) = plot(ax(1),tracked.t,tracked.NT,"Color",[0 0 0 0.1],"DisplayName","ABM Sample");
+%         abm_line(i) = plot(ax(1),tracked.t,tracked.NT,"Color",[0 0 0 0.1],"DisplayName","ABM Sample");
     end
 end
 [x,y_mean,pc] = my_patchPlot(tracked.t,y_temp);
 patch(ax(1),pc{1},pc{2},"green","FaceAlpha",0.2,"EdgeColor","none");
 abm_mean = plot(ax(1),x,y_mean,"green","LineWidth",2,"DisplayName","ABM Mean");
 
-legend(ax(1),[exp_plot(1);abm_mean;abm_line(find(isgraphics(abm_line),1))],"Location","best")
+% legend(ax(1),[exp_plot(1);abm_mean;abm_line(find(isgraphics(abm_line),1))],"Location","best")
+legend(ax(1),[exp_plot(1);abm_mean],"Location","best")
 
 %% histograms out objfn for those selected/those not
 sz = size(C.ids);
@@ -122,14 +129,21 @@ H = cell(1,2);
 tt_min = round(1440*tt);
 % F = @(t) sum(((interp1(round(t.t*1440),t.NT,tt_min)-data)./data_std).^2,'all');
 F = @(t) sum(((interp1(round(t.t*1440),t.NT,tt_min)-data)).^2,'all');
+use_abm_region_1_var = isequal(C.cohort_size,size(abm_region_1_log));
+
 for i = 1:numel(C.ids)
     [vpi{:},si] = ind2sub(sz,i);
     load(sprintf("data/sims/%s/output_final.mat",C.ids(i)),"tracked")
-    for j = 1:7
-        par_vals(j) = C.lattice_parameters(j).values(vpi{j});
+    if use_abm_region_1_var
+        accepted = abm_region_1_log(vpi{:});
+    else
+        for j = 1:7
+            par_vals(j) = C.lattice_parameters(j).values(vpi{j});
+        end
+        accepted = ismember(par_vals,[LP1.values],"rows"); % If I just saved the logical array that I used to pick the abm pars, then use that
     end
     val = F(tracked);
-    if ~ismember(par_vals,[LP1.values],"rows")
+    if ~accepted
         H{2} = [H{2};val];
     else
         H{1} = [H{1};val];
@@ -137,15 +151,63 @@ for i = 1:numel(C.ids)
 end
 
 %% actually plot the above histograms
-histogram(ax(2),H{1},"FaceColor","green","Normalization","pdf","DisplayName","Selected Samples")
-histogram(ax(2),H{2},"FaceColor","red","Normalization","pdf","DisplayName","Rejected Samples")
+histogram(ax(2),H{1},"FaceColor","green","Normalization","count","DisplayName","Selected Samples")
+histogram(ax(2),H{2},"FaceColor","red","Normalization","count","DisplayName","Rejected Samples")
 
 legend(ax(2))
 xlabel(ax(2),"RSS")
-ylabel(ax(2),"PDF")
+ylabel(ax(2),"Count")
 
 %%
 % savefig("ItWorked")
+
+%% residuals at time points
+sz = size(C.ids);
+vpi = cell(7,1);
+par_vals = zeros(1,7);
+R = cell(1,2);
+tt_min = round(1440*tt);
+% F = @(t) sum(((interp1(round(t.t*1440),t.NT,tt_min)-data)./data_std).^2,'all');
+F = @(t) sum(((interp1(round(t.t*1440),t.NT,tt_min)-data)).^2,'all');
+use_abm_region_1_var = isequal(C.cohort_size,size(abm_region_1_log));
+
+for i = 1:numel(C.ids)
+    load(sprintf("data/sims/%s/output_final.mat",C.ids(i)),"tracked")
+    [vpi{:},si] = ind2sub(sz,i);
+    if use_abm_region_1_var
+        accepted = abm_region_1_log(vpi{:});
+    else
+        for j = 1:7
+            par_vals(j) = C.lattice_parameters(j).values(vpi{j});
+        end
+        accepted = ismember(par_vals,[LP1.values],"rows"); % If I just saved the logical array that I used to pick the abm pars, then use that
+    end
+    res_temp = interp1(round(tracked.t*1440),tracked.NT,tt_min)-data;
+    if ~accepted
+        R{2} = [R{2},res_temp];
+    else
+        R{1} = [R{1},res_temp];
+    end
+end
+
+%% plot residuals from above
+figure;
+ax = gobjects(length(tt),1);
+for j = 1:length(tt)
+    min_temp = min(min(R{1}(j,:)),min(R{2}(j,:)));
+    max_temp = max(max(R{1}(j,:)),max(R{2}(j,:)));
+
+    ax(j) = subplot(1,length(tt),j); hold on;
+    [~,binEdges] = histcounts([R{1}(j,:),R{2}(j,:)]./data(j));
+    histogram(ax(j),R{1}(j,:)./data(j),"BinEdges",binEdges,"FaceColor","green","Normalization","pdf","DisplayName","Selected Samples","EdgeColor","none")
+    histogram(ax(j),R{2}(j,:)./data(j),"BinEdges",binEdges,"FaceColor","red","Normalization","pdf","DisplayName","Rejected Samples","EdgeColor","none")
+    if min_temp~=0 || max_temp~=0
+        xlim(max(abs([min_temp,max_temp])) * [-1 1]/data(j))
+    end
+    title(sprintf("t = %3.2f d",tt(j)))
+    xlabel("Res / data")
+end
+legend(ax(2))
 
 %%
 rmpath("~/Documents/MATLAB/myfunctions/")
