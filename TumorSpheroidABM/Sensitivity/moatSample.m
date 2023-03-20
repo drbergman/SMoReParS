@@ -42,6 +42,11 @@ for si = 1:nsamps
     NT(si) = temp.NT;
 end
 
+% std(NT)/sqrt(numel(NT)) gives the estimated SD of means of sample size numel(NT)
+% tinv(1-0.5*alpha,numel(NT)-1) gives the t value for the 95% CI with numel(NT)-1 degrees of freedom
+% Thus, the product of these (call it R) gives the radius of the CI about mean(NT) for estimating the true population mean, i.e. true ABM output on Day 3
+% I want to insist that this radius, or spread, is less than 10% of the estimated mean, i.e. R/mean(NT) < 0.1, otherwise I continue taking more samples
+
 relative_spread = tinv(1-0.5*alpha,numel(NT)-1)*std(NT)/(sqrt(numel(NT))*mean(NT));
 
 if relative_spread > ci_relative_spread
