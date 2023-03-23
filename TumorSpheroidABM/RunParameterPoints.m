@@ -27,15 +27,15 @@ M.save_pars.dt = Inf;
 M.pars.max_dt = 0.25 / 24; % number of days per step
 M.pars.apop_rate = 0;
 
-M.cycle_pars.dna_check_g1 = false;
-M.cycle_pars.dna_check_s = false;
-M.cycle_pars.dna_check_g2 = false;
-M.cycle_pars.dna_check_m = false;
+M.chemo_pars.dna_check_g1 = false;
+M.chemo_pars.dna_check_s = false;
+M.chemo_pars.dna_check_g2 = false;
+M.chemo_pars.dna_check_m = false;
 
-M.cycle_pars.arrest_prob_g1 = 0.05;
-M.cycle_pars.arrest_prob_s = 0.00;
-M.cycle_pars.arrest_prob_g2 = 0.05;
-M.cycle_pars.arrest_prob_m = 0.00;
+M.chemo_pars.arrest_coeff_g1 = 0.05;
+M.chemo_pars.arrest_coeff_s = 0.00;
+M.chemo_pars.arrest_coeff_g2 = 0.05;
+M.chemo_pars.arrest_coeff_m = 0.00;
 
 M.plot_pars.plot_fig = false;
 M.plot_pars.plot_location = false;

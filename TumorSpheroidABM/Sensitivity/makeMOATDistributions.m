@@ -29,12 +29,12 @@ for i = 1:numel(par_names)
             D("m_to_g1") = makedist("Uniform",21.6,26.4);
             dmin = 1e-5; dmax = Inf; % pick a small, positive minimum transition rate so the initialization can happen even if the icdf is 0
 
-        case "arrest_prob_g1"
-            D("arrest_prob_g1") = makedist("Normal",0.05,0.1);
+        case "arrest_coeff_g1"
+            D("arrest_coeff_g1") = makedist("Normal",0.05,0.1);
             dmin = 0; dmax = 1;
 
-        case "arrest_prob_g2"
-            D("arrest_prob_g2") = makedist("Normal",0.05,0.1);
+        case "arrest_coeff_g2"
+            D("arrest_coeff_g2") = makedist("Normal",0.05,0.1);
             dmin = 0; dmax = 1;
 
         case "apop_rate"

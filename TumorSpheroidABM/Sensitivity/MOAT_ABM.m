@@ -83,15 +83,15 @@ M.cycle_pars.s_to_g2 = 24/8; % * [0.9;1;1.1];
 M.cycle_pars.g2_to_m = 24/4; % * [0.9;1;1.1];
 M.cycle_pars.m_to_g1 = 24/1; % * [0.9;1;1.1];
 
-M.cycle_pars.dna_check_g1 = false;
-M.cycle_pars.dna_check_s = false;
-M.cycle_pars.dna_check_g2 = false;
-M.cycle_pars.dna_check_m = false;
+M.chemo_pars.dna_check_g1 = false;
+M.chemo_pars.dna_check_s = false;
+M.chemo_pars.dna_check_g2 = false;
+M.chemo_pars.dna_check_m = false;
 
-M.cycle_pars.arrest_prob_g1 = 0.05;
-M.cycle_pars.arrest_prob_s = 0.05;
-M.cycle_pars.arrest_prob_g2 = 0.05;
-M.cycle_pars.arrest_prob_m = 0.05;
+M.chemo_pars.arrest_coeff_g1 = 0.05;
+M.chemo_pars.arrest_coeff_s = 0.05;
+M.chemo_pars.arrest_coeff_g2 = 0.05;
+M.chemo_pars.arrest_coeff_m = 0.05;
 
 M.plot_pars.plot_fig = false;
 M.plot_pars.plot_location = false;

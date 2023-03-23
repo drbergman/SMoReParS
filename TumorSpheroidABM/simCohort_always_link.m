@@ -11,23 +11,20 @@ for i = 1:numel(fn)
 end
 
 if cohort_pars.link_arrest_coeffs % enforce that the arrest coefficients are identical
-    for li = 1:size(cohort_pars.linkings,1) % linking index
-        arrest_coeff_inds = [];
-        vals = {};
-        paths = {};
-        for i = 1:numel(cohort.lattice_parameters)
-            if ~iscell(cohort.lattice_parameters(i).path) && startsWith(cohort.lattice_parameters(i).path(end),"arrest_coeff") && any(endsWith(cohort.lattice_parameters(i).path(end),cohort_pars.linkings(li,:)))
-                arrest_coeff_inds(end+1) = i;
-                vals{end+1} = cohort.lattice_parameters(i).values;
-                paths{end+1} = cohort.lattice_parameters(i).path;
-            end
+    arrest_coeff_inds = [];
+    vals = {};
+    paths = {};
+    for i = 1:numel(cohort.lattice_parameters)
+        if startsWith(cohort.lattice_parameters(i).path(end),"arrest_coeff")
+            arrest_coeff_inds(end+1) = i;
+            vals{end+1} = cohort.lattice_parameters(i).values;
+            paths{end+1} = cohort.lattice_parameters(i).path;
         end
-        if length(arrest_coeff_inds)>1 % only make this change if two arrest coeffs are varied
-            assert(numel(unique(cellfun(@numel,vals)))==1) % make sure that each of these values has the same number of elements
-            cohort.lattice_parameters(end+1).values = cat(2,vals{:});
-            cohort.lattice_parameters(end).path = paths;
-            cohort.lattice_parameters(arrest_coeff_inds) = [];
-        end
+    end
+    if length(arrest_coeff_inds)>1 % only make this change if two arrest coeffs are varied
+        cohort.lattice_parameters(end+1).values = repmat(unique([vals{:}]),1,length(arrest_coeff_inds));
+        cohort.lattice_parameters(end).path = paths;
+        cohort.lattice_parameters(arrest_coeff_inds) = [];
     end
 end
 
@@ -59,7 +56,7 @@ n_found = 0;
 %% check if previous cohorts ran these sims
 previous_cohorts = dir("data/cohort_*");
 for i = 1:numel(previous_cohorts)
-
+    
     PC = load(sprintf("data/%s/output.mat",previous_cohorts(i).name));
     sims_to_check = setdiff(sims_to_check,PC.ids(:));
     if ~isequal(sort(string(all_fn)),sort(string(fieldnames(PC.all_parameters))))
@@ -68,13 +65,9 @@ for i = 1:numel(previous_cohorts)
     end
 
     skip_this_cohort = false;
-    D = cell(length(cohort_size),length(PC.lattice_parameters)); % tracks which indices in each dim pair should be mapped
-    current_fixed = cell(length(cohort_size),1); % the possible indices in each dimension that have been found in current
-    previous_fixed = cell(length(PC.lattice_parameters),1); % the possible indices in each dimension that have been found in previous
-    current_fixed_inds = cell(length(cohort_size),1); % the indices in each dimension of the cohort that have some samples found, but the previous cohort did not vary along this dimension
-    previous_inds = cell(length(PC.lattice_parameters),1); % the indices in each dimension of the PC that will be mapped to the new ids
-    dim_match = false(length(cohort_size),length(PC.lattice_parameters)); % a matrix accounting for which current dims get mapped to from previous dims
-    %     dim_match = zeros(0,2); % match target dims with copy dims (in case they are in different orders)
+    target_dims = cell(length(cohort_size),1); % the dims in the new id array to be matched to
+    copy_dims = cell(length(PC.lattice_parameters),1); % the dims in the previous id array to be matched from
+    dim_match = zeros(0,2); % match target dims with copy dims (in case they are in different orders)
 
     for j = 1:numel(all_fn)
 
@@ -113,13 +106,7 @@ for i = 1:numel(previous_cohorts)
                         end
                     end
                 end
-
-                [previous_fixed,skip_this_cohort] = updateFixed(previous_fixed,prev_dim,prev_ind,skip_this_cohort);
-                if skip_this_cohort
-                    break;
-                end
-
-
+                copy_dims{prev_dim} = prev_ind;
             end
 
         else % then this parameter is currently being varied
@@ -151,11 +138,7 @@ for i = 1:numel(previous_cohorts)
                         end
                     end
                 end
-
-                [current_fixed,skip_this_cohort] = updateFixed(current_fixed,current_dim,current_ind,skip_this_cohort);
-                if skip_this_cohort
-                    break;
-                end
+                target_dims{current_dim} = current_ind;
 
             else % it was varied previously as well
 
@@ -203,35 +186,38 @@ for i = 1:numel(previous_cohorts)
                 end
 
                 match_found = false;
-                current_already_fixed = ~isempty(current_fixed{current_dim});
-                previous_already_fixed = ~isempty(previous_fixed{prev_dim});
-                already_mapped = ~isempty(D{current_dim,prev_dim});
-                if previous_already_fixed
-                    prev_iter = previous_fixed{prev_dim};
-                else
-                    prev_iter = 1:size(previous_val,1);
+                already_mapped = ~isempty(target_dims{current_dim}) || ~isempty(copy_dims{prev_dim}); % whether the indices in this dim have already been mapped because 2+ parameters are varied here
+                if already_mapped
+                    new_pairs = zeros(0,2);
                 end
-                for k = prev_iter
+                for k = 1:size(previous_val,1)
                     [re_use,current_ind] = ismember(previous_val(k,:),current_val,"rows");
-                    if re_use && (~current_already_fixed || ismember(current_ind,current_fixed{current_dim})) && (~already_mapped || ismember([current_ind,k],D{current_dim,prev_dim},"rows"))
-                        match_found = true;
-                        if ~already_mapped
-                            D{current_dim,prev_dim}(end+1,:) = [current_ind,k];
+                    if re_use
+                        if already_mapped
+                            new_pairs(end+1,:) = [current_ind,k];
+                        else
+                            match_found = true;
+                            target_dims{current_dim}(1,end+1) = current_ind;
+                            copy_dims{prev_dim}(1,end+1) = k;
                         end
-                        if ~current_already_fixed
-                            current_fixed{current_dim}(end+1) = current_ind;
-                        end
-                        if ~previous_already_fixed
-                            previous_fixed{prev_dim}(end+1) = k;
-                        end
-                    elseif previous_already_fixed % if this ind cannot be found, make sure to remove it from previous_fixed
-                        previous_fixed{prev_dim} = setdiff(previous_fixed{prev_dim},k);
-                        [D,current_fixed,previous_fixed] = scanForDeletions(D,current_fixed,previous_fixed,true,prev_dim,k);
                     end
                 end
-                if ~match_found
-                    skip_this_cohort = true;
-                    break;
+                if already_mapped
+                    final_pairs = intersect([target_dims{current_dim}',copy_dims{prev_dim}'],new_pairs,"rows");
+                    if isempty(final_pairs)
+                        skip_this_cohort = true;
+                        break;
+                    else
+                        target_dims{current_dim} = final_pairs(:,1)';
+                        copy_dims{prev_dim} = final_pairs(:,2)';
+                    end
+                else
+                    if match_found
+                        dim_match = [dim_match;current_dim,prev_dim];
+                    else
+                        skip_this_cohort = true;
+                        break;
+                    end
                 end
             end
         end
@@ -241,18 +227,28 @@ for i = 1:numel(previous_cohorts)
         continue;
     end
 
-    target_sz = cellfun(@numel,current_fixed);
+    dim_match = unique(dim_match,"rows");
+    copy_dim_order = [dim_match(:,2);reshape(setdiff(1:length(copy_dims),dim_match(:,2)),[],1)];
+    if ~isempty(PC.cohort_size) % otherwise no need to permute order
+        PC.ids = permute(PC.ids,[copy_dim_order;length(PC.cohort_size)+1]);
+    end
+    copy_dims = copy_dims(copy_dim_order);
+
+    target_sz = cellfun(@numel,target_dims);
+    copy_id_sz = cellfun(@numel,copy_dims);
 
     target_inds = cell(length(target_sz),1);
     ti = cell(length(target_sz),1);
+    copy_inds = cell(length(copy_id_sz),1);
+    ci = cell(length(copy_id_sz),1);
     for j = 1:prod(target_sz)
         [target_inds{:}] = ind2sub(target_sz,j);
         for k = 1:length(target_sz)
-            ti{k} = current_fixed{k}(target_inds{k});
+            ti{k} = target_dims{k}(target_inds{k});
         end
-        ci = matchToCopy(ti,D,previous_fixed);
-        if isempty(ci)
-            continue;
+        [copy_inds{:}] = ind2sub(copy_id_sz,j);
+        for k = 1:length(copy_id_sz)
+            ci{k} = copy_dims{k}(copy_inds{k});
         end
         temp_ids = cohort.ids(ti{:},:);
         blank_log = temp_ids=="";
@@ -285,72 +281,72 @@ end
 
 sims_to_check = sims_to_check(randperm(numel(sims_to_check))); % to not bias samples towards the first sims I ran
 
-% %% record which previous sims have the right parameters
-% fn = fieldnames(M);
-% for i = 1:numel(sims_to_check)
-%     if exist(sprintf("data/sims/%s/output_constants.mat",sims_to_check(i)),"file") && exist(sprintf("data/sims/%s/output_final.mat",sims_to_check(i)),"file")
-%         X = load(sprintf("data/sims/%s/output_constants.mat",sims_to_check(i)));
-%         these_match = true;
-%         for j = 1:numel(fn)
-%             if ~strcmp(fn{j},"plot_pars") % don't worry about plot_pars being equal
-%                 if ~isfield(X,fn{j}) % then this wasn't a saved field before, so don't consider this sim
-%                     these_match = false;
-%                     break;
-%                 end
-%                 par_fn = fieldnames(M.(fn{j}));
-%                 for k = 1:numel(par_fn)
-%                     if ~isfield(X.(fn{j}),par_fn{k}) % then this wasn't a saved field before, so don't consider this sim
-%                         these_match = false;
-%                         break;
-%                     end
-%                     if strcmp(par_fn{k},'n_regions') % n_regions is actually set for each substrate (i.e. I can remove n_regions from base parameter stuff)
-%                         continue;
-%                     end
-%                     if strcmp(par_fn{k},'deactivation_function') % it seems the isequal cannot really check if two anonymous functions are equal
-%                         continue;
-%                     end
-%                     if startsWith(par_fn{k},'grid_size_microns_') && M.setup.use_carrying_capacity_for_grid_size
-%                         continue; % if using the carrying capacity, then the grid size does not matter at this point
-%                     end
-%                     if size(M.(fn{j}).(par_fn{k}),1)==1 % then this parameter is not being varied
-%                         if ~isequal(M.(fn{j}).(par_fn{k}),X.(fn{j}).(par_fn{k}))
-%                             these_match = false;
-%                             break;
-%                         end
-%                     end
-%                 end
-%                 if ~these_match
-%                     break;
-%                 end
-%             end
-%         end
-%         if ~these_match % then already know something doesn't match, don't need to compare values
-%             break;
-%         end
-%         for vpi = 1:numel(cohort.lattice_parameters)
-%             xtemp = X;
-%             for pi = 1:length(cohort.lattice_parameters(vpi).path)
-%                 xtemp = xtemp.(cohort.lattice_parameters(vpi).path{pi});
-%             end
-%             vp_ind{vpi} = find(cohort.lattice_parameters(vpi).values==xtemp);
-%             if isempty(vp_ind{vpi})
-%                 these_match = false;
-%                 break;
-%             end
-%         end
-%         if these_match
-%             sample_ind = find(cohort.ids(:,vp_ind{:})=="",1);
-%             if ~isempty(sample_ind) && sample_ind <= nsamps_per_condition
-%                 cohort.ids(sample_ind,vp_ind{:}) = sims_to_check(i);
-%                 n_found = n_found+1;
-%                 if n_found>=total_runs
-%                     break;
-%                 end
-%             end
-% 
-%         end
-%     end
-% end
+%% record which previous sims have the right parameters
+fn = fieldnames(M);
+for i = 1:numel(sims_to_check)
+    if exist(sprintf("data/sims/%s/output_constants.mat",sims_to_check(i)),"file") && exist(sprintf("data/sims/%s/output_final.mat",sims_to_check(i)),"file")
+        X = load(sprintf("data/sims/%s/output_constants.mat",sims_to_check(i)));
+        these_match = true;
+        for j = 1:numel(fn)
+            if ~strcmp(fn{j},"plot_pars") % don't worry about plot_pars being equal
+                if ~isfield(X,fn{j}) % then this wasn't a saved field before, so don't consider this sim
+                    these_match = false;
+                    break;
+                end
+                par_fn = fieldnames(M.(fn{j}));
+                for k = 1:numel(par_fn)
+                    if ~isfield(X.(fn{j}),par_fn{k}) % then this wasn't a saved field before, so don't consider this sim
+                        these_match = false;
+                        break;
+                    end
+                    if strcmp(par_fn{k},'n_regions') % n_regions is actually set for each substrate (i.e. I can remove n_regions from base parameter stuff)
+                        continue;
+                    end
+                    if strcmp(par_fn{k},'deactivation_function') % it seems the isequal cannot really check if two anonymous functions are equal
+                        continue;
+                    end
+                    if startsWith(par_fn{k},'grid_size_microns_') && M.setup.use_carrying_capacity_for_grid_size
+                        continue; % if using the carrying capacity, then the grid size does not matter at this point
+                    end
+                    if size(M.(fn{j}).(par_fn{k}),1)==1 % then this parameter is not being varied
+                        if ~isequal(M.(fn{j}).(par_fn{k}),X.(fn{j}).(par_fn{k}))
+                            these_match = false;
+                            break;
+                        end
+                    end
+                end
+                if ~these_match
+                    break;
+                end
+            end
+        end
+        if ~these_match % then already know something doesn't match, don't need to compare values
+            break;
+        end
+        for vpi = 1:numel(cohort.lattice_parameters)
+            xtemp = X;
+            for pi = 1:length(cohort.lattice_parameters(vpi).path)
+                xtemp = xtemp.(cohort.lattice_parameters(vpi).path{pi});
+            end
+            vp_ind{vpi} = find(cohort.lattice_parameters(vpi).values==xtemp);
+            if isempty(vp_ind{vpi})
+                these_match = false;
+                break;
+            end
+        end
+        if these_match
+            sample_ind = find(cohort.ids(:,vp_ind{:})=="",1);
+            if ~isempty(sample_ind) && sample_ind <= nsamps_per_condition
+                cohort.ids(sample_ind,vp_ind{:}) = sims_to_check(i);
+                n_found = n_found+1;
+                if n_found>=total_runs
+                    break;
+                end
+            end
+            
+        end
+    end
+end
 
 inds_to_run = find(cohort.ids=="");
 total_runs = numel(inds_to_run);
@@ -385,7 +381,7 @@ else
     cohort_pars.num_workers = 1;
 end
 
-%%
+%% 
 cohort_pars.mu_n = 0;
 cohort_pars.start = tic;
 cohort_pars.batch_start = tic;
@@ -424,11 +420,6 @@ save(sprintf("data/cohort_%s/output",cohort_pars.cohort_identifier),"nsamps_per_
 save(sprintf("data/cohort_%s/output",cohort_pars.cohort_identifier),'-struct',"cohort","-append")
 
 fprintf("Finished cohort. Folder is: cohort_%s\n",cohort_pars.cohort_identifier)
-
-if cohort_pars.check_cohort_grab
-    checkCohortGrab(cohort_pars.cohort_identifier)
-end
-
 end
 
 function lattice_parameters = grabFields(S,lattice_parameters,incoming_struct_path)
@@ -446,7 +437,7 @@ end
 end
 
 function [sim_this,sims_to_check,new_start_ind,sim_id] = findSimilarSims(M,sims_to_check,start_ind)
-sim_id = "";
+sim_id = ""; 
 new_start_ind = numel(sims_to_check)+1; % if no match is found for these pars, then don't search for a match next time
 sim_this = true;
 for i = start_ind:numel(sims_to_check) % look for the first one that matches the inputs here
@@ -506,81 +497,4 @@ else
         ids(i,colons{:}) = reuseSims(squeeze(ids(i,colons{:})),squeeze(copy_ids(i,colons{:})),sample_dim-1);
     end
 end
-end
-
-
-function [fixed,skip_this_cohort] = updateFixed(fixed,dim,ind,skip_this_cohort)
-
-if isempty(fixed{dim})
-    fixed{dim} = ind;
-else
-    fixed{dim} = intersect(fixed{dim},ind);
-    if isempty(fixed{dim})
-        skip_this_cohort = true; % then this is in conflict with the previously found indices for this dimension
-    end
-end
-end
-
-function copy_inds = matchToCopy(ti,D,previous_fixed)
-
-n = length(previous_fixed);
-copy_inds = cell(n,1);
-for k = 1:n
-    if numel(previous_fixed{k})==1
-        copy_inds{k} = previous_fixed{k}; % only one to grab here, so just grab it
-    else
-        ind = NaN;
-        for ri = 1:size(D,1) % loop over target dims to find the ones that match with dim k in previous
-            if ~isempty(D{ri,k})
-                if isnan(ind)
-                    ind = D{ri,k}((D{ri,k}(:,1)==ti{ri}),2);
-                    assert(numel(ind)==1) % should only find a single match here
-                elseif ~isequal(ind,D{ri,k}((D{ri,k}(:,1)==ti{ri}),2)) % should match the previous index found; skip this one
-                    copy_inds = [];
-                    return;
-                end
-            end
-        end
-        if isnan(ind) % could not find the proper previous indices to match the target indices; I don't think this should ever happen
-            error("No index found???")
-            %             copy_inds = [];
-            %             return;
-        end
-        copy_inds{k} = ind;
-    end
-end
-end
-
-function [D_full,current_fixed,previous_fixed] = scanForDeletions(D_full,current_fixed,previous_fixed,fix_previous,dim,I)
-
-if fix_previous
-    D = D_full(:,dim);
-    col_ind = 2;
-    other_ind = 1;
-else
-    D = D_full(dim,:);
-    col_ind = 1;
-    other_ind = 2;
-end
-
-for i = 1:length(D) % find where it was previously matched and remove those
-    if ~isempty(D{i})
-        ind = D{i}(:,col_ind) == I;
-        if ~any(ind)
-            continue;
-        end
-        other_to_remove = D{i}(ind,other_ind);
-        if fix_previous
-            D_full{i,dim}(ind,:) = [];
-            current_fixed{i} = setdiff(current_fixed{i},other_to_remove);
-            [D_full,current_fixed,previous_fixed] = scanForDeletions(D_full,current_fixed,previous_fixed,false,i,other_to_remove);
-        else
-            D_full{dim,i}(ind,:) = [];
-            previous_fixed{i} = setdiff(previous_fixed{i},other_to_remove);
-            [D_full,current_fixed,previous_fixed] = scanForDeletions(D_full,current_fixed,previous_fixed,true,i,other_to_remove);
-        end
-    end
-end
-
-
 end

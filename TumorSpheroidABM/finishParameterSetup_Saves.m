@@ -12,14 +12,13 @@ else
 end
 
 if ~isfield(M.save_pars,"sim_identifier")
-    M.save_pars.sim_identifier = string(datetime("now","Format","yyMMddHHmmssSSS")); % default to this for determining an id if none given
+    M.save_pars.sim_identifier = string(datetime("now","Format","yyMMddHHmm")); % default to this for determining an id if none given
+    while exist(sprintf("data/sims/%s",M.save_pars.sim_identifier),"dir") % just in case this directory already exists somehow (not sure how to processes could start at the same time to the millisecond and then one create this folder before the other looks for it)
+        M.save_pars.sim_identifier = string(datetime("now","Format","yyMMddHHmmss")); % default to this for determining an id if none given
+    end
 end
 
-while exist(sprintf("data/sims/%s",M.save_pars.sim_identifier),"dir") % just in case this directory already exists somehow (not sure how to processes could start at the same time to the millisecond and then one create this folder before the other looks for it)
-    M.save_pars.sim_identifier = string(datetime("now","Format","yyMMddHHmmssSSS")); % default to this for determining an id if none given
-end
-
-if isfield(M.save_pars,"idx_in_cohort")
+if isfield(M.save_pars,"idx_in_cohort") && ~endsWith(M.save_pars.sim_identifier,string(M.save_pars.idx_in_cohort))
     M.save_pars.sim_identifier = sprintf("%s_%d",M.save_pars.sim_identifier,M.save_pars.idx_in_cohort);
 end
 

@@ -69,17 +69,19 @@ M.cycle = buildCycle();
 
 %% cycle stuff
 
-M.cycle_pars.dna_check = false(1,4);
-M.cycle_pars.dna_check(M.cycle.g1) = M.cycle_pars.dna_check_g1;
-M.cycle_pars.dna_check(M.cycle.s) = M.cycle_pars.dna_check_s;
-M.cycle_pars.dna_check(M.cycle.g2) = M.cycle_pars.dna_check_g2;
-M.cycle_pars.dna_check(M.cycle.m) = M.cycle_pars.dna_check_m;
+M.chemo_pars.dna_check = false(1,4);
+M.chemo_pars.dna_check(M.cycle.g1) = M.chemo_pars.dna_check_g1;
+M.chemo_pars.dna_check(M.cycle.s) = M.chemo_pars.dna_check_s;
+M.chemo_pars.dna_check(M.cycle.g2) = M.chemo_pars.dna_check_g2;
+M.chemo_pars.dna_check(M.cycle.m) = M.chemo_pars.dna_check_m;
 
-M.cycle_pars.arrest_prob = zeros(1,4);
-M.cycle_pars.arrest_prob(M.cycle.g1) = M.cycle_pars.arrest_prob_g1;
-M.cycle_pars.arrest_prob(M.cycle.s) = M.cycle_pars.arrest_prob_s;
-M.cycle_pars.arrest_prob(M.cycle.g2) = M.cycle_pars.arrest_prob_g2;
-M.cycle_pars.arrest_prob(M.cycle.m) = M.cycle_pars.arrest_prob_m;
+M.chemo_pars.arrest_prob = zeros(1,4);
+M.chemo_pars.arrest_prob(M.cycle.g1) = M.chemo_pars.arrest_coeff_g1 * M.chemo_pars.concentration;
+M.chemo_pars.arrest_prob(M.cycle.s) = M.chemo_pars.arrest_coeff_s * M.chemo_pars.concentration;
+M.chemo_pars.arrest_prob(M.cycle.g2) = M.chemo_pars.arrest_coeff_g2 * M.chemo_pars.concentration;
+M.chemo_pars.arrest_prob(M.cycle.m) = M.chemo_pars.arrest_coeff_m * M.chemo_pars.concentration;
+
+M.chemo_pars.dna_check = M.chemo_pars.dna_check & M.chemo_pars.arrest_prob > 0; % in case the check is on, but the probability is 0; will save on drawing random numbers in these cases
 
 M.cycle.advancer = [M.cycle.s,M.cycle.g2,M.cycle.m,M.cycle.g1]; % this gives the index of the next cycle
 M.cycle_pars.transition_rates = [M.cycle_pars.g1_to_s,M.cycle_pars.s_to_g2,M.cycle_pars.g2_to_m,M.cycle_pars.m_to_g1];

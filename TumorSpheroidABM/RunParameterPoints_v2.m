@@ -32,15 +32,15 @@ M.save_pars.dt = Inf;
 M.pars.max_dt = 0.25 / 24; % number of days per step
 M.pars.apop_rate = 0;
 
-M.cycle_pars.dna_check_g1 = false;
-M.cycle_pars.dna_check_s = false;
-M.cycle_pars.dna_check_g2 = false;
-M.cycle_pars.dna_check_m = false;
+M.chemo_pars.dna_check_g1 = false;
+M.chemo_pars.dna_check_s = false;
+M.chemo_pars.dna_check_g2 = false;
+M.chemo_pars.dna_check_m = false;
 
-M.cycle_pars.arrest_prob_g1 = 0.05;
-M.cycle_pars.arrest_prob_s = 0.00;
-M.cycle_pars.arrest_prob_g2 = 0.05;
-M.cycle_pars.arrest_prob_m = 0.00;
+M.chemo_pars.arrest_coeff_g1 = 0.05;
+M.chemo_pars.arrest_coeff_s = 0.00;
+M.chemo_pars.arrest_coeff_g2 = 0.05;
+M.chemo_pars.arrest_coeff_m = 0.00;
 
 M.plot_pars.plot_fig = false;
 M.plot_pars.plot_location = false;
@@ -128,7 +128,7 @@ par_vals = zeros(1,7);
 H = cell(1,2);
 tt_min = round(1440*tt);
 % F = @(t) sum(((interp1(round(t.t*1440),t.NT,tt_min)-data)./data_std).^2,'all');
-F = @(t) sum(((interp1(round(t.t*1440),t.NT,tt_min)-data)).^2,'all');
+F = @(t) sum(((interp1(round(t.t*1440),t.NT,tt_min)-data)).^2,'all'); % round saved data time points to nearest minute (to prevent, for example, final timepoint being a little smaller than 3)
 use_abm_region_1_var = isequal(C.cohort_size,size(abm_region_1_log));
 
 for i = 1:numel(C.ids)

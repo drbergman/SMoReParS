@@ -11,7 +11,7 @@ for ord_ind=1:length(in.active_ind)
             %%
             phase = M.tumor(j,M.I.phase);
             if phase==M.cycle.m % then this cell proliferates
-                if M.cycle_pars.dna_check(M.cycle.m) && rand() < M.cycle_pars.arrest_prob(M.cycle.m)
+                if M.chemo_pars.dna_check(M.cycle.m) && rand() < M.chemo_pars.arrest_prob(M.cycle.m)
                     M.tumor(j,M.I.event) = 2; % mark the cell for apoptosis
                     M.tracked.chemo_arrest(M.i) = M.tracked.chemo_arrest(M.i)+1;
                     in = stopFutureEvents(in,j,ord_ind);
@@ -61,7 +61,7 @@ for ord_ind=1:length(in.active_ind)
                 end
             else % then it just moves along the transition path
                 
-                if M.cycle_pars.dna_check(phase) && rand() < M.cycle_pars.arrest_prob(phase)
+                if M.chemo_pars.dna_check(phase) && rand() <  M.chemo_pars.arrest_prob(phase)
                     M.tumor(j,M.I.event) = 2; % mark the cell for apoptosis
                     M.tracked.chemo_arrest(M.i) = M.tracked.chemo_arrest(M.i)+1;
                     in = stopFutureEvents(in,j,ord_ind);

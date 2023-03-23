@@ -4,6 +4,7 @@ grid_size = M.grid.size;
 setup = M.setup;
 pars = M.pars;
 cycle_pars = M.cycle_pars;
+chemo_pars = M.chemo_pars;
 plot_pars = M.plot_pars;
 flags = M.flags;
 save_pars = M.save_pars;

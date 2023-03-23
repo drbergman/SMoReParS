@@ -2,7 +2,7 @@ clearvars;
 
 addpath("..")
 addpath("~/Documents/MATLAB/myfunctions/")
-cohort_id = "cohort_221218090258558";
+cohort_id = "cohort_2303221446";
 
 load(sprintf("../data/%s/output.mat",cohort_id),"ids","lattice_parameters","nsamps_per_condition")
 
@@ -20,13 +20,14 @@ for i = 1:5
 end
 
 cycle = buildCycle();
-S = 40;
+S_max = 40;
 
 for j = 1:npars
-    l_temp = gobjects(size(ids,j),S,4);
+    l_temp = gobjects(size(ids,j),S_max,4);
     for k = 1:size(ids,j)
         id_temp = sliceof(ids,j,k); % grab the ids for sims with the kth value of the jth parameter
         id_temp = id_temp(:);
+        S = min(S_max,numel(id_temp));
         id_temp = id_temp(randperm(numel(id_temp),S)); % sample S of these
         for l = 1:S
 
@@ -50,12 +51,16 @@ for j = 1:npars
                         end
                     end
                     if m==1 && k==size(ids,j)
-                        ylabel(ax(j,m),regexprep(lattice_parameters(j).path(end),"_"," "))
+                        if iscell(lattice_parameters(j).path)
+                            ylabel(ax(j,m),regexprep(lattice_parameters(j).path{1}(end),"_"," "))
+                        else
+                            ylabel(ax(j,m),regexprep(lattice_parameters(j).path(end),"_"," "))
+                        end
                         legend(ax(j,m),l_temp(:,1,1),"Location","northwest","AutoUpdate","off")
                     end
                 end
             end
-            plot(ax(j,5),tracked.t,tracked.NT,'Color',[val_color(k,:),0.2]);
+            plot(ax(j,5),tracked.t,sum(tracked.phases,2),'Color',[val_color(k,:),0.2]);
             if l==1 && j==1
                 title(ax(j,5),"Total")
             end

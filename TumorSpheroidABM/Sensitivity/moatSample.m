@@ -17,10 +17,10 @@ for i = 1:numel(x)
             M.cycle_pars.g2_to_m = v_temp;
         case "m_to_g1"
             M.cycle_pars.m_to_g1 = v_temp;
-        case "arrest_prob_g1"
-            M.cycle_pars.arrest_prob_g1 = v_temp;
-        case "arrest_prob_g2"
-            M.cycle_pars.arrest_prob_g2 = v_temp;
+        case "arrest_coeff_g1"
+            M.chemo_pars.arrest_coeff_g1 = v_temp;
+        case "arrest_coeff_g2"
+            M.chemo_pars.arrest_coeff_g2 = v_temp;
         case "apop_rate"
             M.pars.apop_rate = v_temp;
         case "move_rate_microns"
