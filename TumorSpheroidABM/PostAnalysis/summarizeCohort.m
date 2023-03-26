@@ -5,16 +5,17 @@
 
 clearvars;
 % function summarizeCohort(cohort_name)
-cohort_name = "cohort_230124175743017";
+cohort_name = "cohort_2303231625";
 addpath("~/Documents/MATLAB/myfunctions/")
 C = load(sprintf("../data/%s/output.mat",cohort_name));
 
 %%
 for i = numel(C.ids):-1:1
     S = load(sprintf("../data/sims/%s/output_final.mat",C.ids(i)));
-    count(:,i) = S.tracked.NT;
     phase_count(:,:,i) = S.tracked.phases;
 end
+
+count = squeeze(sum(phase_count,2));
 
 t = S.tracked.t;
 nt = length(t);
