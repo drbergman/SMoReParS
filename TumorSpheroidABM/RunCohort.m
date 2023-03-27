@@ -51,7 +51,7 @@ M.chemo_pars.dna_check_s = false;
 M.chemo_pars.dna_check_g2 = true;
 M.chemo_pars.dna_check_m = false;
 
-arrest_coeffs = [0.025;0.05;0.075;0.1];
+arrest_coeffs = [0;0.025;0.05;0.075;0.1];
 
 M.chemo_pars.arrest_coeff_g1 = arrest_coeffs;
 M.chemo_pars.arrest_coeff_s = 0;
