@@ -42,16 +42,16 @@ cohort_pars.total_runs = total_runs;
 colons = repmat({':'},[1,length(cohort_size)]);
 vp_ind = cell(1,length(cohort_size));
 
-sims_to_check = dir("data/sims/*");
-sims_to_check = sims_to_check([sims_to_check.isdir]);
-for i = numel(sims_to_check):-1:1
-    if ~startsWith(sims_to_check(i).name,digitsPattern(1)) % I only want folders that start with a number (not "." or ".." etc)
-        sims_to_check(i) = [];
-    else
-        sims_to_check(i).name = string(sims_to_check(i).name);
-    end
-end
-sims_to_check = [sims_to_check.name];
+% sims_to_check = dir("data/sims/*");
+% sims_to_check = sims_to_check([sims_to_check.isdir]);
+% for i = numel(sims_to_check):-1:1
+%     if ~startsWith(sims_to_check(i).name,digitsPattern(1)) % I only want folders that start with a number (not "." or ".." etc)
+%         sims_to_check(i) = [];
+%     else
+%         sims_to_check(i).name = string(sims_to_check(i).name);
+%     end
+% end
+% sims_to_check = [sims_to_check.name];
 cohort.ids = repmat("",[cohort_size,nsamps_per_condition,1]); % put the 1 at the end in case cohort_size = []; this way it creates a 1D vector of ids rather than a square array of ids...silly matlab
 n_found = 0;
 
@@ -61,7 +61,7 @@ previous_cohorts = dir("data/cohort_*");
 for i = 1:numel(previous_cohorts)
 
     PC = load(sprintf("data/%s/output.mat",previous_cohorts(i).name));
-    sims_to_check = setdiff(sims_to_check,PC.ids(:));
+    % sims_to_check = setdiff(sims_to_check,PC.ids(:));
     if ~isequal(sort(string(all_fn)),sort(string(fieldnames(PC.all_parameters))))
         % these did not have the same parameters coming in, so move on
         continue;
@@ -273,7 +273,7 @@ for i = 1:numel(previous_cohorts)
         n_found = n_found + numel(blanks_to_fill);
     end
 
-    if n_found == total_runs || isempty(sims_to_check)
+    if n_found == total_runs %|| isempty(sims_to_check)
         break;
     end
 
@@ -283,7 +283,7 @@ if ~isempty(cohort_size) % if its empty, then cohort.ids should just be a column
     cohort.ids = squeeze(permute(cohort.ids,[length(cohort_size)+1,1:length(cohort_size)])); % put the sample dimension along first dimension for sims
 end
 
-sims_to_check = sims_to_check(randperm(numel(sims_to_check))); % to not bias samples towards the first sims I ran
+% sims_to_check = sims_to_check(randperm(numel(sims_to_check))); % to not bias samples towards the first sims I ran
 
 % %% record which previous sims have the right parameters
 % fn = fieldnames(M);
