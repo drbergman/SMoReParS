@@ -8,7 +8,7 @@ p(2) = 24/5; % alpha
 p(3) = 1e3; % K
 p(4) = 0.1; % chemo-induced death rate per uM of drug
 
-chemo_death_is_continuous = false; % does chemo death occur over entirety of each phase (true)? Or is it a one-time event during a phase and so it happens at a higher rate during shorter phases (false)?
+phase_dependent_death = true; % does chemo death occur over entirety of each phase (true)? Or is it a one-time event during a phase and so it happens at a higher rate during shorter phases (false)?
 lb = [0;0;0;0];
 ub = [Inf;Inf;1e4;2]; % running this once showed that beyond 0.5, delta just decreases populations too fast
 
@@ -61,7 +61,7 @@ for i = 1:size(P,2)
     data = Avg(:,:,:,i);
     data(data<=1) = 1; % when the data is too small (i.e. <=1), just compute the SM difference from 1
     % data_std = Std(:,:,:,i);
-    F = @(p) sum(arrayfun(@(cci) sum((computeTimeSeriesChemo(p,t_abm,C.lattice_parameters(chemo_dim).values(cci),chemo_death_is_continuous)./data(:,:,cci) - 1).^2,'all'),1:nconc)); % relative difference
+    F = @(p) sum(arrayfun(@(cci) sum((computeTimeSeriesChemo(p,t_abm,C.lattice_parameters(chemo_dim).values(cci),phase_dependent_death)./data(:,:,cci) - 1).^2,'all'),1:nconc)); % relative difference
     FF(i) = parfeval(@(x) fmincon(F,x0,[],[],[],[],lb,ub,[],opts),1,x0);
 end
 

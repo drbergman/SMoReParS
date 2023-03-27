@@ -5,8 +5,8 @@ clearvars;
 
 cohort_name = "cohort_2303231625";
 nsamps = 5;
-load("data/OptimalParameters_with_chemo_discontinuous_death.mat")
-chemo_death_is_continuous = false;
+load("data/OptimalParameters_phase_dependent_death.mat")
+phase_dependent_death = true;
 
 Sum = load(sprintf("../../data/%s/summary.mat",cohort_name),"ode_state*");
 load(sprintf("../../data/%s/output.mat",cohort_name),"ids","lattice_parameters");
@@ -51,7 +51,7 @@ for i = 1:nsamps
             patch(ax(i,j),[tt;flip(tt)],[avg(:,k,j)-std(:,k,j);flipud(avg(:,k,j)+std(:,k,j))],"black","FaceAlpha",0.2,"EdgeColor","none")
             plot(ax(i,j),tt,avg(:,k,j),"black")
         end
-        out = computeTimeSeries(P(:,I(i)),tt,lattice_parameters(chemo_dim).values(j),chemo_death_is_continuous);
+        out = computeTimeSeries(P(:,I(i)),tt,lattice_parameters(chemo_dim).values(j),phase_dependent_death);
         plot(ax(i,j),tt,out,"--","LineWidth",2)
     end
 
