@@ -5,7 +5,7 @@
 
 clearvars;
 % function summarizeCohort(cohort_name)
-cohort_name = "cohort_2303231625";
+cohort_name = "cohort_2303271138";
 addpath("~/Documents/MATLAB/myfunctions/")
 C = load(sprintf("../data/%s/output.mat",cohort_name));
 

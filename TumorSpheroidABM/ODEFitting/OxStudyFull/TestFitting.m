@@ -3,9 +3,11 @@
 
 clearvars;
 
+addpath("~/Documents/MATLAB/myfunctions/")
+
 cohort_name = "cohort_2303231625";
 nsamps = 5;
-load("data/OptimalParameters_phase_dependent_death.mat")
+load("data/OptimalParameters.mat")
 phase_dependent_death = true;
 
 Sum = load(sprintf("../../data/%s/summary.mat",cohort_name),"ode_state*");
@@ -66,3 +68,5 @@ for i = 1:4
     histogram(P(i,:))
     title(par_names(i))
 end
+
+rmpath("~/Documents/MATLAB/myfunctions/")
