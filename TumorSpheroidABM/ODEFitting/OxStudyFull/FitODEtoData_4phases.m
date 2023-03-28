@@ -24,7 +24,7 @@ D = load("data/ExperimentalData.mat");
 
 %%
 P = zeros(npars,1);
-[pstar,fstar] = fmincon(@(p) F(p,D.tt,D.doses,D.data,D.data_std),x0,[],[],[],[],lb,ub,[],opts);
+[pstar,fstar] = fmincon(@(p) F(p,D.tt,D.doses,D.data,D.data_std),p,[],[],[],[],lb,ub,[],opts);
 
 %%
 figure;
