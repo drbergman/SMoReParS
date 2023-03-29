@@ -8,26 +8,20 @@ p(2) = 24/5; % alpha
 p(3) = 1e3; % K
 p(4) = 0.1; % chemo-induced death rate per uM of drug
 
-phase_dependent_death = true; % does chemo death occur over entirety of each phase (true)? Or is it a one-time event during a phase and so it happens at a higher rate during shorter phases (false)?
+phase_dependent_death = false; % does chemo death occur over entirety of each phase (true)? Or is it a one-time event during a phase and so it happens at a higher rate during shorter phases (false)?
 lb = [0;0;0;0];
 ub = [Inf;Inf;1e4;2]; % running this once showed that beyond 0.5, delta just decreases populations too fast
 
-cohort_name = "cohort_2303231625";
+cohort_name = "cohort_2303271138";
 opts = optimset('Display','off','TolFun',1e-12,'TolX',1e-12);
-%%
-% fn = fieldnames(p);
-% npars = numel(fn);
-% x0 = zeros(npars,1);
-% for i = 1:npars
-%     x0(i) = p.(fn{i});
-% end
+
 x0 = p;
 npars = length(p);
 
 %% load ABM data
 C = load(sprintf("../../data/%s/output.mat",cohort_name),"cohort_size","lattice_parameters");
 chemo_dim = 8; % dimension along which chemo concentration varies; make sure this is still dim 8!!
-if cohort_name~="cohort_2303231625"
+if ~any(cohort_name==["cohort_2303231625","cohort_2303271138"])
     error("make sure the chemo concentration dim is still the 8th!")
 end
 
@@ -61,7 +55,7 @@ for i = 1:size(P,2)
     data = Avg(:,:,:,i);
     data(data<=1) = 1; % when the data is too small (i.e. <=1), just compute the SM difference from 1
     % data_std = Std(:,:,:,i);
-    F = @(p) sum(arrayfun(@(cci) sum((computeTimeSeriesChemo(p,t_abm,C.lattice_parameters(chemo_dim).values(cci),phase_dependent_death)./data(:,:,cci) - 1).^2,'all'),1:nconc)); % relative difference
+    F = @(p) sum(arrayfun(@(cci) sum((computeTimeSeries(p,t_abm,C.lattice_parameters(chemo_dim).values(cci),phase_dependent_death)./data(:,:,cci) - 1).^2,'all'),1:nconc)); % relative difference
     FF(i) = parfeval(@(x) fmincon(F,x0,[],[],[],[],lb,ub,[],opts),1,x0);
 end
 

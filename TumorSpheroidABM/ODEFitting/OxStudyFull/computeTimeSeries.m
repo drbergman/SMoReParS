@@ -8,5 +8,4 @@ else
     death_rate = p(4) * chemo_conc * [p(1);p(2)];
 end
 sol = ode45(@(t,x) odefn(x,p,death_rate),[0 3],[90;10]);
-
 out = deval(sol,tt)';

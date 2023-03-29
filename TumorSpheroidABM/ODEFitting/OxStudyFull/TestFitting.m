@@ -5,10 +5,15 @@ clearvars;
 
 addpath("~/Documents/MATLAB/myfunctions/")
 
-cohort_name = "cohort_2303231625";
+cohort_name = "cohort_2303271138";
 nsamps = 5;
-load("data/OptimalParameters.mat")
 phase_dependent_death = true;
+
+if ~phase_dependent_death
+    load("data/OptimalParameters.mat")
+else
+    load("data/OptimalParameters_phase_dependent_death.mat")
+end
 
 Sum = load(sprintf("../../data/%s/summary.mat",cohort_name),"ode_state*");
 load(sprintf("../../data/%s/output.mat",cohort_name),"ids","lattice_parameters");
@@ -20,7 +25,7 @@ sz = size(ids);
 sz(end) = [];
 
 chemo_dim = 8; % dimension along which chemo concentration varies; make sure this is still dim 8!!
-if cohort_name~="cohort_2303231625"
+if ~any(cohort_name==["cohort_2303231625","cohort_2303271138"])
     error("make sure the chemo concentration dim is still the 8th!")
 end
 

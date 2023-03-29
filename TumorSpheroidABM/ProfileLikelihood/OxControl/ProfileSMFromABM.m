@@ -9,16 +9,17 @@
 clearvars;
 
 addpath("~/Documents/MATLAB/myfunctions/")
-addpath("../ODEFitting/")
+addpath("../../ODEFitting/OxControl/")
 
 % folder to store plots and text files
 cohort_name = "cohort_230124175743017";
 
 % load data and compute the standard error
-load("../ODEFitting/OptimalParameters_noapop.mat","P")
-C = load(sprintf("../data/%s/output.mat",cohort_name),"cohort_size");
-Sum = load(sprintf("../data/%s/summary.mat",cohort_name),"ode_state*");load(sprintf("../data/%s/output.mat",cohort_name),"ids");
-load(sprintf("../data/sims/%s/output_final.mat",ids(1)),"tracked");
+load("../../ODEFitting/OxControl/data/OptimalParameters_noapop.mat","P")
+C = load(sprintf("../../data/%s/output.mat",cohort_name),"cohort_size");
+Sum = load(sprintf("../../data/%s/summary.mat",cohort_name),"ode_state*");
+load(sprintf("../../data/%s/output.mat",cohort_name),"ids");
+load(sprintf("../../data/sims/%s/output_final.mat",ids(1)),"tracked");
 t_abm = tracked.t;
 compare_every = 6 / 24;
 
@@ -74,8 +75,8 @@ for i = 1:size(Sum.ode_state_average,3)
 
 end
 
-save("ProfileLikelihoods.mat","out")
+% save("ProfileLikelihoods.mat","out")
 
 rmpath("~/Documents/MATLAB/myfunctions/")
-rmpath("../ODEFitting/")
+rmpath("../../ODEFitting/")
 
