@@ -1,11 +1,22 @@
-function out = computeTimeSeries(p,tt,chemo_conc,phase_dependent_death)
+function out = computeTimeSeries(p,tt,dose,opts)
 
 % computes the time series solution for the SM at time points tt. Always
 % uses initial conditions of [90;10];
-if ~phase_dependent_death
-    death_rate = p(4) * chemo_conc;
+if opts.link_phase_death_rates
+    if ~opts.phase_dependent_death
+        death_rate = p(4) * dose;
+    else
+        death_rate = p(4) * dose * [p(1);p(2)];
+    end
 else
-    death_rate = p(4) * chemo_conc * [p(1);p(2)];
+    if opts.hill_activation
+        death_rate = p(4:5).*dose^p(6)/(dose^p(6)+p(7)^p(6));
+    else
+        death_rate = p(4:5) * dose;
+    end
 end
+
 sol = ode45(@(t,x) odefn(x,p,death_rate),[0 3],[90;10]);
-out = deval(sol,tt)';
+temp = deval(sol,tt)';
+total = sum(temp,2);
+out = [total,temp(:,2)./total];

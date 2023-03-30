@@ -5,44 +5,32 @@ clearvars;
 
 addpath("~/Documents/MATLAB/myfunctions/")
 
-p = zeros(4,1);
-p(1) = 24/19; % lambda
-p(2) = 24/5; % alpha
-p(3) = 1e3; % K
-p(4) = 0.1; % chemo-induced death rate per uM of drug
+lambda = 5.96;
+alphaRP = 0.99;
+theta = 1;
+VT = 548;
+V0 = 55;
+alphaP = 8.69;
+kalpha = 21.67;
+a = 0.5;
+rho0 = 0.06;
+delta0 = 0.96;
+kdelta = 9.22;
+b = 1;
+alphaR = 3.0;
+p = [lambda;alphaRP;theta;VT;V0;alphaP;kalpha;a;rho0;delta0;kdelta;b;alphaR];
 
-p_unlinked = [1.9;1.9]; % chemo-induced death rates if they are unlinked
-p_hill = [3;.1]; % [hill coefficient ; EC50] if unlinked
+fn = @computeTimeSeries_jain;
+fn_opts = struct();
+npars = length(p);
 
-fn = @computeTimeSeries;
-fn_opts.phase_dependent_death = true; % does chemo death occur over entirety of each phase (true)? Or is it a one-time event during a phase and so it happens at a higher rate during shorter phases (false)?
-fn_opts.link_phase_death_rates = false; % whether to link the two phases death rates
-fn_opts.hill_activation = true; % if unlinked, use hill activation?
-
-ub = [Inf;Inf;1e4;2];
-
+ub = [100;100;10;1e4;1e4;10;100;20;10;1e3;1e3;20;10];
+lb = zeros(npars,1);
 weight_choice = "uniform";
 
 opts = optimset('Display','off','TolFun',1e-12,'TolX',1e-12);
 
 %%
-if ~fn_opts.link_phase_death_rates
-    p = [p(1:3);p_unlinked];
-    ub(5) = 2;
-    if fn_opts.hill_activation
-        p = [p;p_hill];
-        ub(6:7) = [3;Inf];
-    end
-end
-
-npars = length(p);
-lb = zeros(npars,1);
-
-if ~fn_opts.link_phase_death_rates
-    if fn_opts.hill_activation
-        lb(6) = 3;
-    end
-end
 
 switch weight_choice
     case "uniform"
@@ -92,12 +80,9 @@ for i = 1:3
     plot(ax(1,i),D.tt,D.count(:,i),"black","Marker","o","MarkerFaceColor","black","DisplayName","Data");
     patch(ax(2,i),[D.tt;flip(D.tt)],[D.state2_prop(:,i)-D.sigma_state2_prop(:,i);flip(D.state2_prop(:,i)+D.sigma_state2_prop(:,i))],"black","FaceAlpha",0.2,"EdgeColor","none","DisplayName","+/- SD");
     plot(ax(2,i),D.tt,D.state2_prop(:,i),"black","Marker","o","MarkerFaceColor","black","DisplayName","Data");
-    title(ax(1,i),sprintf("C = %3.2fuM",D.doses(i)),"Interpreter","none")
+    title(sprintf("C = %3.2fuM",D.doses(i)),"Interpreter","none")
 end
 xlabel(ax,"Time (d)")
-ylabel(ax(1,:),"Scaled Cell Count")
-ylabel(ax(2,:),"Prop in G2/M")
-normalizeYLims(ax(2,:))
 
 % legend([fit_curve;data_curve;data_patch],"Location","northwest","FontSize",22)
 
