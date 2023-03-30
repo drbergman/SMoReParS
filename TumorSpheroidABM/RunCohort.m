@@ -10,7 +10,7 @@ addpath("~/Documents/MATLAB/myfunctions/")
 %% cohort structure
 cohort_pars.nsamps_per_condition = 6;
 cohort_pars.min_parfor_num = 4;
-cohort_pars.link_arrest_coeffs = true;
+cohort_pars.link_arrest_coeffs = false;
 cohort_pars.linkings = ["g1","g2","s","m"];
 cohort_pars.check_cohort_grab = true;
 
@@ -51,7 +51,7 @@ M.chemo_pars.dna_check_s = false;
 M.chemo_pars.dna_check_g2 = true;
 M.chemo_pars.dna_check_m = false;
 
-arrest_coeffs = [0;0.025;0.05;0.075;0.1];
+arrest_coeffs = [0.025;0.05;0.075];
 
 M.chemo_pars.arrest_coeff_g1 = arrest_coeffs;
 M.chemo_pars.arrest_coeff_s = 0;
