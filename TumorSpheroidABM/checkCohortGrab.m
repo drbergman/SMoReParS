@@ -15,7 +15,7 @@ C.ids = reshape(C.ids,[],C.nsamps_per_condition);
 
 idx = cell(length(C.cohort_size),1);
 unequal = string([]);
-for i = 20000:size(C.ids,1)
+for i = 1:size(C.ids,1)
 
     [idx{:}] = ind2sub(C.cohort_size,i);
     for j = 1:C.nsamps_per_condition
