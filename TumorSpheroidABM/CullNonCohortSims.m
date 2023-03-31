@@ -3,7 +3,7 @@ clearvars;
 % This script will go through the sims in data/sims and make sure they all
 % belong to at least one cohort. If not, they will be deleted
 
-delete_sims = true; % whether to actually delete these sims, or just identify them
+delete_sims = false; % whether to actually delete these sims, or just identify them
 
 f = dir("data/sims/*");
 f = f([f.isdir]);
@@ -36,6 +36,6 @@ else
     if isempty(ids)
         fprintf("All simulations belong to a cohort. That's good.\n");
     else
-        fprintf("Found %d simulations that do not belong to a cohort. This may be disposable.\n",numel(ids))
+        fprintf("Found %d simulations that do not belong to a cohort. These may be disposable.\n",numel(ids))
     end
 end

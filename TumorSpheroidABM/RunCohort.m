@@ -8,11 +8,11 @@ clearvars;
 addpath("~/Documents/MATLAB/myfunctions/")
 
 %% cohort structure
-cohort_pars.nsamps_per_condition = 6;
+cohort_pars.nsamps_per_condition = 1;
 cohort_pars.min_parfor_num = 4;
 cohort_pars.link_arrest_coeffs = false;
 cohort_pars.linkings = ["g1","g2","s","m"];
-cohort_pars.check_cohort_grab = true;
+cohort_pars.check_cohort_grab = false;
 
 %%
 M = allBaseParameters();
