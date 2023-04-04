@@ -27,7 +27,7 @@ opts = optimset('Display','off','TolFun',1e-12,'TolX',1e-12);
 %% finish setting up bounds
 if ~fn_opts.link_phase_death_rates
     p = [p(1:3);p_unlinked];
-    ub(5) = 2;
+    ub(5) = 10;
     if fn_opts.hill_activation
         p = [p;p_hill];
         ub(6:7) = [3;Inf];
