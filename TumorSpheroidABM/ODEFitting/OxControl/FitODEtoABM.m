@@ -15,7 +15,7 @@ p(3) = 1e3; % K
 lb = [0;0;0];
 ub = [Inf;Inf;1e4];
 
-cohort_name = "cohort_230124175743017";
+cohort_name = "cohort_2303301105";
 opts = optimset('Display','off','TolFun',1e-12,'TolX',1e-12);
 %%
 % fn = fieldnames(p);
@@ -28,10 +28,10 @@ x0 = p;
 npars = length(p);
 
 %% load ABM data
-C = load(sprintf("../data/%s/output.mat",cohort_name),"cohort_size");
-Sum = load(sprintf("../data/%s/summary.mat",cohort_name),"ode_state*");
-load(sprintf("../data/%s/output.mat",cohort_name),"ids");
-load(sprintf("../data/sims/%s/output_final.mat",ids(1)),"tracked");
+C = load(sprintf("../../data/%s/output.mat",cohort_name),"cohort_size");
+Sum = load(sprintf("../../data/%s/summary.mat",cohort_name),"ode_state*");
+load(sprintf("../../data/%s/output.mat",cohort_name),"ids");
+load(sprintf("../../data/sims/%s/output_final.mat",ids(1)),"tracked");
 t_abm = tracked.t;
 compare_every = 0.25 / 24;
 

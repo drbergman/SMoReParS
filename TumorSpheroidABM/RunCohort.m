@@ -17,6 +17,7 @@ cohort_pars.check_cohort_grab = true;
 % cohort_pars.previous_cohort_search_pattern = "data/cohort_*";
 cohort_pars.sim_function = @simPatient;
 cohort_pars.update_timer_every = 50;
+cohort_pars.parpool_options.resources = "Threads"
 
 %%
 M = allBaseParameters();
