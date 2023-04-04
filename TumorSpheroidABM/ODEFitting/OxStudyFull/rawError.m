@@ -12,5 +12,3 @@ sim_data = fn(p,tt,dose,fn_opts);
 % out = sum(((sim_total-y)./s).^2,"all","omitnan") + sum(((sim_prop-prop)./s_prop).^2,"all","omitnan");
 
 out = sum(((sim_data - [y,prop])./[s,s_prop]).^2,"all","omitnan");
-
-disp('')

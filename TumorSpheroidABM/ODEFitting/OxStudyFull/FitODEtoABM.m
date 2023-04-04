@@ -3,29 +3,54 @@
 
 clearvars;
 
+p = zeros(4,1);
+
 p(1) = 24/19; % lambda
 p(2) = 24/5; % alpha
 p(3) = 1e3; % K
 p(4) = 0.1; % chemo-induced death rate per uM of drug
 
-phase_dependent_death = false; % does chemo death occur over entirety of each phase (true)? Or is it a one-time event during a phase and so it happens at a higher rate during shorter phases (false)?
-lb = [0;0;0;0];
-ub = [Inf;Inf;1e4;2]; % running this once showed that beyond 0.5, delta just decreases populations too fast
+p_unlinked = [1.9;1.9]; % chemo-induced death rates if they are unlinked
+p_hill = [3;.1]; % [hill coefficient ; EC50] if unlinked
 
-cohort_name = "cohort_2303271138";
+fn = @computeTimeSeries;
+fn_opts.phase_dependent_death = true; % does chemo death occur over entirety of each phase (true)? Or is it a one-time event during a phase and so it happens at a higher rate during shorter phases (false)?
+fn_opts.link_phase_death_rates = false; % whether to link the two phases death rates
+fn_opts.hill_activation = true; % if unlinked, use hill activation?
+
+phase_dependent_death = false; % does chemo death occur over entirety of each phase (true)? Or is it a one-time event during a phase and so it happens at a higher rate during shorter phases (false)?
+ub = [Inf;Inf;1e4;10]; % running this once showed that beyond 0.5, delta just decreases populations too fast
+
+cohort_name = "cohort_2303301105";
 opts = optimset('Display','off','TolFun',1e-12,'TolX',1e-12);
 
-x0 = p;
+%% finish setting up bounds
+if ~fn_opts.link_phase_death_rates
+    p = [p(1:3);p_unlinked];
+    ub(5) = 2;
+    if fn_opts.hill_activation
+        p = [p;p_hill];
+        ub(6:7) = [3;Inf];
+    end
+end
+
 npars = length(p);
+lb = zeros(npars,1);
+
+if ~fn_opts.link_phase_death_rates
+    if fn_opts.hill_activation
+        lb(6) = 3;
+    end
+end
 
 %% load ABM data
 C = load(sprintf("../../data/%s/output.mat",cohort_name),"cohort_size","lattice_parameters");
 chemo_dim = 8; % dimension along which chemo concentration varies; make sure this is still dim 8!!
-if ~any(cohort_name==["cohort_2303231625","cohort_2303271138"])
+if ~any(cohort_name==["cohort_2303231625","cohort_2303271138","cohort_2303301105"])
     error("make sure the chemo concentration dim is still the 8th!")
 end
 
-Sum = load(sprintf("../../data/%s/summary.mat",cohort_name),"ode_state*");
+Sum = load(sprintf("../../data/%s/summary.mat",cohort_name),"count_*","state2_prop_*");
 load(sprintf("../../data/%s/output.mat",cohort_name),"ids");
 load(sprintf("../../data/sims/%s/output_final.mat",ids(1)),"tracked");
 t_abm = tracked.t;
@@ -34,29 +59,46 @@ t_abm = tracked.t;
 % chemo_val = zeros(size(ids));
 
 
-%% setup Avg and Std so that they go [time,phase,death rate per uM,all other pars]
-Avg = Sum.ode_state_average;
-Avg = permute(Avg,[1,2,chemo_dim+2,setdiff(3:ndims(Avg),chemo_dim+2)]); % move chemo concentration dim to right after time and phase
-Avg = reshape(Avg,numel(t_abm),2,size(Avg,3),[]); 
+%% setup Avg and Std so that they go [time,death rate per uM,all other pars]
+count = Sum.count_average;
+count = permute(count,[1,chemo_dim+1,setdiff(2:ndims(count),chemo_dim+1)]); % move chemo concentration dim to right after time
+count = reshape(count,numel(t_abm),size(count,2),[]); 
 
-Std = Sum.ode_state_std;
-Std = permute(Std,[1,2,chemo_dim+2,setdiff(3:ndims(Std),chemo_dim+2)]); % move chemo concentration dim to right after time and phase
-Std = reshape(Std,numel(t_abm),2,size(Std,3),[]);
+count_std = Sum.count_std;
+count_std = permute(count_std,[1,chemo_dim+1,setdiff(2:ndims(count_std),chemo_dim+1)]); % move chemo concentration dim to right after time
+count_std = reshape(count_std,numel(t_abm),size(count_std,2),[]);
+
+state2_prop = Sum.state2_prop_mean;
+state2_prop = permute(state2_prop,[1,chemo_dim+1,setdiff(2:ndims(state2_prop),chemo_dim+1)]); % move chemo concentration dim to right after time
+state2_prop = reshape(state2_prop,numel(t_abm),size(state2_prop,2),[]); 
+
+state2_prop_std = Sum.state2_prop_std;
+state2_prop_std = permute(state2_prop_std,[1,chemo_dim+1,setdiff(2:ndims(state2_prop_std),chemo_dim+1)]); % move chemo concentration dim to right after time
+state2_prop_std = reshape(state2_prop_std,numel(t_abm),size(state2_prop_std,2),[]);
 
 %%
-P = zeros([npars,size(Avg,4)]); % one parameter vector that works for each concentration
+P = zeros([npars,size(count,3)]); % one parameter vector that works for each concentration
 
 %% find the best fit pars; since the purpose of this is to give ranges for the ODE parameters for profiling later, the obj fun is not so critical
-FF(1:size(P,2)) = parallel.FevalFuture;
-idx = cell(8,1);
-sz = C.cohort_size(setdiff(1:length(C.cohort_size),chemo_dim));
 nconc = C.cohort_size(chemo_dim);
+weights = [1;1;1];
+doses = C.lattice_parameters(chemo_dim).values;
+
+if isempty(gcp('nocreate'))
+    ppool = parpool("Processes");
+else
+    ppool = gcp;
+end
+FF(1:size(P,2)) = parallel.FevalFuture;
+
+state2_prop_std(state2_prop_std==0) = 1; % if the STD is 0, just use the unnormalized difference
 for i = 1:size(P,2)
-    data = Avg(:,:,:,i);
-    data(data<=1) = 1; % when the data is too small (i.e. <=1), just compute the SM difference from 1
-    % data_std = Std(:,:,:,i);
-    F = @(p) sum(arrayfun(@(cci) sum((computeTimeSeries(p,t_abm,C.lattice_parameters(chemo_dim).values(cci),phase_dependent_death)./data(:,:,cci) - 1).^2,'all'),1:nconc)); % relative difference
-    FF(i) = parfeval(@(x) fmincon(F,x0,[],[],[],[],lb,ub,[],opts),1,x0);
+    temp_count = count(:,:,i);
+    temp_count_std = count_std(:,:,i);
+    temp_state2_prop = state2_prop(:,:,i);
+    temp_state2_prop_std = state2_prop_std(:,:,i);
+    F = @(p) arrayfun(@(j) rawError(t_abm,temp_count(:,j),temp_count_std(:,j),temp_state2_prop(:,j),temp_state2_prop_std(:,j),p,fn,doses(j),fn_opts),1:3)*weights;
+    FF(i) = parfeval(@() fmincon(F,p,[],[],[],[],lb,ub,[],opts),1);
 end
 
 for i = 1:size(P,2)
