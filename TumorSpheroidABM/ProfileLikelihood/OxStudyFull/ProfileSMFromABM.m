@@ -12,83 +12,90 @@ addpath("~/Documents/MATLAB/myfunctions/")
 addpath("../../ODEFitting/OxStudyFull/")
 
 % folder to store plots and text files
-cohort_name = "cohort_2303271138";
+cohort_name = "cohort_2303301105";
+load("data/OptimalParameters_UnLinkedHill.mat");
 
-phase_dependent_death = false;
 
-% load data and compute the standard error
-if ~phase_dependent_death
-    load("../../ODEFitting/OxStudyFull/data/OptimalParameters.mat","P")
-else
-    load("../../ODEFitting/OxStudyFull/data/OptimalParameters_phase_dependent_death.mat","P")
-end
+fn = @computeTimeSeries;
+objfn_data.fn_opts.phase_dependent_death = true; % does chemo death occur over entirety of each phase (true)? Or is it a one-time event during a phase and so it happens at a higher rate during shorter phases (false)?
+objfn_data.fn_opts.link_phase_death_rates = false; % whether to link the two phases death rates
+objfn_data.fn_opts.hill_activation = true; % if unlinked, use hill activation?
+
+objfn_data.weights = [1;1;1];
+
 C = load(sprintf("../../data/%s/output.mat",cohort_name),"cohort_size","lattice_parameters");
 chemo_dim = 8; % dimension along which chemo concentration varies; make sure this is still dim 8!!
-if ~any(cohort_name==["cohort_2303231625","cohort_2303271138"])
+if ~any(cohort_name==["cohort_2303231625","cohort_2303271138"]) && ~isequal(lattice_parameters(chemo_dim).path,["chemo_pars","concentration"])
     error("make sure the chemo concentration dim is still the 8th!")
 end
 
-Sum = load(sprintf("../../data/%s/summary.mat",cohort_name),"ode_state*");
-load(sprintf("../../data/%s/output.mat",cohort_name),"ids");
+Sum = load(sprintf("../../data/%s/summary.mat",cohort_name),"count_*","state2_prop_*");
+load(sprintf("../../data/%s/output.mat",cohort_name),"ids","lattice_parameters");
 load(sprintf("../../data/sims/%s/output_final.mat",ids(1)),"tracked");
-t_abm = tracked.t;
+tt = tracked.t';
 
-%% sample from the ABM output
-tt = t_abm;
+%% setup Avg and Std so that they go [time,death rate per uM,all other pars]
+count = Sum.count_average;
+count = permute(count,[1,chemo_dim+1,setdiff(2:ndims(count),chemo_dim+1)]); % move chemo concentration dim to right after time
+count = reshape(count,numel(tt),size(count,2),[]); 
 
-%% setup Avg and Std so that they go [time,phase,death rate per uM,all other pars]
-Avg = Sum.ode_state_average;
-Avg = permute(Avg,[1,2,chemo_dim+2,setdiff(3:ndims(Avg),chemo_dim+2)]); % move chemo concentration dim to right after time and phase
-Avg = reshape(Avg,numel(t_abm),2,size(Avg,3),[]); 
+count_std = Sum.count_std;
+count_std = permute(count_std,[1,chemo_dim+1,setdiff(2:ndims(count_std),chemo_dim+1)]); % move chemo concentration dim to right after time
+count_std = reshape(count_std,numel(tt),size(count_std,2),[]);
 
-Std = Sum.ode_state_std;
-Std = permute(Std,[1,2,chemo_dim+2,setdiff(3:ndims(Std),chemo_dim+2)]); % move chemo concentration dim to right after time and phase
-Std = reshape(Std,numel(t_abm),2,size(Std,3),[]);
+state2_prop = Sum.state2_prop_mean;
+state2_prop = permute(state2_prop,[1,chemo_dim+1,setdiff(2:ndims(state2_prop),chemo_dim+1)]); % move chemo concentration dim to right after time
+state2_prop = reshape(state2_prop,numel(tt),size(state2_prop,2),[]); 
+
+state2_prop_std = Sum.state2_prop_std;
+state2_prop_std = permute(state2_prop_std,[1,chemo_dim+1,setdiff(2:ndims(state2_prop_std),chemo_dim+1)]); % move chemo concentration dim to right after time
+state2_prop_std = reshape(state2_prop_std,numel(tt),size(state2_prop_std,2),[]);
+state2_prop_std(state2_prop_std==0) = 1; % if the STD is 0, just use the unnormalized difference
 
 %%
 threshold = chi2inv(0.95,3); % compute threshold value for the parameter confidence intervals
 
 % specify parameter ranges for bounds on profiling
-para_ranges = [0,10;     % lambda
+profile_params.para_ranges = [0,5;     % lambda
                0,20;  % alpha
                0,5000;      % K
-               0,2];   % d
-min_par_step = [0.1;0.2;10;2e-2]; % d needs a minimum step because it can sometimes be very close to 0 at best fit
+               0,5;   % d in G1/S
+               0,10;   % d in G2/M
+               0,6]; % ec50 for chemo activating apoptosis
+
+profile_params.min_par_step = [0.05;0.02;10;0.05;0.1;0.06]; % d needs a minimum step because it can sometimes be very close to 0 at best fit
 % set bounds for optimizing when profiling the other parameters
-lb = [0;0;0;0];
-ub = [Inf;Inf;1e4;2];
+profile_params.lb = [0;0;0;0;0;0];
+profile_params.ub = [Inf;Inf;1e4;10;10;10];
 % opts = optimset('Display','off','TolFun',1e-12,'TolX',1e-12);
-opts = optimset('Display','off');
+profile_params.opts = optimset('Display','off');
 
 % specify parameter names
 para_names = {'\lambda', '\alpha', 'K', 'd'};
 para_names_file_save = {'lambda', 'alpha', 'K', 'd'};
+
 
 npars = size(P,1); % number of parameters
 
 %%
 n_abm_vecs = size(Avg,4);
 FF(1:n_abm_vecs) = parallel.FevalFuture;
-objfn_opts = struct("is_abm_data",true,"phase_dependent_death",phase_dependent_death);
-chemo_vals = C.lattice_parameters(chemo_dim).values;
+objfn_data.doses = C.lattice_parameters(chemo_dim).values;
+objfn_data.tt = tt;
+objfn_data.fn = @computeTimeSeries;
 t_start = tic;
+out = cell(npars,n_abm_vecs);
+save_all_pars = false;
 for i = 1:n_abm_vecs
-% n_to_do = 8;
-% time_taken = zeros(n_to_do,1);
-% out = cell(4,n_to_do);
-% for i = 1:n_to_do
-    data = Avg(:,:,:,i);
-    data_std = Std(:,:,:,i);
-    data_std(data_std==0) = 1; % when the SD is zero, just compute the SM difference from the ABM rather than the z-score
-    FF(i) = parfeval(@() profileLikelihood(P(:,i),t_abm,data,data_std,chemo_vals,phase_dependent_death,para_ranges,lb,ub,opts,threshold,min_par_step),1);
-    % tic;
-    % out(:,i) = profileLikelihood(P(:,i),t_abm,data,data_std,chemo_vals,phase_dependent_death,para_ranges,lb,ub,opts,threshold,min_par_step);
-    % time_taken(i) = toc;
-
+    objfn_data.count = count(:,:,i);
+    objfn_data.count_std = count_std(:,:,i);
+    objfn_data.state2_prop = state2_prop(:,:,i);
+    objfn_data.state2_prop_std = state2_prop_std(:,:,i);
+    % FF(i) = parfeval(@() profileLikelihood(P(:,i),t_abm,data,data_std,chemo_vals,phase_dependent_death,para_ranges,lb,ub,opts,threshold,min_par_step),1);
+    out(:,i) = profileLikelihood(P(:,i),objfn_data,profile_params,save_all_pars);
 end
 
 %%
-out = cell(npars,n_abm_vecs);
 for i = 1:n_abm_vecs
 
     [idx,temp] = fetchNext(FF);
