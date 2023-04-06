@@ -176,4 +176,3 @@ ylabel(ax(2,:),"PDF")
 % savefig("ItWorked")
 
 %%
-rmpath("~/Documents/MATLAB/myfunctions/")

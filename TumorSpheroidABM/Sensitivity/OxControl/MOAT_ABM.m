@@ -198,5 +198,5 @@ axis([0 nfac+1 0 1.1*max(table_ee(:))]) % Limits of the axes.
 xlabel('Factors ordered by ascending maximum','FontSize',12)
 ylabel('Elementary effects','FontSize',12)
 
-rmpath("~/Documents/MATLAB/myfunctions/")
+
 rmpath("..")

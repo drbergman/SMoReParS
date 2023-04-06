@@ -93,4 +93,4 @@ for i = 1:size(P,1)
     title(par_names(i))
 end
 
-rmpath("~/Documents/MATLAB/myfunctions/")
+

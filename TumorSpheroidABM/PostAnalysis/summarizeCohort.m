@@ -39,4 +39,3 @@ ode_state_std = std(ode_state_count,[],ndims(ode_state_count));
 save(sprintf("../data/%s/summary.mat",cohort_name),"average_count","phase_average","ode_state_average","count_std","phase_std","ode_state_std","-v7.3")
 
 %%
-rmpath("~/Documents/MATLAB/myfunctions/")

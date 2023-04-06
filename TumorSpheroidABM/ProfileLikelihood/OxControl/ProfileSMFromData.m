@@ -69,5 +69,5 @@ for i = 1:N-1
 end
 
 %%
-rmpath("~/Documents/MATLAB/myfunctions/")
+
 rmpath("../ODEFitting/")
