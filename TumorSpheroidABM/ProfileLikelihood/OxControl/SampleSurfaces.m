@@ -4,24 +4,29 @@ clearvars;
 
 cohort_name = "cohort_230124175743017";
 
-load("ProfileLikelihoods.mat")
-C = load(sprintf("../data/%s/output.mat",cohort_name),"cohort_size","lattice_parameters");
-
+load("data/ProfileLikelihoods.mat")
+C = load(sprintf("../../data/%s/output.mat",cohort_name),"cohort_size","lattice_parameters");
+threshold = chi2inv(0.95,3);
 %%
 out = reshape(out,[size(out,1),C.cohort_size]);
 
 %% make the meshes
-temp = out(:,:,:,1);
+temp = out(:,:,:,1); % take a small slice of out to focus on for drawing sample surfaces
 
 xx = C.lattice_parameters(1).values;
 yy = C.lattice_parameters(2).values;
 
-for i = 1:3
-    for j = 1:3
-        for pi = 1:3
+S_min = zeros(3,3,3);
+S_max = zeros(3,3,3);
+for i = 1:3 % an ABM parameter index
+    for j = 1:3 % another ABM parameter index
+        for pi = 1:3 % SM parameter index
 
-            S_min(i,j,pi) = min(temp{pi,i,j}(1,:));
-            S_max(i,j,pi) = max(temp{pi,i,j}(1,:));
+            [S_min(i,j,pi),S_max(i,j,pi)] = getProfileBounds(temp{pi,i,j},threshold);
+
+
+            % S_min(i,j,pi) = min(temp{pi,i,j}(1,:));
+            % S_max(i,j,pi) = max(temp{pi,i,j}(1,:));
         end
     end
 end
@@ -38,6 +43,7 @@ for pi = 1:3
 end
 %% surface for K projected onto first two abm parameter dimensions
 ode_par_name = {'\lambda','\alpha','K'};
+file_name = {'lambda','alpha','K'};
 for pi = 1:3
     figure;
     hold on
@@ -48,8 +54,9 @@ for pi = 1:3
     ylabel("ABM Par 2")
     title(ode_par_name{pi})
     set(gca,'FontSize',20)
+    savefig(sprintf("figs/sample_surface_%s.fig",file_name{pi}))
+    print(sprintf("figs/sample_surface_%s.png",file_name{pi}),"-dpng")
 end
-file_name = {'lambda','alpha','K'};
 
 
 %% a more refined mesh for the three surface (projected onto the first two abm parameter dimensions)

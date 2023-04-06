@@ -1,4 +1,4 @@
-function out = profileLikelihood(pbest,objfn_data,profile_params,save_all_pars)
+function out = profileLikelihood(pbest,vals,stds,objfn_constants,profile_params,save_all_pars)
 
 % profiles each parameter in pbest. pbest is the best fit at the point. the
 % time series to compare against is given in tt, data, and data_std.
@@ -16,7 +16,7 @@ function out = profileLikelihood(pbest,objfn_data,profile_params,save_all_pars)
 % will not assume that the pbest came from the same objective function as
 % we are using here
 
-F = @(p) arrayfun(@(j) rawError(objfn_data.tt,objfn_data.count(:,j),objfn_data.count_std(:,j),objfn_data.state2_prop(:,j),objfn_data.state2_prop_std(:,j),p,objfn_data.fn,objfn_data.doses(j),objfn_data.fn_opts),1:3)*objfn_data.weights;
+F = @(p) arrayfun(@(j) rawError(objfn_constants.tt,vals(:,j,1),stds(:,j,1),vals(:,j,2),stds(:,j,2),[p(1:5);objfn_constants.hill_coefficient;p(6)],objfn_constants.fn,objfn_constants.doses(j),objfn_constants.fn_opts),1:3)*objfn_constants.weights;
 
 %% make sure pbest is best
 pbest = fmincon(F,pbest,[],[],[],[],profile_params.lb,profile_params.ub,[],profile_params.opts);
@@ -32,14 +32,16 @@ for i = 1:npars
         if pbest(i)~=0
             dxi = pbest(i)*profile_params.initial_step_prop(i); % move at 1% of the best fit val
         else
-            dxi = 1e-4;
+            dxi = profile_params.smallest_par_step(i); % do not let the step size go below this as it steps towards the lower boundary
         end
         x0 = pbest;
         temp_val = zeros(1,profile_params.min_num_steps(i));
         if save_all_pars
             temp_par = zeros(npars,profile_params.min_num_steps(i));
+            par_ind = i;
         else
             temp_par = zeros(1,profile_params.min_num_steps(i));
+            par_ind = 1;
         end
         for j = 1:profile_params.min_num_steps(i)
             x0(i) = x0(i) + dir*dxi;
@@ -58,34 +60,46 @@ for i = 1:npars
             end
         end
         dxi = max(dxi,profile_params.min_par_step(i)); % for the remainder of the search, use this min value if dxi is too small
-        while (x0(i) + dir*dxi >= profile_params.para_ranges(i,1)) && (x0(i) + dir*dxi <= profile_params.para_ranges(i,2)) && (temp_val(end) < min_val + profile_params.threshold)
+        if dir==-1
+            max_steps = ceil((x0(i)-profile_params.para_ranges(i,1))/dxi);
+        else
+            max_steps = ceil((profile_params.para_ranges(i,2)-x0(i))/dxi);
+        end
+        extra_pars = zeros(size(temp_par,1),max_steps);
+        extra_vals = zeros(1,max_steps);
+        last_val = temp_val(end);
+        j = 0;
+        while (x0(i) + dir*dxi <= profile_params.para_ranges(i,2)) && (last_val < min_val + profile_params.threshold)
+            if x0(i) + dir*dxi < profile_params.para_ranges(i,1)
+                dxi = dxi*profile_params.shrinking_factor^(ceil(log((x0(i)-profile_params.para_ranges(i,1))/dxi)/log(profile_params.shrinking_factor))); % if the step takes us below the lower threshold (usuallly 0), then take a smaller step (for the larger threshold, I have better reason to not let that grow too much)
+                if dxi < profile_params.smallest_par_step(i)
+                    break;
+                end
+            end
+            j = j+1;
             x0(i) = x0(i) + dir*dxi;
             if save_all_pars
-                temp_par(:,end+1) = x0;
+                extra_pars(:,j) = x0;
             else
-                temp_par(end+1) = x0(i);
+                extra_pars(j) = x0(i);
             end
             lb_temp(i) = x0(i);
             ub_temp(i) = x0(i);
-            [x0,temp_val(end+1)] = fmincon(F,x0,[],[],[],[],lb_temp,ub_temp,[],profile_params.opts);
-            min_val = min(min_val,temp_val(end));
+            [x0,last_val] = fmincon(F,x0,[],[],[],[],lb_temp,ub_temp,[],profile_params.opts);
+            extra_vals(j) = last_val;
+            min_val = min(min_val,extra_vals(j));
         end
+        [~,order] = sort(temp_par(par_ind,:),'ascend'); % in case the algorithm went back and shrank dxi
+        temp_par = temp_par(:,order);
+        temp_val = temp_val(order);
         if dir==-1
             if save_all_pars
-                [~,order] = sort(temp_par(i,:),'ascend'); % in case the algorithm went back and shrank dxi
-                out{i} = [temp_par(:,order),pbest;temp_val(order),min_val];
+                out{i} = [fliplr(extra_pars(:,1:j)),temp_par,pbest;fliplr(extra_vals(1:j)),temp_val,min_val];
             else
-                [temp_par,order] = sort(temp_par,'ascend');
-                out{i} = [temp_par,pbest(i);temp_val(order),min_val];
+                out{i} = [fliplr(extra_pars(1:j)),temp_par,pbest(i);fliplr(extra_vals(1:j)),temp_val,min_val];
             end
         else
-            if save_all_pars
-                [~,order] = sort(temp_par(i,:),'ascend'); % in case the algorithm went back and shrank dxi
-                out{i} = [out{i},[temp_par(order);temp_val(order)]];
-            else
-                [temp_par,order] = sort(temp_par,'ascend');
-                out{i} = [out{i},[temp_par;temp_val(order)]];
-            end
+            out{i} = [out{i},[temp_par,extra_pars(:,1:j);temp_val,extra_vals(1:j)]];
         end
     end
 

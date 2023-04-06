@@ -24,12 +24,13 @@ else % otherwise, compare total (summed) counts
     F = @(p) sum(((sum(computeTimeSeries(p,tt),2) - data)./data_std).^2,'all'); % if the data has just total cell count
 end
 
+[pbest,min_val] = fmincon(F,pbest,[],[],[],[],lb,ub,[],opts);
+
 out = cell(npars,1);
 for i = 1:npars
 
     Aeq = zeros(1,npars);
     Aeq(i) = 1;
-    min_val = F(pbest);
     dxi = pbest(i)*0.01; % move at 1% of the best fit val
     for dir = [-1,1] % move left and right along this parameter dimension
         x0 = pbest;

@@ -1,4 +1,3 @@
-
 % This script sets up and calls the profile likelihood method for the ODE
 % SM on a grid of ABM parameters. compare_every allows for comparing with a
 % subset of ABM time points. This could be improved slightly by
@@ -77,6 +76,5 @@ end
 
 % save("ProfileLikelihoods.mat","out")
 
-rmpath("~/Documents/MATLAB/myfunctions/")
 rmpath("../../ODEFitting/")
 

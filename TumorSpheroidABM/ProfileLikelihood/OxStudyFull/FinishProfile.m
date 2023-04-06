@@ -1,10 +1,7 @@
 
-% This script sets up and calls the profile likelihood method for the ODE
-% SM on a grid of ABM parameters. compare_every allows for comparing with a
-% subset of ABM time points. This could be improved slightly by
-% interpolating the ABM output at those times rather than the rounding I do
-% to get tt. The function profileLikelihood computes the profile likelihood
-% of all ODE model parameters at a given ABM parameter vector.
+% This script continues the profiling started with ProfileSMFromABM.m in
+% the event that that script was cut short (and half-finished output was
+% saved).
 
 clearvars;
 
@@ -91,13 +88,19 @@ objfn_constants.doses = C.lattice_parameters(chemo_dim).values;
 objfn_constants.tt = tt;
 objfn_constants.fn = @computeTimeSeries;
 t_start = tic;
-out = cell(npars,n_abm_vecs);
+
+load("temp_profile.mat","out")
+
 save_all_pars = false;
 for i = 1:n_abm_vecs
-    vals = cat(3,count(:,:,i),state2_prop(:,:,i));
-    stds = cat(3,count_std(:,:,i),state2_prop_std(:,:,i));
-    p = P(:,i);
-    FF(i) = parfeval(@() profileLikelihood(p,vals,stds,objfn_constants,profile_params,save_all_pars),1);
+    if any(cellfun(@isempty,out(:,i))) % then this one wasn't done (or somehow wasn't finished)
+        vals = cat(3,count(:,:,i),state2_prop(:,:,i));
+        stds = cat(3,count_std(:,:,i),state2_prop_std(:,:,i));
+        p = P(:,i);
+        FF(i) = parfeval(@() profileLikelihood(p,vals,stds,objfn_constants,profile_params,save_all_pars),1);
+    else
+        FF(i) = parfeval(@() "done",1); % if not empty, then just leave it be
+    end
     % out(:,i) = profileLikelihood(P(:,i),vals,stds,objfn_constants,profile_params,save_all_pars);
 end
 fprintf("FevalQueue finished.\n")
@@ -105,7 +108,9 @@ fprintf("FevalQueue finished.\n")
 for i = 1:n_abm_vecs
 
     [idx,temp] = fetchNext(FF);
-    out(:,idx) = temp;
+    if ~isequal(temp,"done")
+        out(:,idx) = temp;
+    end
 
     if mod(i,100)==0
         temp = toc(t_start);

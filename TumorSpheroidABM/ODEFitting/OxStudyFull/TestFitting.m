@@ -74,7 +74,7 @@ for i = 1:nsamps
     for j = 1:3
         patch(ax(i,j),[tt;flip(tt)],[y(:,j)-s(:,j);flipud(y(:,j)+s(:,j))],"black","FaceAlpha",0.2,"EdgeColor","none")
         plot(ax(i,j),tt,y(:,j),"black")
-        out = computeTimeSeries(P(:,I(i)),tt,lattice_parameters(chemo_dim).values(j),fn_opts);
+        out = computeTimeSeries([P(1:5,I(i));3;P(6,I(i))],tt,lattice_parameters(chemo_dim).values(j),fn_opts);
         plot(ax(i,j),tt,out(:,1),"--","LineWidth",2)
         patch(ax_p(i,j),[tt;flip(tt)],[p(:,j)-ps(:,j);flipud(p(:,j)+ps(:,j))],"black","FaceAlpha",0.2,"EdgeColor","none")
         plot(ax_p(i,j),tt,p(:,j),"black")

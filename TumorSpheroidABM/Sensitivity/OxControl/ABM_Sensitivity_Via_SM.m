@@ -5,8 +5,9 @@ clearvars;
 %% Program to run
 
 addpath("~/Documents/MATLAB/myfunctions/")
-addpath("..")
-addpath("../ODEFitting/")
+addpath("../..")
+addpath("../../ODEFitting/OxControl/")
+addpath("../../ProfileLikelihood/OxControl/")
 
 %
 % This algorithm is an adaptation of the method of Sensitivity Analysis
@@ -41,9 +42,6 @@ addpath("../ODEFitting/")
 % This program outputs a figure as well as a short summary in the console.
 % Consider fixing the factors which appear as negligible on the left of the
 % figure (not necessary all the factors under the limit).
-%% 1) Clearing the memory
-clearvars; % Clears the memory
-
 %% 2) Parameters : Please fill in
 % Maximum number of simulation runs :
 % Large number = better estimation of the influence of the factors
@@ -69,18 +67,18 @@ D = makeMOATDistributions(par_names);
 
 %% create bounding hypersurfaces
 cohort_name = "cohort_230124175743017";
-PL = load("../ProfileLikelihood/ProfileLikelihoods.mat");
-C = load(sprintf("../data/%s/output.mat",cohort_name),"cohort_size","lattice_parameters");
+PL = load("../../ProfileLikelihood/OxControl/data/ProfileLikelihoods.mat");
+C = load(sprintf("../../data/%s/output.mat",cohort_name),"cohort_size","lattice_parameters");
 pars = {C.lattice_parameters.values};
 
 npoints = size(PL.out,2);
 npars_ode = size(PL.out,1);
 
 BS = zeros(npars_ode,npoints,2);
+threshold = chi2inv(0.95,3);
 for i = 1:npoints
-
     for j = 1:npars_ode
-        BS(j,i,:) = PL.out{j,i}(1,[1,end]);
+        [BS(j,i,1),BS(j,i,2)] = getProfileBounds(PL.out{j,i},threshold);
     end
 end
 BS = reshape(BS,[npars_ode,C.cohort_size,2]);
@@ -182,6 +180,7 @@ axis([0 nfac+1 0 1.1*max(table_ee(:))]) % Limits of the axes.
 xlabel('Factors ordered by ascending maximum','FontSize',12)
 ylabel('Elementary effects','FontSize',12)
 
-rmpath("~/Documents/MATLAB/myfunctions/")
-rmpath("..")
-rmpath("../ODEFitting/")
+
+rmpath("../..")
+rmpath("../../ODEFitting/OxControl/")
+rmpath("../../ProfileLikelihood/OxControl/")

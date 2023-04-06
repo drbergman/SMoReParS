@@ -16,7 +16,6 @@ else
     end
 end
 
-sol = ode45(@(t,x) odefn(x,p,death_rate),[0 3],[90;10]);
-temp = deval(sol,tt)';
+[~,temp] = ode23(@(t,x) odefn(x,p,death_rate),tt,[90;10]);
 total = sum(temp,2);
 out = [total,temp(:,2)./total];
