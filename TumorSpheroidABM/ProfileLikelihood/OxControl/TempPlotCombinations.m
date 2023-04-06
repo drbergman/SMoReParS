@@ -33,5 +33,3 @@ for i = 1:2
         ylabel(sprintf("Best fit for: %s",para_names{i}));
     end
 end
-
-rmpath("~/Documents/MATLAB/myfunctions/")
