@@ -131,5 +131,5 @@ for j = 1:length(tt)
 end
 legend(ax(2))
 
-savefig("figs/ZScores.fig")
-print("figs/ZScores.png","-dpng")
+savefig("figs/TimeSeriesZScores_ByAcceptance.fig")
+print("figs/TimeSeriesZScores_ByAcceptance.png","-dpng")
