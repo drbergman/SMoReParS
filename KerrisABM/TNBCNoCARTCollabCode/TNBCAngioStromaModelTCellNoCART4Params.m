@@ -22,7 +22,7 @@ mkdir('Data')%data will contain sub-folders for each trial AA/AB etc. BSRI19
 %Timestep now is 6 hours NOT 24!
 %Senescence cells only move 1/4 as normal
 
-
+print_every = Inf;
 
 %This will setup the initial conditions of the Metastatic Niche model
 
@@ -2122,7 +2122,7 @@ for loop = 1:numel(AB)
         end
         
         %Added PlotVascV1.m to code MV/JBU
-        if mod(time, 10) == 0
+        if mod(time, print_every) == 0
             tempVG1 = voxelgrid.Agent(2,:,:);
             voxelgrid.Agent(2,:,:) = voxelgrid.Agent(1,:,:)|voxelgrid.Agent(2,:,:);
             

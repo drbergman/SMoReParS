@@ -1,37 +1,56 @@
-function main(loop)
+function main(INPUT)
 
-if ~exist("Data","folder")
+[loop,si] = ind2sub([27,6],INPUT);
+if ~exist("Data","dir")
     mkdir('Data')
 end
 
-exType = 'Binary'; %Gradated or binary
-[AA,AB,BB] = meshgrid([0.05,0.125,0.245], [0.01,0.05,0.1], [1,2,3]); % AA is pdiv; AB is sdiv; and BB is
-%[AA,AB,BB] = meshgrid([0.245], [15], 6);%%loop searching a plane of area AB*AA (Square plane)
-%parfor loop = 1:length(stemloop)
-%seed = sum(100*clock); %2
-%     RandStream.setGlobalStream ...
-%         (RandStream('mt19937ar','seed',2.074686e+05)); %2)); %Make sure random is truly random
-RandStream.setGlobalStream ...
-    (RandStream('mt19937ar','seed',sum(100*clock))); %2)); %Make sure random is truly random
+n_loops = 300;
+print_every = Inf;
 
-cd Data%everything occurs in data to avoid clutter of folder BSRI19
-mkdir(exType);
+exType = 'Binary'; %Gradated or binary
+[AA,AB,BB] = meshgrid([0.05,0.125,0.245], [0.01,0.05,0.1], [1,2,3]); % AA is pdiv; AB is sdiv; and BB is tip migration
+RandStream.setGlobalStream(RandStream('mt19937ar','seed','shuffle')); % Make sure random is truly random
+
+AA_str = regexprep(num2str(AA(loop)),'\.','_');
+AB_str = regexprep(num2str(AB(loop)),'\.','_');
+BB_str = regexprep(num2str(BB(loop)),'\.','_');
+
+cd Data %everything occurs in data to avoid clutter of folder BSRI19
+if ~exist(exType,"dir")
+    mkdir(exType);
+end
 cd(exType)
-experimentfolder = strcat('AA_',num2str(AA(loop)),'__AB_',num2str(AB(loop)));
-subfolder = strcat('BB_',num2str(BB(loop)));%subfolder to keep track of each combination of variables
-mkdir(experimentfolder)
+experimentfolder = strcat('AA_',AA_str,'__AB_',AB_str);
+if ~exist(experimentfolder,"dir")
+    mkdir(experimentfolder)
+end
 cd(experimentfolder)
-mkdir(subfolder)
+subfolder = strcat('BB_',BB_str,'__Sample',num2str(si));%subfolder to keep track of each combination of variables
+if ~exist(subfolder,"dir")
+    mkdir(subfolder)
+end
 cd(subfolder)
-mkdir('OverTime')
-mkdir('Run_Images');% V5 now in Control
-mkdir('Vasculature_Images');% folder for vasculature images
+folder_names = ["OverTime","Run_Images","Vasculature_Images"];
+for i = 1:length(folder_names)
+    if ~exist(folder_names(i),"dir")
+        mkdir(folder_names(i))
+    end
+end
+
+namedataA =strcat('NumberofCells','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(n_loops),'.txt');
+
+if exist(sprintf("./fig_data/%s",namedataA),"file")
+    cd ../../../..%back to main folder
+    return;
+end
+
 cd ../../../..%back to main folder
-disp('in')
+fprintf('in\n')
 %global symRate;
 cartRandDeath=0.051;
 symchange = 0.05;
-runnum = 2; % AB(loop);
+% runnum = 2; % AB(loop);
 seedrate = 0;
 sdiv = AB(loop);%.05;
 pdiv = AA(loop);
@@ -43,7 +62,7 @@ promultm = 1;%BB(loop);
 migmultm = 1;%AA(loop);
 cartnum = 10;
 cartnum2 = cartnum;
-tic
+
 %% The Parameters - Perhaps should be a separate file
 %migclock = 3; %Migration occurs every x+1 iterations
 migmove = 1; %How many voxels the cell can move
@@ -86,8 +105,8 @@ vascovertime = zeros(300,1);
 %Inputs
 %Proliferation case: "allcells" - all cells have the possibility to proliferate each it
 %       "onecell" - only one cell proliferate each iteration
-ProlifMethod = 'allcells';
-Seedmode = 'OneDirectionDist';%'EmptyRandom'; %location/placement of the seeds
+% ProlifMethod = 'allcells';
+% Seedmode = 'OneDirectionDist';%'EmptyRandom'; %location/placement of the seeds
 
 %% Setup Initial Cells
 %Setup CA Grid with Cells
@@ -328,8 +347,8 @@ VEGFgrad = {};
 
 %Setup the Agentgrid %ADDED BY KERRI
 voxelgrid.Agent = false(gridsize(1),gridsize(2),gridsize(3));
-voxelgrid.CapInd = zeros(gridsize(1),gridsize(2),gridsize(3), 'single');
-voxelgrid.PosInd = zeros(gridsize(1),gridsize(2),gridsize(3),'single');
+voxelgrid.CapInd = zeros(gridsize(1),gridsize(2),gridsize(3), 'int16');
+voxelgrid.PosInd = zeros(gridsize(1),gridsize(2),gridsize(3),'int16');
 %voxelgrid.O2 = false(gridsize(1),gridsize(2),gridsize(3));
 vector = zeros(5*5*5,3);
 count = 1;
@@ -707,7 +726,7 @@ timecap = 1;
 VVDlist = zeros(2000);
 
 % Active a node on each capillary
-disp('initial!');
+fprintf('initial!\n');
 caps = CapillaryList(~cellfun('isempty',CapillaryList));
 
 for ii=1:8%Must be 1: size of CapillaryList
@@ -729,13 +748,13 @@ for ii=1:8%Must be 1: size of CapillaryList
 end %end if available
 
 %% Start Iterations
-disp('It starts');
+fprintf('It starts\n');
 
-for time = 1:300                                                                                                                                                                 %For now 50 iteration, 3600 about 10 years
+for time = 1:n_loops                                                                                                                                                                 %For now 50 iteration, 3600 about 10 years
 
     %  hyploc = zeros(3600,3);
     hypcount = 1;
-    disp(time)
+    fprintf("Starting loop %d with %d cells.\n",time,numberofcells)
 
     % numberofcells = length(theCells);
     possiblydead = []; %Keep track of the possibly dead
@@ -1373,7 +1392,9 @@ for time = 1:300                                                                
             %Need pos in microns
             truepos = 20*XYZ(jr,:);
             %Find smallest distance to mature vessel
-            thedisth = pdist2(truepos, MatureNodes);
+            % thedisth = pdist2(truepos, MatureNodes);
+            thedisth = simpleDist(truepos, MatureNodes);
+            % assert(isequal(thedisth(:),thedisthtemp(:)))
             dmin = min(thedisth);
             if dmin >= 200
                 %not near a mature vessel - hypoxic
@@ -2097,7 +2118,7 @@ for time = 1:300                                                                
     end
 
     %Added PlotVascV1.m to code MV/JBU
-    if mod(time, 10) == 0
+    if mod(time, print_every) == 0
         tempVG1 = voxelgrid.Agent(2,:,:);
         voxelgrid.Agent(2,:,:) = voxelgrid.Agent(1,:,:)|voxelgrid.Agent(2,:,:);
 
@@ -2169,7 +2190,7 @@ for time = 1:300                                                                
         namehet = strcat("AntigenExp_t_",num2str(time),'.txt');
         dlmwrite(namehet,AntigenHet, 'delimiter','\t')
 
-        name4 =strcat('State','_CART',num2str(AA(loop)),'_migmulti',num2str(BB(loop)),'_t',num2str(time),'.txt');
+        name4 =strcat('State','_CART',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
         dlmwrite(name4, CellState, 'delimiter', '\t')
 
         %Save voxel grid for plotting vasculature later in mat file-MV
@@ -2200,43 +2221,45 @@ cd('Data')
 cd(exType)
 cd(experimentfolder)
 cd(subfolder)
-mkdir('fig_data')
-mkdir('end_of_run')
-
+if ~exist("fig_data","dir")
+    mkdir('fig_data')
+end
+if ~exist("end_of_run","dir")
+    mkdir('end_of_run')
+end
 
 cd('fig_data')
 
-namedataA =strcat('NumberofCells','_pdiv',num2str(AA(loop)),'_migmulti',num2str(BB(loop)),'_t',num2str(time),'.txt');
 dlmwrite(namedataA, cellsovertime, 'delimiter', '\t')
 
-namedataD =strcat('NumberofDeath','_pdiv',num2str(AA(loop)),'_migmulti',num2str(BB(loop)),'_t',num2str(time),'.txt');
+namedataD =strcat('NumberofDeath','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
 dlmwrite(namedataD, deathovertime, 'delimiter', '\t')
 
-namedataS =strcat('NumberofStems','_pdiv',num2str(AA(loop)),'_migmulti',num2str(BB(loop)),'_t',num2str(time),'.txt');
+namedataS =strcat('NumberofStems','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
 dlmwrite(namedataS, stemsovertime, 'delimiter', '\t')
 
-namedataH =strcat('NumberofHypoxic','_pdiv',num2str(AA(loop)),'_migmulti',num2str(BB(loop)),'_t',num2str(time),'.txt');
+namedataH =strcat('NumberofHypoxic','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
 dlmwrite(namedataH, hypoxiaovertime, 'delimiter', '\t')
 
-namedataH1 =strcat('HypCell','_pdiv',num2str(AA(loop)),'_migmulti',num2str(BB(loop)),'_t',num2str(time),'.txt');
+namedataH1 =strcat('HypCell','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
 dlmwrite(namedataH1, HypCell, 'delimiter', '\t')
 
-namedataM =strcat('NumberofMacro','_pdiv',num2str(AA(loop)),'_migmulti',num2str(BB(loop)),'_t',num2str(time),'.txt');
+namedataM =strcat('NumberofMacro','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
 dlmwrite(namedataM, macroovertime, 'delimiter', '\t')
 
-namedataC =strcat('NumberofCCR5','_pdiv',num2str(AA(loop)),'_migmulti',num2str(BB(loop)),'_t',num2str(time),'.txt');
+namedataC =strcat('NumberofCCR5','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
 dlmwrite(namedataC, CCR5overtime, 'delimiter', '\t')
 
-namedataK =strcat('NumberofCART','_pdiv',num2str(AA(loop)),'_migmulti',num2str(BB(loop)),'_t',num2str(time),'.txt');
+namedataK =strcat('NumberofCART','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
 dlmwrite(namedataK, cartovertime, 'delimiter', '\t')
 
-namedataP =strcat('NumberofProlif','_pdiv',num2str(AA(loop)),'_migmulti',num2str(BB(loop)),'_t',num2str(time),'.txt');
+namedataP =strcat('NumberofProlif','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
 dlmwrite(namedataP, prolifovertime, 'delimiter', '\t')
 
-namedataKills =strcat('NumberofKills','_pdiv',num2str(AA(loop)),'_migmulti',num2str(BB(loop)),'_t',num2str(time),'.txt');
+namedataKills =strcat('NumberofKills','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
 dlmwrite(namedataKills, killsovertime, 'delimiter', '\t')
 
-namedataVasc =strcat('NumberofVasc','_pdiv',num2str(AA(loop)),'_migmulti',num2str(BB(loop)),'_t',num2str(time),'.txt');
+namedataVasc =strcat('NumberofVasc','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
 dlmwrite(namedataVasc, vascovertime, 'delimiter', '\t')
 
 namehet = strcat("AntigenExp_t_",num2str(time),'.txt');
@@ -2247,27 +2270,27 @@ cd ..
 cd('end_of_run')
 
 
-name3 =strcat('XYZ','_pdiv',num2str(AA(loop)),'_migmulti',num2str(BB(loop)),'_t',num2str(time),'.txt');
+name3 =strcat('XYZ','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
 dlmwrite(name3, XYZ, 'delimiter', '\t')
 
-name3b =strcat('XYZh','_pdiv',num2str(AA(loop)),'_migmulti',num2str(BB(loop)),'_t',num2str(time),'.txt');
+name3b =strcat('XYZh','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
 dlmwrite(name3b, XYZh, 'delimiter', '\t')
 
-name4 =strcat('Stateh','_pdiv',num2str(AA(loop)),'_migmulti',num2str(BB(loop)),'_t',num2str(time),'.txt');
+name4 =strcat('Stateh','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
 dlmwrite(name4, CellState, 'delimiter', '\t')
 
 %Also save capillaries
-SaveAddress2 = strcat('CapListp', '_pdiv',num2str(AA(loop)),'_migmulti',num2str(BB(loop)),'_t',num2str(time));
+SaveAddress2 = strcat('CapListp', '_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time));
 CapMatrix = CapillaryList;
 %saveCapMatrix(SaveAddress2, CapMatrix);
 save(SaveAddress2, 'CapMatrix');
 
-name2 =strcat('CellMatrix','_STEM','_pdiv',num2str(AA(loop)),'_migmulti',num2str(BB(loop)),'_t',num2str(time),'.txt');
+name2 =strcat('CellMatrix','_STEM','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
 %saveAgentmat(name2, Agentmat);
 save( name2, 'Agentmat');
 
-namedata =strcat('rundata',num2str(runnum),'_pdiv',num2str(AA(loop)),'_migmulti',num2str(BB(loop)),'_t',num2str(time),'.txt');
-fid = fopen(namedata,'w');
+% namedata =strcat('rundata',num2str(runnum),'_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
+% fid = fopen(namedata,'w');
 %     fprintf(fid,'%6s %12.8f\n','SeedRate: ',seedrate);
 %     fprintf(fid,'%6s %12.8f\n','SenDeath: ',sendeath);
 %     fprintf(fid,'%6s %12.8f\n','MigrationOn: ', DoMigration);
