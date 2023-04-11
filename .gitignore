@@ -4,6 +4,7 @@
 # file forders not to save
 TumorSpheroidABM/data
 TumorSpheroidABM/data_keep
+KerrisABM/data
 
 # file formats not to save
 **.asv
