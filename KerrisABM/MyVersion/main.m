@@ -1,6 +1,6 @@
 function main(INPUT)
 
-[loop,si] = ind2sub([27,6],INPUT);
+[loop,si] = ind2sub([81,6],INPUT);
 if ~exist("Data","dir")
     mkdir('Data')
 end
@@ -9,12 +9,13 @@ n_loops = 300;
 print_every = Inf;
 
 exType = 'Binary'; %Gradated or binary
-[AA,AB,BB] = meshgrid([0.05,0.125,0.245], [0.01,0.05,0.1], [1,2,3]); % AA is pdiv; AB is sdiv; and BB is tip migration
+[AA,AB,BB,CC] = ndgrid([0.05,0.125,0.245], [0.01,0.05,0.1], [1,2,3],[8,12,16]); % AA is pdiv; AB is sdiv; and BB is tip migration; CC is division limit
 RandStream.setGlobalStream(RandStream('mt19937ar','seed','shuffle')); % Make sure random is truly random
 
 AA_str = regexprep(num2str(AA(loop)),'\.','_');
 AB_str = regexprep(num2str(AB(loop)),'\.','_');
 BB_str = regexprep(num2str(BB(loop)),'\.','_');
+CC_str = regexprep(num2str(CC(loop)),'\.','_');
 
 cd Data %everything occurs in data to avoid clutter of folder BSRI19
 if ~exist(exType,"dir")
@@ -26,17 +27,17 @@ if ~exist(experimentfolder,"dir")
     mkdir(experimentfolder)
 end
 cd(experimentfolder)
-subfolder = strcat('BB_',BB_str,'__Sample',num2str(si));%subfolder to keep track of each combination of variables
+subfolder = strcat('BB_',BB_str,'__CC_',CC_str,'__Sample',num2str(si));%subfolder to keep track of each combination of variables
 if ~exist(subfolder,"dir")
     mkdir(subfolder)
 end
 cd(subfolder)
-folder_names = ["OverTime","Run_Images","Vasculature_Images"];
-for i = 1:length(folder_names)
-    if ~exist(folder_names(i),"dir")
-        mkdir(folder_names(i))
-    end
-end
+% folder_names = ["OverTime","Run_Images","Vasculature_Images"];
+% for i = 1:length(folder_names)
+%     if ~exist(folder_names(i),"dir")
+%         mkdir(folder_names(i))
+%     end
+% end
 
 namedataA =strcat('NumberofCells','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(n_loops),'.txt');
 
@@ -54,7 +55,7 @@ symchange = 0.05;
 seedrate = 0;
 sdiv = AB(loop);%.05;
 pdiv = AA(loop);
-dlim =  12; %AB(loop);
+dlim =  CC(loop); %AB(loop);
 macronum = 0;
 fibronum = 0;% BSRI 19 set to 0
 %cartnum = 0;%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% For now at 20- infiltration later
@@ -2172,26 +2173,26 @@ for time = 1:n_loops                                                            
         cd OverTime
         %  hyploc(hypcount:end, :) = [];
         name6 =strcat('XYZloc_t_',num2str(time),'.txt');
-        dlmwrite(name6, XYZ, 'delimiter', '\t')
+        % dlmwrite(name6, XYZ, 'delimiter', '\t')
 
         name3b =strcat('XYZh_t_',num2str(time),'.txt');
-        dlmwrite(name3b, XYZh, 'delimiter', '\t')
+        % dlmwrite(name3b, XYZh, 'delimiter', '\t')
 
         namedataH1 =strcat('HypCell_t_',num2str(time),'.txt');
-        dlmwrite(namedataH1, HypCell, 'delimiter', '\t')
+        % dlmwrite(namedataH1, HypCell, 'delimiter', '\t')
 
         name_cart = strcat('XYZcart_t_',num2str(time),'.txt');
         if ~isempty(XYZcart>0)
-            dlmwrite(name_cart, XYZcart, 'delimiter','\t')
+            % dlmwrite(name_cart, XYZcart, 'delimiter','\t')
         else
-            dlmwrite(name_cart, [], 'delimiter','\t')
+            % dlmwrite(name_cart, [], 'delimiter','\t')
         end
 
         namehet = strcat("AntigenExp_t_",num2str(time),'.txt');
-        dlmwrite(namehet,AntigenHet, 'delimiter','\t')
+        % dlmwrite(namehet,AntigenHet, 'delimiter','\t')
 
         name4 =strcat('State','_CART',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
-        dlmwrite(name4, CellState, 'delimiter', '\t')
+        % dlmwrite(name4, CellState, 'delimiter', '\t')
 
         %Save voxel grid for plotting vasculature later in mat file-MV
         name8 =strcat('voxelgrid_t_',num2str(time));
@@ -2224,46 +2225,46 @@ cd(subfolder)
 if ~exist("fig_data","dir")
     mkdir('fig_data')
 end
-if ~exist("end_of_run","dir")
-    mkdir('end_of_run')
-end
+% if ~exist("end_of_run","dir")
+%     mkdir('end_of_run')
+% end
 
 cd('fig_data')
 
 dlmwrite(namedataA, cellsovertime, 'delimiter', '\t')
 
 namedataD =strcat('NumberofDeath','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
-dlmwrite(namedataD, deathovertime, 'delimiter', '\t')
+% dlmwrite(namedataD, deathovertime, 'delimiter', '\t')
 
 namedataS =strcat('NumberofStems','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
-dlmwrite(namedataS, stemsovertime, 'delimiter', '\t')
+% dlmwrite(namedataS, stemsovertime, 'delimiter', '\t')
 
 namedataH =strcat('NumberofHypoxic','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
-dlmwrite(namedataH, hypoxiaovertime, 'delimiter', '\t')
+% dlmwrite(namedataH, hypoxiaovertime, 'delimiter', '\t')
 
 namedataH1 =strcat('HypCell','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
-dlmwrite(namedataH1, HypCell, 'delimiter', '\t')
+% dlmwrite(namedataH1, HypCell, 'delimiter', '\t')
 
 namedataM =strcat('NumberofMacro','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
-dlmwrite(namedataM, macroovertime, 'delimiter', '\t')
+% dlmwrite(namedataM, macroovertime, 'delimiter', '\t')
 
 namedataC =strcat('NumberofCCR5','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
-dlmwrite(namedataC, CCR5overtime, 'delimiter', '\t')
+% dlmwrite(namedataC, CCR5overtime, 'delimiter', '\t')
 
 namedataK =strcat('NumberofCART','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
-dlmwrite(namedataK, cartovertime, 'delimiter', '\t')
+% dlmwrite(namedataK, cartovertime, 'delimiter', '\t')
 
 namedataP =strcat('NumberofProlif','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
-dlmwrite(namedataP, prolifovertime, 'delimiter', '\t')
+% dlmwrite(namedataP, prolifovertime, 'delimiter', '\t')
 
 namedataKills =strcat('NumberofKills','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
-dlmwrite(namedataKills, killsovertime, 'delimiter', '\t')
+% dlmwrite(namedataKills, killsovertime, 'delimiter', '\t')
 
 namedataVasc =strcat('NumberofVasc','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
-dlmwrite(namedataVasc, vascovertime, 'delimiter', '\t')
+% dlmwrite(namedataVasc, vascovertime, 'delimiter', '\t')
 
 namehet = strcat("AntigenExp_t_",num2str(time),'.txt');
-dlmwrite(namehet,AntigenHet, 'delimiter','\t')
+% dlmwrite(namehet,AntigenHet, 'delimiter','\t')
 
 
 cd ..
@@ -2271,13 +2272,13 @@ cd('end_of_run')
 
 
 name3 =strcat('XYZ','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
-dlmwrite(name3, XYZ, 'delimiter', '\t')
+% dlmwrite(name3, XYZ, 'delimiter', '\t')
 
 name3b =strcat('XYZh','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
-dlmwrite(name3b, XYZh, 'delimiter', '\t')
+% dlmwrite(name3b, XYZh, 'delimiter', '\t')
 
 name4 =strcat('Stateh','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
-dlmwrite(name4, CellState, 'delimiter', '\t')
+% dlmwrite(name4, CellState, 'delimiter', '\t')
 
 %Also save capillaries
 SaveAddress2 = strcat('CapListp', '_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time));
