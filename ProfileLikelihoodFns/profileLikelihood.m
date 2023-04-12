@@ -1,4 +1,4 @@
-function out = profileLikelihood(pbest,vals,stds,objfn_constants,profile_params,save_all_pars)
+function out = profileLikelihood(pbest,t,D,S,C,objfn_constants,profile_params,save_all_pars)
 
 % profiles each parameter in pbest. pbest is the best fit at the point. the
 % time series to compare against is given in tt, data, and data_std.
@@ -16,7 +16,11 @@ function out = profileLikelihood(pbest,vals,stds,objfn_constants,profile_params,
 % will not assume that the pbest came from the same objective function as
 % we are using here
 
-F = @(p) arrayfun(@(j) rawError([p(1:5);objfn_constants.hill_coefficient;p(6)],objfn_constants.tt,squeeze(vals(:,j,:)),squeeze(stds(:,j,:)),objfn_constants.fn,objfn_constants.doses(j),objfn_constants.fn_opts),1:3)*objfn_constants.weights;
+m = numel(D); % number of conditions used
+
+% F = @(p) arrayfun(@(j) rawError([p(1:5);objfn_constants.hill_coefficient;p(6)],t,squeeze(D(:,j,:)),squeeze(S(:,j,:)),objfn_constants.fn,objfn_constants.doses(j),objfn_constants.fn_opts),1:3)*objfn_constants.weights; % leave this here for now to remember the form of this function for the OxStudyFull 
+F = @(p) arrayfun(@(j) rawError(objfn_constants.p_setup_fn(p),t,...
+    D{j},S{j},objfn_constants.fn,C{j},objfn_constants.fn_opts),1:m)*objfn_constants.weights;
 
 %% make sure pbest is best
 pbest = fmincon(F,pbest,[],[],[],[],profile_params.lb,profile_params.ub,[],profile_params.opts);

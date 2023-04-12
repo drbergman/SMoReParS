@@ -1,3 +1,7 @@
+% This is a one-off script to add the __CC_12 to all subfolders for
+% simulations that ran before we varied dlim. In those runs, it was fixed
+% to 12, hence CC_12.
+
 clearvars;
 
 f = dir("data/Binary/AA*");

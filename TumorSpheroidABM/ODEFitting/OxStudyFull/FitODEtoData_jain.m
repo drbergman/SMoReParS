@@ -59,9 +59,10 @@ D = load("data/ExperimentalData.mat");
 
 %%
 P = zeros(npars,1);
-F = @(p) arrayfun(@(i) rawError(D.tt,D.count(:,i),D.sigma_count(:,i),D.state2_prop(:,i),D.sigma_state2_prop(:,i),p,fn,D.doses(i),fn_opts),1:3)*weights;
+F = @(p) arrayfun(@(i) rawError(p,D.tt,[D.count(:,i),D.state2_prop(:,i)],[D.sigma_count(:,i),D.sigma_state2_prop(:,i)],fn,D.doses(i),fn_opts),1:3)*weights;
 
 [pstar,fstar] = fmincon(F,p,[],[],[],[],lb,ub,[],opts);
+
 
 %%
 figure;
@@ -87,3 +88,6 @@ xlabel(ax,"Time (d)")
 % legend([fit_curve;data_curve;data_patch],"Location","northwest","FontSize",22)
 
 set(ax,"FontSize",20)
+
+rmpath("../../../ODEFittingFns/")
+

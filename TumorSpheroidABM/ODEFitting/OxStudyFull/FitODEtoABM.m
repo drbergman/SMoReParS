@@ -2,6 +2,7 @@
 % vector. 
 
 clearvars;
+addpath("../../../ODEFittingFns/")
 
 p = zeros(4,1);
 
@@ -97,7 +98,7 @@ for i = 1:size(P,2)
     temp_count_std = count_std(:,:,i);
     temp_state2_prop = state2_prop(:,:,i);
     temp_state2_prop_std = state2_prop_std(:,:,i);
-    F = @(p) arrayfun(@(j) rawError(t_abm,temp_count(:,j),temp_count_std(:,j),temp_state2_prop(:,j),temp_state2_prop_std(:,j),p,fn,doses(j),fn_opts),1:3)*weights;
+    F = @(p) arrayfun(@(j) rawError(p,t_abm,[temp_count(:,j),temp_state2_prop(:,j)],[temp_count_std(:,j),temp_state2_prop_std(:,j)],fn,doses(j),fn_opts),1:3)*weights;
     FF(i) = parfeval(@() fmincon(F,p,[],[],[],[],lb,ub,[],opts),1);
 end
 
@@ -112,3 +113,4 @@ for i = 1:size(P,2)
 
 end
 
+rmpath("../../../ODEFittingFns/")

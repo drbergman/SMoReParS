@@ -2,6 +2,7 @@ function out = computeTimeSeries(p,tt,dose,opts)
 
 % computes the time series solution for the SM at time points tt. Always
 % uses initial conditions of [90;10];
+
 if opts.link_phase_death_rates
     if ~opts.phase_dependent_death
         death_rate = p(4) * dose;

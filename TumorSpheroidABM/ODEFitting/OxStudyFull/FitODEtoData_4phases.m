@@ -2,7 +2,7 @@
 % initial cell count is 100
 
 clearvars;
-
+addpath("../../../ODEFittingFns/")
 addpath("~/Documents/MATLAB/myfunctions/")
 
 p = zeros(6,1);
@@ -67,8 +67,9 @@ D = load("data/ExperimentalData.mat");
 
 %%
 P = zeros(npars,1);
-F = @(p) arrayfun(@(i) rawError(D.tt,D.count(:,i),D.sigma_count(:,i),D.state2_prop(:,i),D.sigma_state2_prop(:,i),p,fn,D.doses(i),fn_opts),1:3)*weights;
+F = @(p) arrayfun(@(i) rawError(p,D.tt,[D.count(:,i),D.state2_prop(:,i)],[D.sigma_count(:,i),D.sigma_state2_prop(:,i)],fn,D.doses(i),fn_opts),1:3)*weights;
 [pstar,fstar] = fmincon(F,p,[],[],[],[],lb,ub,[],opts);
+
 
 % [pstar,fstar] = fmincon(@(p) F(p,D.tt,D.doses,D.data,D.data_std),p,[],[],[],[],lb,ub,[],opts);
 
@@ -108,3 +109,6 @@ set(ax,"FontSize",20)
 % end
 % 
 % end
+
+rmpath("../../../ODEFittingFns/")
+
