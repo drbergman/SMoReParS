@@ -1,8 +1,12 @@
-function out = performProfile(par_file,data_file,objfn_constants,profile_params)
+function out = performProfile(par_file,data_file,objfn_constants,profile_params,save_all_pars)
 
 
 if ~isfield("objfn_constants","p_setup_fn")
     objfn_constants.p_setup_fn = @(p) p;
+end
+
+if nargin<5
+    save_all_pars = false;
 end
 
 load(par_file,"P")
@@ -17,12 +21,11 @@ npars = size(P,1);
 FF(1:n_abm_vecs) = parallel.FevalFuture;
 t_start = tic;
 out = cell(npars,n_abm_vecs);
-save_all_pars = false;
 for i = 1:n_abm_vecs
     d = D(:,i);
     p = P(:,i);
-    FF(i) = parfeval(@() profileLikelihood(p,t,d,C,objfn_constants,profile_params,save_all_pars),1);
-    % out(:,i) = profileLikelihood(p,t,d,C,objfn_constants,profile_params,save_all_pars);
+    % FF(i) = parfeval(@() profileLikelihood(p,t,d,C,objfn_constants,profile_params,save_all_pars),1);
+    out(:,i) = profileLikelihood(p,t,d,C,objfn_constants,profile_params,save_all_pars);
 end
 fprintf("FevalQueue finished.\n")
 %%

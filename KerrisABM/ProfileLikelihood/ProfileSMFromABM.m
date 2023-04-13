@@ -28,12 +28,12 @@ profile_params.min_par_step = [0.1;0.01;0.001]; % d needs a minimum step because
 % set bounds for optimizing when profiling the other parameters
 profile_params.lb = [0;0;0];
 profile_params.ub = [Inf;1;Inf];
-profile_params.opts = optimset('Display','off');
+profile_params.opts = optimset('Display','off','TolFun',1e-12,'TolX',1e-12);
 
 % specify parameter ranges for bounds on profiling
 profile_params.para_ranges = [0,100;     % alpha
                0,1;  % theta
-               0,30]; % beta for chemo activating apoptosis
+               0,100]; % beta for chemo activating apoptosis
 
 %% objfn_constants
 objfn_constants.fn = @computeTimeSeries;

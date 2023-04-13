@@ -23,9 +23,8 @@ F = @(p) arrayfun(@(j) rawError(objfn_constants.p_setup_fn(p),t,...
     D(j),objfn_constants.fn,C{j},objfn_constants.fn_opts),1:m)*objfn_constants.weights;
 
 %% make sure pbest is best
-pbest = fmincon(F,pbest,[],[],[],[],profile_params.lb,profile_params.ub,[],profile_params.opts);
+[pbest,min_val] = fmincon(F,pbest,[],[],[],[],profile_params.lb,profile_params.ub,[],profile_params.opts);
 pbest = reshape(pbest,[],1); % make sure it is a column vector
-min_val = F(pbest);
 val_at_center = min_val;
 npars = numel(pbest);
 
@@ -100,21 +99,9 @@ for i = 1:npars
             ub_temp(i) = x0(i);
             [x0,last_val] = fmincon(F,x0,[],[],[],[],lb_temp,ub_temp,[],profile_params.opts);
             extra_vals(j) = last_val;
-            min_val = min(min_val,extra_vals(j));
+            min_val = min(min_val,last_val);
         end
         out{i} = [out{i},[temp_par;temp_val],[extra_pars(:,1:j);extra_vals(1:j)]];
-        % [~,order] = sort(temp_par(par_ind,:),'ascend'); % in case the algorithm went back and shrank dxi
-        % temp_par = temp_par(:,order);
-        % temp_val = temp_val(order);
-        % if dir==-1
-        %     if save_all_pars
-        %         out{i} = [fliplr(extra_pars(:,1:j)),temp_par,pbest;fliplr(extra_vals(1:j)),temp_val,min_val];
-        %     else
-        %         out{i} = [fliplr(extra_pars(1:j)),temp_par,pbest(i);fliplr(extra_vals(1:j)),temp_val,min_val];
-        %     end
-        % else
-        %     out{i} = [out{i},[temp_par,extra_pars(:,1:j);temp_val,extra_vals(1:j)]];
-        % end
     end
     [~,order] = sort(out{i}(par_ind,:),"ascend");
     out{i} = out{i}(:,order);
