@@ -16,4 +16,13 @@ fn = @computeTimeSeries;
 
 f = testSMFitToABM(par_file,data_file,nsamps,fn,[],par_names);
 
+fig_names = ["SampleFitsOfSMToABM","BestSMParameterDistributions"];
+for i = 1:numel(f)
+    if isempty(f(i).Name)
+        f(i).Name = fig_names(i);
+    end
+    savefig(f(i),sprintf("figures/fig/%s",f(i).Name))
+    print(f(i),sprintf("figures/png/%s",f(i).Name),"-dpng")
+end
+
 

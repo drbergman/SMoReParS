@@ -7,12 +7,8 @@ function [par_min,par_max] = getProfileBounds(profile,threshold)
 % threshold: chi2inv value that determines difference between max permitted
 % value and the min of the second row in profile
 
-min_val = min(profile(2,:));
-max_val = min_val+threshold;
-changes = diff(profile(2,:)>max_val);
+[I1,I2,max_val] = findMaxCrosses(profile(2,:),threshold);
 
-% I1 = find(changes==-1,1); % first time the profile dipped below the threshold, i.e. where the min should par value should be
-I1 = find(changes==-1); % first time the profile dipped below the threshold, i.e. where the min should par value should be
 if isempty(I1)
     par_min = profile(1,1);
 elseif numel(I1)==1 % use linear interpolation to estimate where in this change the threshold is hit
@@ -23,8 +19,6 @@ else
     error("Too many drops found.")
 end
 
-% I2 = find(changes==1,1,"last"); % first time the profile rose above the threshold, i.e. where the max should par value should be
-I2 = find(changes==1); % first time the profile rose above the threshold, i.e. where the max should par value should be
 if isempty(I2)
     par_max = profile(1,end);
 elseif numel(I2)==1 % use linear interpolation to estimate where in this change the threshold is hit

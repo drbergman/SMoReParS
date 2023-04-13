@@ -1,4 +1,4 @@
-function out = profileLikelihood(pbest,t,D,S,C,objfn_constants,profile_params,save_all_pars)
+function out = profileLikelihood(pbest,t,D,C,objfn_constants,profile_params,save_all_pars)
 
 % profiles each parameter in pbest. pbest is the best fit at the point. the
 % time series to compare against is given in tt, data, and data_std.
@@ -20,16 +20,22 @@ m = numel(D); % number of conditions used
 
 % F = @(p) arrayfun(@(j) rawError([p(1:5);objfn_constants.hill_coefficient;p(6)],t,squeeze(D(:,j,:)),squeeze(S(:,j,:)),objfn_constants.fn,objfn_constants.doses(j),objfn_constants.fn_opts),1:3)*objfn_constants.weights; % leave this here for now to remember the form of this function for the OxStudyFull 
 F = @(p) arrayfun(@(j) rawError(objfn_constants.p_setup_fn(p),t,...
-    D{j},S{j},objfn_constants.fn,C{j},objfn_constants.fn_opts),1:m)*objfn_constants.weights;
+    D(j),objfn_constants.fn,C{j},objfn_constants.fn_opts),1:m)*objfn_constants.weights;
 
 %% make sure pbest is best
 pbest = fmincon(F,pbest,[],[],[],[],profile_params.lb,profile_params.ub,[],profile_params.opts);
 pbest = reshape(pbest,[],1); % make sure it is a column vector
 min_val = F(pbest);
+val_at_center = min_val;
 npars = numel(pbest);
 
 out = cell(npars,1);
 for i = 1:npars
+    if save_all_pars
+        out{i} = [pbest;val_at_center];
+    else
+        out{i} = [pbest(i);val_at_center];
+    end
     lb_temp = profile_params.lb;
     ub_temp = profile_params.ub;
     for dir = [-1,1] % move left and right along this parameter dimension
@@ -48,6 +54,9 @@ for i = 1:npars
             par_ind = 1;
         end
         for j = 1:profile_params.min_num_steps(i)
+            if x0(i) + dir*dxi > profile_params.para_ranges(i,2)
+                dxi = dxi*profile_params.shrinking_factor^(ceil(log((profile_params.para_ranges(i,2)-x0(i))/dxi)/log(profile_params.shrinking_factor))); % if the step takes us below the lower threshold (usuallly 0), then take a smaller step (for the larger threshold, I have better reason to not let that grow too much)
+            end
             x0(i) = x0(i) + dir*dxi;
             lb_temp(i) = x0(i);
             ub_temp(i) = x0(i);
@@ -93,18 +102,20 @@ for i = 1:npars
             extra_vals(j) = last_val;
             min_val = min(min_val,extra_vals(j));
         end
-        [~,order] = sort(temp_par(par_ind,:),'ascend'); % in case the algorithm went back and shrank dxi
-        temp_par = temp_par(:,order);
-        temp_val = temp_val(order);
-        if dir==-1
-            if save_all_pars
-                out{i} = [fliplr(extra_pars(:,1:j)),temp_par,pbest;fliplr(extra_vals(1:j)),temp_val,min_val];
-            else
-                out{i} = [fliplr(extra_pars(1:j)),temp_par,pbest(i);fliplr(extra_vals(1:j)),temp_val,min_val];
-            end
-        else
-            out{i} = [out{i},[temp_par,extra_pars(:,1:j);temp_val,extra_vals(1:j)]];
-        end
+        out{i} = [out{i},[temp_par;temp_val],[extra_pars(:,1:j);extra_vals(1:j)]];
+        % [~,order] = sort(temp_par(par_ind,:),'ascend'); % in case the algorithm went back and shrank dxi
+        % temp_par = temp_par(:,order);
+        % temp_val = temp_val(order);
+        % if dir==-1
+        %     if save_all_pars
+        %         out{i} = [fliplr(extra_pars(:,1:j)),temp_par,pbest;fliplr(extra_vals(1:j)),temp_val,min_val];
+        %     else
+        %         out{i} = [fliplr(extra_pars(1:j)),temp_par,pbest(i);fliplr(extra_vals(1:j)),temp_val,min_val];
+        %     end
+        % else
+        %     out{i} = [out{i},[temp_par,extra_pars(:,1:j);temp_val,extra_vals(1:j)]];
+        % end
     end
-
+    [~,order] = sort(out{i}(par_ind,:),"ascend");
+    out{i} = out{i}(:,order);
 end

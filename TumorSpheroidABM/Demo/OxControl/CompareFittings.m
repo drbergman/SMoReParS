@@ -41,7 +41,8 @@ divider = 1e-2;
 minRelProb = exp(min(LL)-max(LL));
 lbase = divider/minRelProb;
 fn = @logLinScaleX;
-XData = {exp(sort(LL,"ascend")-max(LL)),exp(sort(LL_accepted)-max(LL)),exp(sort(LL_rejected)-max(LL))};
+LL_sort = sort(LL,"ascend");
+XData = {exp(LL_sort-max(LL)),exp(sort(LL_accepted)-max(LL)),exp(sort(LL_rejected)-max(LL))};
 CDF = {linspace(0,1,numel(LL)),linspace(0,1,length(LL_accepted)),linspace(0,1,length(LL_rejected))};
 Names = ["All","Accepted","Rejected"];
 Colors = ["b","g","r"];
@@ -50,11 +51,13 @@ Colors = ["b","g","r"];
 figure;
 hold on;
 for i = 1:3
-plot(fn(XData{i},divider,lbase),CDF{i},"DisplayName",Names(i),"Color",Colors(i),"LineWidth",2)
+    plot(fn(XData{i},divider,lbase),CDF{i},"DisplayName",Names(i),"Color",Colors(i),"LineWidth",2)
 end
+plot(fn(exp(LL_sort(1:end-N)-LL_sort(end)),divider,lbase),linspace(0,1,length(LL_rejected)),"DisplayName","Least Likely","Color",0.5*[1 1 1],"LineWidth",2,"LineStyle",":")
+plot(fn(exp(LL_sort(end-N+1:end)-LL_sort(end)),divider,lbase),linspace(0,1,length(LL_accepted)),"DisplayName","Most Likely","Color",0*[1 1 1],"LineWidth",2,"LineStyle",":")
 xlabel("Relative Likelihood","FontSize",16)
 ylabel("CDF","FontSize",16)
-legend(gca,"location","best","FontSize",16,"AutoUpdate","off")
+legend(gca,"location","west","FontSize",16,"AutoUpdate","off")
 xL = xlim;
 xL(1) = fn(minRelProb,divider,lbase);
 minPow10 = log10(minRelProb);
@@ -71,8 +74,8 @@ annotation("textarrow",[.2875,.1875],[0.9,0.9],"String","Log Scale");
 annotation("arrow",[0.3675,0.4675],[0.9,0.9]);
 annotation("textarrow",[.7625,.8625],[0.15,0.15],"String","Linear Scale");
 annotation("arrow",[0.6675,0.5675],[0.15,0.15]);
-savefig("figs/RelativeLikelihoodCDF")
-print("figs/RelativeLikelihoodCDF","-dpng")
+savefig("figures/fig/RelativeLikelihoodCDF")
+print("figures/png/RelativeLikelihoodCDF","-dpng")
 
 %% attempt to plot PDF of above
 figure;
@@ -99,8 +102,8 @@ set(gca,"YScale","log")
 xlabel("Rleative Likelihood","FontSize",16)
 ylabel("PDF","FontSize",16)
 legend(gca,"location","best","FontSize",16,"AutoUpdate","off")
-savefig("figs/RelativeLikelihoodPDF")
-print("figs/RelativeLikelihoodPDF","-dpng")
+savefig("figures/fig/RelativeLikelihoodPDF")
+print("figures/png/RelativeLikelihoodPDF","-dpng")
 
 %% plotting percentage of N best LLs that were accepted
 figure;
@@ -119,8 +122,8 @@ set(gca,"FontSize",16)
 title("SMoRe ParS Acceptance of Most Likely Parameters")
 legend(["Most Likely","Least Likely"],"Location","northwest")
 
-savefig("figs/AcceptanceOfMostLikely")
-print("figs/AcceptanceOfMostLikely","-dpng")
+savefig("figures/fig/AcceptanceOfMostLikely")
+print("figures/png/AcceptanceOfMostLikely","-dpng")
 
 %% reorient above to have categories be most likely and least likely and compare 
 figure;
@@ -149,8 +152,8 @@ yticks(ax,0:25:100)
 ax.XAxis.TickLength = [0 0];
 xline(100*(1-N/numel(LL)))
 
-savefig("figs/AcceptanceByLikelihoodQuantile")
-print("figs/AcceptanceByLikelihoodQuantile","-dpng")
+savefig("figures/fig/AcceptanceByLikelihoodQuantile")
+print("figures/png/AcceptanceByLikelihoodQuantile","-dpng")
 
 %% Residuals of best pars by LL
 [~,order] = sort(LL,"descend");
@@ -185,8 +188,8 @@ for j = 1:length(tt)
 end
 legend(ax(2))
 
-savefig("figs/TimeSeriesZScores_ByLikelihood")
-print("figs/TimeSeriesZScores_ByLikelihood","-dpng")
+savefig("figures/fig/TimeSeriesZScores_ByLikelihood")
+print("figures/png/TimeSeriesZScores_ByLikelihood","-dpng")
 
 %% set x data into log-lin scale
 % x data is in log scale below the divider and linear scale above the divider

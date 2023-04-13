@@ -39,10 +39,9 @@ profile_params.para_ranges = [0,100;     % alpha
 objfn_constants.fn = @computeTimeSeries;
 objfn_constants.fn_opts = [];
 objfn_constants.weights = 1;
-out = performProfile(par_file,data_file,objfn_constants);
+out = performProfile(par_file,data_file,objfn_constants,profile_params);
 
-
-% save("ProfileLikelihoods.mat","out")
+save("data/ProfileLikelihoods.mat","out")
 
 rmpath("../ODEFitting/")
 rmpath("../../ODEFittingFns/")

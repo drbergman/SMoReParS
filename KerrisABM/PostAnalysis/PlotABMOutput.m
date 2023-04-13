@@ -8,8 +8,8 @@
 
 clearvars;
 
-save_figure = false;
-plot_patches = true;
+save_figure = true;
+plot_patches = false;
 
 load("summary.mat","D","*par*","t")
 Last = sliceof(arrayify(D,"A",1),1,length(t));

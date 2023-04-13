@@ -18,7 +18,7 @@ end
 N = cat(1,100+zeros([1,size(N,2:ndims(N))]),N);
 cohort_size = size(N,2:(ndims(N)-1));
 
-save("summary.mat","N","vals","cohort_size","nsamps_per_parameter_vector","n_conditions");
+save("summary.mat","N","vals","cohort_size","nsamps_per_parameter_vector","n_conditions","C");
 
 function I = findIndices(F,V)
 

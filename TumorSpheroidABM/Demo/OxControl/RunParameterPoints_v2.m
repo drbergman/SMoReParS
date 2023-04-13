@@ -94,8 +94,8 @@ legend(ax(2))
 xlabel(ax(2),"nRSS")
 ylabel(ax(2),"Count")
 
-savefig("figs/SelectedSamples.fig")
-print("figs/SelectedSamples.png","-dpng")
+savefig("figures/fig/SelectedSamples.fig")
+print("figures/png/SelectedSamples.png","-dpng")
 
 %%
 % savefig("ItWorked")
@@ -131,5 +131,5 @@ for j = 1:length(tt)
 end
 legend(ax(2))
 
-savefig("figs/TimeSeriesZScores_ByAcceptance.fig")
-print("figs/TimeSeriesZScores_ByAcceptance.png","-dpng")
+savefig("figures/fig/TimeSeriesZScores_ByAcceptance.fig")
+print("figures/png/TimeSeriesZScores_ByAcceptance.png","-dpng")
