@@ -23,7 +23,7 @@ F = @(p) arrayfun(@(j) rawError(objfn_constants.p_setup_fn(p),t,...
     D(j),objfn_constants.fn,C{j},objfn_constants.fn_opts),1:m)*objfn_constants.weights;
 
 %% make sure pbest is best
-[pbest,min_val] = fmincon(F,pbest,[],[],[],[],profile_params.lb,profile_params.ub,[],profile_params.opts);
+[pbest,min_val] = fmincon(F,pbest,profile_params.A,profile_params.b,[],[],profile_params.lb,profile_params.ub,[],profile_params.opts);
 pbest = reshape(pbest,[],1); % make sure it is a column vector
 val_at_center = min_val;
 npars = numel(pbest);
@@ -59,7 +59,7 @@ for i = 1:npars
             x0(i) = x0(i) + dir*dxi;
             lb_temp(i) = x0(i);
             ub_temp(i) = x0(i);
-            [x0,temp_val(j)] = fmincon(F,x0,[],[],[],[],lb_temp,ub_temp,[],profile_params.opts);
+            [x0,temp_val(j)] = fmincon(F,x0,profile_params.A,profile_params.b,[],[],lb_temp,ub_temp,[],profile_params.opts);
             min_val = min(min_val,temp_val(j));
             if save_all_pars
                 temp_par(:,j) = x0;
@@ -97,7 +97,7 @@ for i = 1:npars
             end
             lb_temp(i) = x0(i);
             ub_temp(i) = x0(i);
-            [x0,last_val] = fmincon(F,x0,[],[],[],[],lb_temp,ub_temp,[],profile_params.opts);
+            [x0,last_val] = fmincon(F,x0,profile_params.A,profile_params.b,[],[],lb_temp,ub_temp,[],profile_params.opts);
             extra_vals(j) = last_val;
             min_val = min(min_val,last_val);
         end

@@ -6,5 +6,5 @@ function p = basePars()
 p = zeros(3,1);
 
 p(1) = 1; % alpha
-p(2) = 0.5; % theta
+p(2) = 2; % nu (theta = 1 - 1/nu) (this allows nu to be on the open interval (0,inf) which hopefully helps with optimization)
 p(3) = 1; % beta
