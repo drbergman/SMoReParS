@@ -14,6 +14,8 @@ addpath("../ODEFitting/")
 par_file = "../ODEFitting/data/OptimalParameters.mat";
 data_file = "../PostAnalysis/summary.mat";
 
+save_all_pars = true;
+
 n_sm_pars = 3;
 
 %% setup profile params
@@ -39,7 +41,7 @@ profile_params.para_ranges = [0,100;     % alpha
 objfn_constants.fn = @computeTimeSeries;
 objfn_constants.fn_opts = [];
 objfn_constants.weights = 1;
-out = performProfile(par_file,data_file,objfn_constants,profile_params);
+out = performProfile(par_file,data_file,objfn_constants,profile_params,save_all_pars);
 
 save("data/ProfileLikelihoods.mat","out")
 
