@@ -13,10 +13,10 @@ addpath("../ODEFitting/")
 
 files.par_file = "../ODEFitting/data/OptimalParameters.mat";
 files.data_file = "../PostAnalysis/summary.mat";
-% files.previous_profile_file = "temp_profile.mat";
+files.previous_profile_file = "data/ProfileLikelihoods.mat";
 
 save_all_pars = true;
-force_serial = false;
+force_serial = true;
 
 n_sm_pars = 3;
 

@@ -1,7 +1,7 @@
 clearvars;
 
 save_figure = false;
-is_cleaned = true;
+is_cleaned = false;
 
 addpath("../../ProfileLikelihoodFns/")
 
