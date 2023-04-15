@@ -34,6 +34,10 @@ else
     out = cell(npars,n_abm_vecs);
 end
 
+if ~isfield(profile_params,"step_growth_factor")
+    profile_params.step_growth_factor = ones(npars,1);
+end
+
 if ~force_serial
     FF(1:n_abm_vecs) = parallel.FevalFuture;
 

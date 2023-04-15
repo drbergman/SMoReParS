@@ -5,6 +5,8 @@ function out = cleanProfiles(out,threshold)
 % cross the threshold more than once in either direction AND trim the ends
 % so that we only have the 95% CI and not however far over that we stepped.
 
+dbstop if naninf % help with cleaning profiles manually
+
 sz = size(out);
 npars = size(out,1);
 out = reshape(out,npars,[]);
@@ -21,22 +23,13 @@ for i = 1:n_abm_vecs
                 out{j,i}(:,I1(i1)) = [];
                 out{j,i} = trimProfile(out{j,i},threshold);
             else
-                error("not sure what to do yet")
+                fprintf("Unknown error encountered in trimming profile %d at parameter %d. \n   You can fix manually now and then continue.\n",i,j)
+                1/0; % cause execution to pause here to inspect issue
             end
-        
         end
-
-
     end
-
-
 end
 
-
-
-
-
-
-
-
 out = reshape(out,sz);
+
+dbclear if naninf

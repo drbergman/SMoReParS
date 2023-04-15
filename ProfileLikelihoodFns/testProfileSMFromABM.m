@@ -1,4 +1,4 @@
-function [f,I] = testProfileSMFromABM(profile_file,nsamps,sm_par_display_names,is_cleaned)
+function [f,I] = testProfileSMFromABM(profile_file,nsamps,sm_par_display_names)
 
 load(profile_file,"out")
 
@@ -21,21 +21,7 @@ for i = 1:nsamps
         min_val = min(out{j,I(i)}(end,:));
         x = out{j,I(i)}(par_ind,:);
         y = out{j,I(i)}(end,:);
-        % if ~is_cleaned
-        %     [par_min,par_max] = getProfileBounds([x;y],threshold);
-        %     inds = x>=par_min & x<=par_max;
-        %     x = x(inds);
-        %     y = y(inds);
-        %     if x(1)>par_min
-        %         x = [par_min,x];
-        %         y = [min_val+threshold,y];
-        %     end
-        %     if x(end)<par_max
-        %         x = [x,par_max];
-        %         y = [y,min_val+threshold];
-        %     end
-        % end
-        plot(ax(i,j),x,y);
+        plot(ax(i,j),x,y,"LineWidth",2);
         yline(ax(i,j),min_val+threshold,"LineStyle","--")
         ax(i,j).YLim(1) = max(ax(i,j).YLim(1),.9*min_val);
         ax(i,j).YLim(2) = min(max(ax(i,j).YLim(2),min_val+1.1*threshold),min_val+2*threshold);
@@ -43,5 +29,9 @@ for i = 1:nsamps
 end
 
 for j = 1:npars
-    title(ax(1,j),sm_par_display_names(j))
+    title(ax(1,j),sm_par_display_names(j),"FontWeight","bold","FontSize",16)
+end
+
+for i = 1:nsamps
+    ylabel(ax(i,1),sprintf("#%d",I(i)),"FontWeight","bold")
 end
