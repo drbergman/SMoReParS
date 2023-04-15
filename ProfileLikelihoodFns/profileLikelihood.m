@@ -31,85 +31,13 @@ out = cell(npars,1);
 for i = 1:npars
     if save_all_pars
         out{i} = [pbest;val_at_center];
+        par_ind = i;
     else
         out{i} = [pbest(i);val_at_center];
+        par_ind = 1;
     end
-    min_val = val_at_center;
-    lb_temp = profile_params.lb;
-    ub_temp = profile_params.ub;
     for dir = [-1,1] % move left and right along this parameter dimension
-        if pbest(i)~=0
-            dxi = pbest(i)*profile_params.initial_step_prop(i); % move at 1% of the best fit val
-        else
-            dxi = profile_params.smallest_par_step(i); % do not let the step size go below this as it steps towards the lower boundary
-        end
-        x0 = pbest;
-        temp_val = zeros(1,profile_params.min_num_steps(i));
-        if save_all_pars
-            temp_par = zeros(npars,profile_params.min_num_steps(i));
-            par_ind = i;
-        else
-            temp_par = zeros(1,profile_params.min_num_steps(i));
-            par_ind = 1;
-        end
-        for j = 1:profile_params.min_num_steps(i)
-            if x0(i) + dir*dxi > profile_params.para_ranges(i,2)
-                dxi = dxi*profile_params.shrinking_factor^(ceil(log((profile_params.para_ranges(i,2)-x0(i))/dxi)/log(profile_params.shrinking_factor))); % if the step takes us below the lower threshold (usuallly 0), then take a smaller step (for the larger threshold, I have better reason to not let that grow too much)
-            end
-            x0(i) = x0(i) + dir*dxi;
-            lb_temp(i) = x0(i);
-            ub_temp(i) = x0(i);
-            [x0,temp_val(j)] = fmincon(F,x0,profile_params.A,profile_params.b,[],[],lb_temp,ub_temp,[],profile_params.opts);
-            [min_val,idx] = min([min_val,temp_val(j)]);
-            if idx==2
-                pbest = x0;
-                val_at_center = min_val;
-            end
-            if save_all_pars
-                temp_par(:,j) = x0;
-            else
-                temp_par(j) = x0(i);
-            end
-            if temp_val(j) >= min_val + profile_params.threshold
-                x0(i) = x0(i) - dir*dxi; % reset to previous value to then increase by smaller step size
-                dxi = dxi / pi(); % reduce step size, choose pi so we won't repeat any previously chosen values
-            end
-        end
-        dxi = max(dxi,profile_params.min_par_step(i)); % for the remainder of the search, use this min value if dxi is too small
-        if dir==-1
-            max_steps = ceil((x0(i)-profile_params.para_ranges(i,1))/dxi);
-        else
-            max_steps = ceil((profile_params.para_ranges(i,2)-x0(i))/dxi);
-        end
-        extra_pars = zeros(size(temp_par,1),max_steps);
-        extra_vals = zeros(1,max_steps);
-        last_val = temp_val(end);
-        j = 0;
-        while (x0(i) + dir*dxi <= profile_params.para_ranges(i,2)) && (last_val < min_val + profile_params.threshold)
-            if x0(i) + dir*dxi < profile_params.para_ranges(i,1)
-                dxi = dxi*profile_params.shrinking_factor^(ceil(log((x0(i)-profile_params.para_ranges(i,1))/dxi)/log(profile_params.shrinking_factor))); % if the step takes us below the lower threshold (usuallly 0), then take a smaller step (for the larger threshold, I have better reason to not let that grow too much)
-                if dxi < profile_params.smallest_par_step(i)
-                    break;
-                end
-            end
-            j = j+1;
-            x0(i) = x0(i) + dir*dxi;
-            if save_all_pars
-                extra_pars(:,j) = x0;
-            else
-                extra_pars(j) = x0(i);
-            end
-            lb_temp(i) = x0(i);
-            ub_temp(i) = x0(i);
-            [x0,last_val] = fmincon(F,x0,profile_params.A,profile_params.b,[],[],lb_temp,ub_temp,[],profile_params.opts);
-            extra_vals(j) = last_val;
-            [min_val,idx] = min([min_val,last_val]);
-            if idx==2
-                pbest = x0;
-                val_at_center = min_val;
-            end
-        end
-        out{i} = [out{i},[temp_par;temp_val],[extra_pars(:,1:j);extra_vals(1:j)]];
+        [out{i},pbest,val_at_center] = profileInOneDirection(out{i},F,pbest,val_at_center,i,dir,profile_params,save_all_pars);
     end
     [~,order] = sort(out{i}(par_ind,:),"ascend");
     out{i} = out{i}(:,order);
