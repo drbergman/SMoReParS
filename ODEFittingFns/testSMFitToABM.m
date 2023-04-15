@@ -27,6 +27,20 @@ if n_time_series == 1 && n_conditions == 1 % just plot in a rough square
         out = fn(P(:,I(i)),t,C{1},fn_opts);
         plot(ax(i),t,out,"--","LineWidth",2)
     end
+elseif n_time_series > 1 && n_conditions == 1
+    f(1)=figure;
+    nr = nsamps;
+    nc = n_time_series;
+    ax = gobjects(nsamps,n_time_series);
+    for ri = 1:nsamps
+        out = fn(P(:,I(ri)),t,C{1},fn_opts);
+        for ci = 1:n_time_series
+            ax(ri,ci) = subplot(nr,nc,r2c(nr,nc,[ri,ci]),"NextPlot","add");
+            patch(ax(ri,ci),[t(:);flip(t(:))],[D(I(ri)).A(:,ci)-D(I(ri)).S(:,ci);flipud(D(I(ri)).A(:,ci)+D(I(ri)).S(:,ci))],"black","FaceAlpha",0.2,"EdgeColor","none")
+            plot(ax(ri,ci),t,D(I(ri)).A(:,ci),"black")
+            plot(ax(ri,ci),t,out(:,ci),"--","LineWidth",2)
+        end
+    end
 end
 xlim(ax,[t(1) t(end)])
 %% histograms of parameter values

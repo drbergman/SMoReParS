@@ -4,7 +4,8 @@ if ~exist("force_serial","var")
     force_serial = false;
 end
 
-load(data_file,"t","D","C","cohort_size");
+load(data_file,"t","D","C");
+cohort_size = size(D,2:ndims(D)); % size of D is [n conditions, cohort_size]
 D = reshape(D,size(D,1),[]); % string out all the cohorts along the 2nd dim
 n_abm_vecs = size(D,2); % number of ABM parameter vectors used
 m = size(D,1); % number of conditions used
@@ -33,14 +34,8 @@ if ~force_serial
     end
 
     for i = 1:n_abm_vecs
-
         [idx,temp] = fetchNext(FF);
         P(:,idx) = temp;
-
-        if mod(i,round(.01*n_abm_vecs))==0
-            fprintf("Finished %d of %d.\n",i,n_abm_vecs)
-        end
-
     end
 
 else
@@ -50,6 +45,11 @@ else
         else
             P(:,i) = arrayfun(@(j) fmincon(@(p) rawError(p,t,D(j,i),fn,C{j},fn_opts),p,[],[],[],[],lb,ub,[],opts),1:m)*weights;
         end
+
+        if mod(i,round(.01*n_abm_vecs))==0
+            fprintf("Finished %d of %d.\n",i,n_abm_vecs)
+        end
+        
     end
 end
 
