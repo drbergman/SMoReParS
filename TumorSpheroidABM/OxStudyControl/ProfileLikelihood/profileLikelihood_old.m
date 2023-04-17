@@ -1,4 +1,4 @@
-function out = profileLikelihood(pbest,tt,data,data_std,para_ranges,lb,ub,opts,threshold,save_all_pars)
+function out = profileLikelihood_old(pbest,tt,data,data_std,para_ranges,lb,ub,opts,threshold,save_all_pars)
 
 % profiles each parameter in pbest. pbest is the best fit at the point. the
 % time series to compare against is given in tt, data, and data_std.

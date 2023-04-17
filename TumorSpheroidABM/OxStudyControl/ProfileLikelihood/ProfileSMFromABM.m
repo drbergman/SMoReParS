@@ -6,75 +6,54 @@
 % of all ODE model parameters at a given ABM parameter vector.
 
 clearvars;
+addpath("../../../ODEFittingFns/")
+addpath("../../../ProfileLikelihoodFns/")
+addpath("../ODEFitting/")
 
 addpath("~/Documents/MATLAB/myfunctions/")
-addpath("../../ODEFitting/OxControl/")
 
-% folder to store plots and text files
 cohort_name = "cohort_230124175743017";
 
-% load data and compute the standard error
-load("../../ODEFitting/OxControl/data/OptimalParameters_noapop.mat","P")
-C = load(sprintf("../../data/%s/output.mat",cohort_name),"cohort_size");
-Sum = load(sprintf("../../data/%s/summary.mat",cohort_name),"ode_state*");
-load(sprintf("../../data/%s/output.mat",cohort_name),"ids");
-load(sprintf("../../data/sims/%s/output_final.mat",ids(1)),"tracked");
-t_abm = tracked.t;
-compare_every = 6 / 24;
+files.par_file = "../ODEFitting/data/OptimalParameters_Using_optimizeSMParsFromABM.mat";
+files.data_file = sprintf("../../data/%s/summary.mat",cohort_name);
+% files.previous_profile_file = "temp_profile.mat";
 
-%% sample from the ABM output
-tt = 0:compare_every:round(t_abm(end));
-[~,tind] = min(abs(t_abm - tt),[],1);
+save_all_pars = true;
+force_serial = true;
 
-Sum.ode_state_average = reshape(Sum.ode_state_average,numel(t_abm),2,[]);
-Sum.ode_state_std = reshape(Sum.ode_state_std,numel(t_abm),2,[]);
+n_sm_pars = 3;
 
-%%
-threshold = chi2inv(0.95,3); % compute threshold value for the parameter confidence intervals
+%% setup profile params
+profile_params.initial_step_prop = .01*ones(n_sm_pars,1);
+profile_params.min_num_steps = 10*ones(n_sm_pars,1);
+profile_params.smallest_par_step = [1e-1;1e-1;1e-1]; % do not let the step size go below this as it steps towards the boundary/threshold
+profile_params.shrinking_factor = 0.9; % factor by which to shrink dx as it gets close to lower boundary
+profile_params.threshold = chi2inv(0.95,n_sm_pars); % compute threshold value for the parameter confidence intervals
 
-% specify parameter ranges for bounds on profiling
-para_ranges = [0,100;     % lambda
-               0,100;  % alpha
-               0,1e4];      % K
+profile_params.secondary_step_factor = 2*ones(n_sm_pars,1); % factor by which to increase the step size after the initial search
+profile_params.step_growth_factor = 2*ones(n_sm_pars,1); % factor by which to increase the step size after successfully extending the profile
 
 % set bounds for optimizing when profiling the other parameters
-lb = [0;0;0];
-ub = [Inf;Inf;1e4];
-opts = optimset('Display','off','TolFun',1e-12,'TolX',1e-12);
+profile_params.lb = [0;0;0];
+profile_params.ub = [Inf;Inf;1e4];
 
-% specify parameter names
-para_names = {'\lambda', '\alpha', 'K'};
-para_names_file_save = {'lambda', 'alpha', 'K'};
+profile_params.opts = optimset('Display','off','TolFun',1e-12,'TolX',1e-12);
 
-npars = size(P,1); % number of parameters
+% specify parameter ranges for bounds on profiling
+profile_params.para_ranges = [0,100;     % alpha
+               0,100;  % nu
+               0,1e4]; % beta for chemo activating apoptosis
 
-%%
-Avg = Sum.ode_state_average(tind,:,:);
-Std = Sum.ode_state_std(tind,:,:);
-FF(1:size(Sum.ode_state_average,3)) = parallel.FevalFuture;
-for i = 1:size(Sum.ode_state_average,3)
-% for i = 3
-    data = Avg(:,:,i);
-    data_std = Std(:,:,i);
-%     out(:,i) = profileLikelihood(P(:,i),tt,data,data_std,para_ranges,lb,ub,opts,threshold);
-%     F = @(p) sum(((computeTimeSeries(p,tt) - data)./data_std).^2,'all');
-    FF(i) = parfeval(@() profileLikelihood(P(:,i),tt,data,data_std,para_ranges,lb,ub,opts,threshold),1);
-end
+%% objfn_constants
+objfn_constants.fn = @computeTimeSeries;
+objfn_constants.fn_opts = [];
+objfn_constants.weights = 1;
+out = performProfile(files,objfn_constants,profile_params,save_all_pars,force_serial);
 
-%%
-out = cell(npars,size(Sum.ode_state_average,3));
-for i = 1:size(Sum.ode_state_average,3)
+save("data/ProfileLikelihoods.mat","out")
 
-    [idx,temp] = fetchNext(FF);
-    out(:,idx) = temp;
+rmpath("../ODEFitting/")
+rmpath("../../../ODEFittingFns/")
+rmpath("../../../ProfileLikelihoodFns/")
 
-    if mod(i,100)==0
-        fprintf("Finished %d.\n",i)
-    end
-
-end
-
-% save("ProfileLikelihoods.mat","out")
-
-rmpath("../../ODEFitting/")
 
