@@ -7,6 +7,8 @@ function [par_min,par_max] = getProfileBounds(profile,threshold)
 % threshold: chi2inv value that determines difference between max permitted
 % value and the min of the second row in profile
 
+assert(size(profile,1)==2)
+
 [I1,I2,max_val] = findMaxCrosses(profile(2,:),threshold);
 
 if isempty(I1)
