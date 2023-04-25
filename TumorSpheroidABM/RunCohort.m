@@ -8,13 +8,13 @@ clearvars;
 addpath("~/Documents/MATLAB/myfunctions/")
 
 %% cohort structure
-cohort_pars.nsamps_per_condition = 1;
+cohort_pars.nsamps_per_condition = 6;
 cohort_pars.min_parfor_num = 4;
 cohort_pars.linkingFunction = @linkArrest; % a function to link any parameters across the cohort (e.g. arrest coefficients or dosing parameters)
 cohort_pars.link_arrest_coeffs = true; % whether or not to even attempt to link arrest coefficients
 cohort_pars.linkings = ["g1";"g2";"s";"m"]; % phases in a given row have identical arrest coefficients (if they are being varied within the cohort)
 cohort_pars.check_cohort_grab = true;
-% cohort_pars.previous_cohort_search_pattern = "data/cohort_*";
+cohort_pars.previous_cohort_output_pattern = "data/cohort_*/output.mat";
 cohort_pars.sim_function = @simPatient;
 cohort_pars.update_timer_every = 50;
 cohort_pars.parpool_options.resources = "Processes";
@@ -24,13 +24,10 @@ M = allBaseParameters();
 %%
 
 M.setup.ndims = 2;
-% M.setup.censor_date = 3;
-M.setup.censor_date = 1;
-% M.setup.N0 = 1e2;
-M.setup.N0 = 1e1;
+M.setup.censor_date = 3;
+M.setup.N0 = 1e2;
 M.setup.agent_initialization_location = "uniform";
-% M.setup.carrying_capacity = [500;1000;1500];
-M.setup.carrying_capacity = 500;
+M.setup.carrying_capacity = [500;1000;1500];
 M.setup.use_rates_for_intitial_proportions = false;
 
 M.save_pars.make_save = true;
@@ -42,13 +39,10 @@ M.save_pars.fields_to_keep = ["t","phases"];
 M.pars.max_dt = 0.25 / 24; % number of days per step
 M.pars.occmax_3d = 20;
 M.pars.occmax_2d = [4;5;6];
-% M.pars.occmax_2d = 4;
 M.pars.apop_rate = 0;
-% M.pars.move_rate_microns = 10 * [0;1;2];
-M.pars.move_rate_microns = 10;
+M.pars.move_rate_microns = 10 * [0;1;2];
 
 transition_factors = [0.8;1;1.2];
-% transition_factors = 1;
 
 M.cycle_pars.g1_to_s = 24/11 * transition_factors;
 M.cycle_pars.s_to_g2 = 24/8 * transition_factors;
