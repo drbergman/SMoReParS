@@ -10,14 +10,14 @@ addpath("~/Documents/MATLAB/myfunctions/")
 %% cohort structure
 cohort_pars.nsamps_per_condition = 1;
 cohort_pars.min_parfor_num = 4;
-cohort_pars.linkingFunction = @linkArrest;
-cohort_pars.link_arrest_coeffs = false;
-cohort_pars.linkings = ["g1","g2","s","m"];
+cohort_pars.linkingFunction = @linkArrest; % a function to link any parameters across the cohort (e.g. arrest coefficients or dosing parameters)
+cohort_pars.link_arrest_coeffs = true; % whether or not to even attempt to link arrest coefficients
+cohort_pars.linkings = ["g1";"g2";"s";"m"]; % phases in a given row have identical arrest coefficients (if they are being varied within the cohort)
 cohort_pars.check_cohort_grab = true;
 % cohort_pars.previous_cohort_search_pattern = "data/cohort_*";
 cohort_pars.sim_function = @simPatient;
 cohort_pars.update_timer_every = 50;
-cohort_pars.parpool_options.resources = "Threads"
+cohort_pars.parpool_options.resources = "Processes";
 
 %%
 M = allBaseParameters();

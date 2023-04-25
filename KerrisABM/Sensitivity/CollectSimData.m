@@ -23,30 +23,33 @@ for i = 1:numel(f)
     % now I know this one is in the proper spot in the order
 
     temp = readmatrix(sprintf("%s/%s",f(i).folder,f(i).name));
-    if length(temp) < 300
+    if length(temp) < 300 || temp(300)==0
         error("This sim did not make it to the endpoint.")
     end
     N(i) = temp(end);
 end
 
 N = reshape(N,npoints,nfacs+1,[]); % final dimension is for samples (I first loop over all parameter values, then over samples)
-N = mean(N,3);
+A = mean(N,3);
+S = std(N,[],3);
 
 %% compute mu*
 
 ee = zeros(nfacs,npoints);
 for i = 1:npoints
-    base_val = N(i,end);
-    ee(:,i) = (N(i,1:nfacs)-base_val)/0.5;
+    base_val = A(i,end);
+    ee(:,i) = (A(i,1:nfacs)-base_val)/0.5;
+    decreased_ind = diag(squeeze(points(i,1:4,:))) - reshape(points(i,end,:),[],1) < 0;
+    ee(decreased_ind,i) = -ee(decreased_ind,i);
 end
 
 mu_star = mean(abs(ee),2);
-sigma = std(ee,[],2);
+sigma = std(abs(ee),[],2);
 [mu_star,order] = sort(mu_star,"descend");
 sigma = sigma(order);
-display_par_names = display_par_names(order);
+ordered_par_names = display_par_names(order);
 
-save("data/GlobalSensitivityDirect","mu_star","sigma","display_par_names","npoints");
+save("data/GlobalSensitivityDirect","mu_star","sigma","ordered_par_names","npoints");
 
 
 

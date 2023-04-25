@@ -6,9 +6,9 @@ filename = "GlobalSensitivityDirect";
 
 line_width = 1;
 
-load("data/GlobalSensitivityDirect.mat","mu_star","display_par_names","sigma","npoints")
+load("data/GlobalSensitivityDirect.mat","mu_star","ordered_par_names","sigma","npoints")
 
-c = categorical(display_par_names,display_par_names);
+c = categorical(ordered_par_names,ordered_par_names);
 
 f=figureOnRight;
 hold on;
