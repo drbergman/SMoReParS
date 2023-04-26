@@ -1,10 +1,10 @@
 clearvars;
 
-addpath("..")
+addpath("../..")
 addpath("~/Documents/MATLAB/myfunctions/")
-cohort_id = "cohort_2303221446";
+cohort_id = "cohort_230124175743017";
 
-load(sprintf("../data/%s/output.mat",cohort_id),"ids","lattice_parameters","nsamps_per_condition")
+load(sprintf("../../data/%s/output.mat",cohort_id),"ids","lattice_parameters","nsamps_per_condition")
 
 ncohorts = numel(ids)/nsamps_per_condition;
 npars = numel(lattice_parameters);
@@ -20,7 +20,7 @@ for i = 1:5
 end
 
 cycle = buildCycle();
-S_max = 40;
+S_max = 5;
 
 for j = 1:npars
     l_temp = gobjects(size(ids,j),S_max,4);
@@ -32,8 +32,8 @@ for j = 1:npars
         for l = 1:S
 
             [color_ind,~] = ind2sub([ncohorts,nsamps_per_condition],i);
-            load(sprintf("../data/sims/%s/output_final.mat",id_temp(l)),"tracked")
-            load(sprintf("../data/sims/%s/output_constants.mat",id_temp(l)))
+            load(sprintf("../../data/sims/%s/output_final.mat",id_temp(l)),"tracked")
+            load(sprintf("../../data/sims/%s/output_constants.mat",id_temp(l)))
             for m = 1:4
                 l_temp(k,l,m) = plot(ax(j,m),tracked.t,tracked.phases(:,m),'Color',[val_color(k,:),0.2]);
                 l_temp(k,l,m).DisplayName = sprintf("%3.2f",lattice_parameters(j).values(k));
@@ -72,4 +72,4 @@ for m = 1:4
 normalizeYLims(ax(:,m))
 end
 
-rmpath("..")
+rmpath("../..")
