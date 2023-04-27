@@ -54,8 +54,8 @@ for pi = 1:3
     ylabel("ABM Par 2")
     title(ode_par_name{pi})
     set(gca,'FontSize',20)
-    savefig(sprintf("figs/sample_surface_%s.fig",file_name{pi}))
-    print(sprintf("figs/sample_surface_%s.png",file_name{pi}),"-dpng")
+    savefig(sprintf("figures/fig/sample_surface_%s.fig",file_name{pi}))
+    print(sprintf("figures/png/sample_surface_%s.png",file_name{pi}),"-dpng")
 end
 
 

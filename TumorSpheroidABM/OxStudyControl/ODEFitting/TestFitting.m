@@ -3,7 +3,7 @@
 
 clearvars;
 
-save_figs = false;
+save_figs = true;
 cohort_name = "cohort_230124175743017";
 
 addpath("~/Documents/MATLAB/myfunctions/")
@@ -24,6 +24,12 @@ if save_figs
     for i = 1:numel(f)
         if isempty(f(i).Name)
             f(i).Name = fig_names(i);
+        end
+        fig_folders = ["figures/fig","figures/png"];
+        for j = 1:numel(fig_folders)
+            if ~exist(fig_folders(j),"dir")
+                mkdir(fig_folders(j))
+            end
         end
         savefig(f(i),sprintf("figures/fig/%s",f(i).Name))
         print(f(i),sprintf("figures/png/%s",f(i).Name),"-dpng")

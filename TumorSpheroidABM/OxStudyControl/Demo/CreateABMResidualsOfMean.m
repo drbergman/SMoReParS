@@ -6,7 +6,7 @@ clearvars;
 cohort_name = "cohort_230124175743017";
 
 C = load(sprintf("../../data/%s/output.mat",cohort_name),"ids","cohort_size");
-load("../../ODEFitting/OxControl/data/ExperimentalData.mat")
+load("../../OxStudyControl/ODEFitting/data/ExperimentalData.mat","tt","count")
 tt = round(tt*1440); % time in minutes to avoid rounding errors
 nt = length(tt);
 
