@@ -1,4 +1,4 @@
-function out = rawError(p,tt,D,fn,C,fn_opts)
+function out = rawError(p,tt,D,fn,C,fn_opts,input_opts)
 
 % This function will compute the raw error (raw meaning it may be weighted
 % later based on number of data points, etc) of the surrogate model. It 
@@ -19,5 +19,36 @@ function out = rawError(p,tt,D,fn,C,fn_opts)
 % options that do NOT vary within one call to the objective function, e.g.
 % options that specify the version of the SM
 
-sim_data = fn(p,tt,C,fn_opts);
-out = sum(((sim_data - D.A)./D.S).^2,"all","omitnan");
+sim_data = fn(p,tt,C,fn_opts,D.A);
+
+opts = defaultRawErrorOptions;
+if nargin>=7 && ~isempty(input_opts)
+    opts = overrideDefaultOptions(opts,input_opts);
+end
+
+if opts.assume_independent_time_series % no opts passed in or chose to do independent time series
+    out = sum(((sim_data - D.A)./D.S).^2,"all","omitnan");
+    if ~opts.only_use_z_scores
+        out = -0.5*out - 0.5*size(sim_data,2)*log(2*pi()) - 0.5*sum(log(D.S),"all");
+    end
+else
+    if opts.only_use_z_scores
+        out = sum(my_mvnpdf(sim_data,D.A,D.C,struct("only_use_z_scores",true)));
+    else
+        out = sum(my_mvnpdf(sim_data,D.A,D.C,struct("only_use_z_scores",false)));
+    end
+end
+
+if opts.report_as_error
+    out = -out;
+end
+
+end
+
+function default_options = defaultRawErrorOptions
+
+default_options.assume_independent_time_series = true; % assume that the time series produced by the SM are independent (crazy, right? but it's what I had initially assumed, so this is the default value)
+default_options.only_use_z_scores = true; % whether to use the constant and SD terms from the LL for normal distributions, or (if false) just use the sum of z-scores
+default_options.report_as_error = true; % whether to report the value as an error for optimization purposes
+
+end

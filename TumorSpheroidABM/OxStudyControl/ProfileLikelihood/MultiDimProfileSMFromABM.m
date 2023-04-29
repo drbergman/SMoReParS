@@ -17,11 +17,11 @@ cohort_name = "cohort_230124175743017";
 files.data_file = sprintf("../../data/%s/summary.mat",cohort_name);
 load(files.data_file,"cohort_size");
 
-force_serial = false;
+opts.force_serial = false;
 
 n_sm_pars = 3;
 
-n_vals_per_par = 50;
+n_vals_per_par = 10;
 
 %% setup profile params
 % specify parameter ranges for bounds on profiling
@@ -34,9 +34,9 @@ profile_size = reshape(cellfun(@numel,par_vals),1,[]);
 objfn_constants.fn = @computeTimeSeries;
 objfn_constants.fn_opts = [];
 objfn_constants.weights = 1;
-MDProfile = performMultiDimProfile(files,objfn_constants,par_vals,force_serial);
+MDProfile = performMultiDimProfile(files,objfn_constants,par_vals,opts);
 
-save("data/MultiDimProfileLikelihoods.mat","MDProfile","par_vals","par_names","cohort_size","profile_size","-v7.3")
+% save("data/MultiDimProfileLikelihoods.mat","MDProfile","par_vals","par_names","cohort_size","profile_size","-v7.3")
 
 rmpath("../ODEFitting/")
 rmpath("../../../ODEFittingFns/")
