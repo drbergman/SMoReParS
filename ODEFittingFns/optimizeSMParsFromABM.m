@@ -52,7 +52,7 @@ if ~opts.force_serial
 else
     for i = 1:n_abm_vecs
         if m==1
-            P(:,i) = fmincon(@(p) rawError(p,t,D(i),fn,C{1},fn_opts,opts.raw_error_opts),p,[],[],[],[],lb,ub,[],opts);
+            P(:,i) = fmincon(@(p) rawError(p,t,D(i),fn,C{1},fn_opts,opts.raw_error_opts),p,[],[],[],[],lb,ub,[],optim_opts);
         else
             P(:,i) = arrayfun(@(j) fmincon(@(p) rawError(p,t,D(j,i),fn,C{j},fn_opts,opts.raw_error_opts),p,[],[],[],[],lb,ub,[],optim_opts),1:m)*weights;
         end

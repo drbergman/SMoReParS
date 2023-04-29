@@ -17,12 +17,18 @@ for i = numel(ids):-1:1
     phase_count(:,:,:,i) = reshape(S.tracked.phases,[],2,2);
 end
 
-t = S.tracked.t;
+t_abm = S.tracked.t;
+t_abm = round(1440*t_abm)/1440; % to make sure that the last time point is actually 3 days (not 3-eps() days)
+nt_abm = length(t_abm);
+
+t = [0;10;24;48;72]/24;
 nt = length(t);
 
+
 %% reshape and summarize
-phase_count = reshape(phase_count,[nt,2,2,size(ids)]);
-state_vars = sum(phase_count,2);
+phase_count = reshape(phase_count,[nt_abm,2,2,size(ids)]);
+phase_count_sampled = interp1(t_abm,phase_count,t);
+state_vars = sum(phase_count_sampled,2);
 state_vars = reshape(state_vars,nt,2,[],nsamps_per_parameter_vector);
 temp_avg = mean(state_vars,ndims(state_vars));
 temp_std = std(state_vars,[],ndims(state_vars));
@@ -129,7 +135,7 @@ end
 % end
 D = reshape(D,[1,cohort_size]);
 
-save(sprintf("../../data/%s/summary.mat",cohort_name),"D","t","C","cohort_size","nsamps_per_parameter_vector","n_conditions","vals","-v7.3")
+save(sprintf("../../data/%s/summary_short.mat",cohort_name),"D","t","C","cohort_size","nsamps_per_parameter_vector","n_conditions","vals","-v7.3")
 
 
 %% old version

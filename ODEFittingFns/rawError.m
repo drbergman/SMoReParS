@@ -27,9 +27,9 @@ if nargin>=7 && ~isempty(input_opts)
 end
 
 if opts.assume_independent_time_series % no opts passed in or chose to do independent time series
-    out = sum(((sim_data - D.A)./D.S).^2,"all","omitnan");
+    out = -sum(((sim_data - D.A)./D.S).^2,"all","omitnan");
     if ~opts.only_use_z_scores
-        out = -0.5*out - 0.5*size(sim_data,2)*log(2*pi()) - 0.5*sum(log(D.S),"all");
+        out = 0.5*out - 0.5*size(sim_data,2)*log(2*pi()) - 0.5*sum(log(D.S),"all");
     end
 else
     if opts.only_use_z_scores
