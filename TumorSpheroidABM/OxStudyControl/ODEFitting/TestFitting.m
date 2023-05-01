@@ -12,15 +12,16 @@ addpath("../../../ODEFittingFns/")
 par_names = ["\lambda","\alpha","K"];
 
 nsamps = 10;
-par_file = "data/OptimalParameters_Using_optimizeSMParsFromABM.mat";
-data_file = sprintf("../../data/%s/summary.mat",cohort_name);
+par_file = "data/OptimalParameters_Using_DependentStatesAndTimeSeries.mat";
+data_file = sprintf("../../data/%s/summary_short.mat",cohort_name);
 
 fn = @computeTimeSeries;
+fn_opts.condition_on_previous = false;
 
-f = testSMFitToABM(par_file,data_file,nsamps,fn,[],par_names);
+f = testSMFitToABM(par_file,data_file,nsamps,fn,fn_opts,par_names);
 
 if save_figs
-    fig_names = ["SampleFitsOfSMToABM","BestSMParameterDistributions"];
+    fig_names = ["SampleFitsOfSMToABM_Using_DependentStatesAndTimeSeries","BestSMParameterDistributions_Using_DependentStatesAndTimeSeries"];
     for i = 1:numel(f)
         if isempty(f(i).Name)
             f(i).Name = fig_names(i);

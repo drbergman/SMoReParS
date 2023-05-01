@@ -21,7 +21,7 @@ t_abm = S.tracked.t;
 t_abm = round(1440*t_abm)/1440; % to make sure that the last time point is actually 3 days (not 3-eps() days)
 nt_abm = length(t_abm);
 
-t = [0;10;24;48;72]/24;
+t = [0;10;24;36;48;72]/24;
 nt = length(t);
 
 
@@ -135,7 +135,8 @@ end
 % end
 D = reshape(D,[1,cohort_size]);
 
-save(sprintf("../../data/%s/summary_short.mat",cohort_name),"D","t","C","cohort_size","nsamps_per_parameter_vector","n_conditions","vals","-v7.3")
+n_time_series = size(D(1).A,2);
+save(sprintf("../../data/%s/summary_short.mat",cohort_name),"D","t","C","cohort_size","nsamps_per_parameter_vector","n_conditions","vals","n_time_series","-v7.3")
 
 
 %% old version

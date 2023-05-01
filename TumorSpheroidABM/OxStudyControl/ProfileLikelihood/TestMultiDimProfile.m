@@ -7,14 +7,15 @@ clearvars;
 save_figure = false;
 
 addpath("../../../ProfileLikelihoodFns/")
- 
+
 sm_par_display_names = ["\lambda","\alpha","K"];
 profile_file = "data/MultiDimProfileLikelihoods.mat";
 nsamps = 5;
 opts.plot_type = "contourf";
 opts.likelihood_scale = "linear";
 opts.log_scale_pars = "K";
-opts.transform_fn = @(x) exp((x-max(x,[],"all"))/abs(min(x-max(x,[],"all"),[],"all")));
+% opts.transform_fn = @(x) exp((x-max(x,[],"all"))/abs(min(x-max(x,[],"all"),[],"all")));
+opts.transform_fn = @(x) x;
 [f,ax,I] = testMultiDimProfileSMFromABM(profile_file,nsamps,opts);
 
 

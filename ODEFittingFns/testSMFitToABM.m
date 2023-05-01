@@ -1,4 +1,5 @@
-function f = testSMFitToABM(par_file,data_file,nsamps,fn,fn_opts,par_names)
+function f = testSMFitToABM(par_file,data_file,nsamps,fn,fn_opts,par_names,time_series_names)
+
 
 if contains(path,"myfunctions")
     path_changed = false;
@@ -9,6 +10,14 @@ end
 
 load(par_file,"P")
 load(data_file,"t","D","C","cohort_size","nsamps_per_parameter_vector","n_time_series","n_conditions"); % some of these variables are not used now, but they might be once I get to filling out the conditional statements below
+
+
+if nargin<7 || isempty(time_series_names)
+    time_series_names = strings(n_time_series,1);
+    for i = 1:n_time_series
+        time_series_names(i) = sprintf("Time Series #%d",i);
+    end
+end
 
 P = reshape(P,size(P,1),[]);
 I = randperm(size(P,2),nsamps);
@@ -26,6 +35,7 @@ if n_time_series == 1 && n_conditions == 1 % just plot in a rough square
         plot(ax(i),t,D(I(i)).A,"black")
         out = fn(P(:,I(i)),t,C{1},fn_opts);
         plot(ax(i),t,out,"--","LineWidth",2)
+        title(ax(i),sprintf("#%d",I(i)),"FontWeight","bold")
     end
 elseif n_time_series > 1 && n_conditions == 1
     f(1)=figure;
@@ -40,6 +50,10 @@ elseif n_time_series > 1 && n_conditions == 1
             plot(ax(ri,ci),t,D(I(ri)).A(:,ci),"black")
             plot(ax(ri,ci),t,out(:,ci),"--","LineWidth",2)
         end
+        ylabel(ax(ri,1),sprintf("#%d",I(ri)),"FontWeight","bold")
+    end
+    for ci = 1:n_time_series
+        title(ax(1,ci),time_series_names(ci))
     end
 end
 xlim(ax,[t(1) t(end)])

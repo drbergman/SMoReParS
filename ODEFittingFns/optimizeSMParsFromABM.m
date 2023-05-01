@@ -18,10 +18,13 @@ P = zeros(npars,n_abm_vecs);
 
 if ~opts.force_serial
     if isempty(gcp('nocreate'))
-        ppool = parpool("Processes");
-    elseif isa(gcp,"parallel.ThreadPool")
+        % ppool = parpool("Processes");
+        ppool = parpool("Threads");
+    % elseif isa(gcp,"parallel.ThreadPool")
+    elseif isa(gcp,"parallel.ProcessPool")
         delete(gcp('nocreate'))
-        ppool = parpool("Processes");
+        % ppool = parpool("Processes");
+        ppool = parpool("Threads");
     else
         ppool = gcp;
     end
