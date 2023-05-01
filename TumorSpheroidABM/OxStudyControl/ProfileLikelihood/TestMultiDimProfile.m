@@ -20,7 +20,7 @@ opts.transform_fn = @(x) x;
 
 
 if save_figure
-    file_name = "SampleMultiDimProfilesOfSMFromABM";
+    file_name = "SampleMultiDimProfilesOfSMFromABM"; %#ok<UNRCH>
     fig_folders = ["fig","png"];
     for i = 1:numel(fig_folders)
         fig_folder_name = sprintf("figures/%s",fig_folders(i));

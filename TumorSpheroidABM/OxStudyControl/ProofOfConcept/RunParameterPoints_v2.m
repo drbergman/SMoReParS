@@ -18,7 +18,7 @@ cohort_pars.min_parfor_num = 4;
 
 
 %% load the ABM parameters using the best fit values of lambda, alpha, and K; identify the selected/accepted pars
-load("../../ProfileLikelihood/OxControl/data/ABMParamEstimates_FromProfile_WithK.mat","LP1","abm_region_1_log")
+load("../../OxStudyControl/ProfileLikelihood/data/ABMParamEstimates_FromProfile_WithK.mat","LP1","abm_region_1_log")
 C = load("../../data/cohort_230124175743017/output.mat","ids","lattice_parameters","cohort_size");
 sz = size(C.ids);
 vpi = cell(7,1);
@@ -40,7 +40,7 @@ accepted_ind = find(accepted);
 rejected_ind = find(~accepted);
 
 %% load and plot experimental data
-load("../../ODEFitting/OxControl/data/ExperimentalData.mat")
+load("../../OxStudyControl/ODEFitting/data/ExperimentalData.mat")
 
 figure;
 ax = gobjects(2,1);
@@ -62,7 +62,7 @@ for i = 1:length(accepted_ind)
         load(sprintf("../../data/sims/%s/output_final.mat",C.ids(accepted_ind(i))),"tracked")
         y_temp(:,i) = tracked.NT;
 end
-[x,y_mean,pc] = my_patchPlot(tracked.t,y_temp);
+[x,y_mean,pc] = patchPlotCoords(tracked.t,y_temp);
 patch(ax(1),pc{1},pc{2},"green","FaceAlpha",0.2,"EdgeColor","none");
 abm_mean = plot(ax(1),x,y_mean,"green","LineWidth",2,"DisplayName","ABM Mean");
 

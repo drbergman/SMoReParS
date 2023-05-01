@@ -6,6 +6,7 @@
 clearvars;
 
 addpath("~/Documents/MATLAB/myfunctions/")
+addpath("../..")
 
 %% cohort structure
 cohort_pars.nsamps_per_condition = 6;
@@ -42,7 +43,7 @@ M.plot_pars.plot_location = false;
 
 %% load the ABM parameters using the best fit values of lambda and alpha; simulate
 
-load("ProfileLikelihood/ABMParamEstimates.mat","LP1")
+load("../ProfileLikelihood/data/ABMParamEstimates.mat","LP1")
 for i = 1:numel(LP1(1).values)
     for vpi = 1:numel(LP1)
         M = setField(M,LP1(vpi).path,LP1(vpi).values(i,:));
@@ -53,7 +54,7 @@ for i = 1:numel(LP1(1).values)
 end
 
 %% load the ABM parameters using the above and intersecting with the corresponding region from the best fit value of K
-load("ProfileLikelihood/ABMParamEstimates.mat","LP2")
+load("../ProfileLikelihood/data/ABMParamEstimates.mat","LP2")
 also_after_restriction = ismember([LP1.values],[LP2.values],"rows");
 
 %% compare ABM output with data
@@ -102,11 +103,11 @@ for i = 1:size(out,1)
     end
 end
 %% plot the abm mean +/- SD for the two restrictions chosen
-[x,y_mean,pc] = my_patchPlot(out(1).tracked.t,reshape(NT,size(NT,1),[]));
+[x,y_mean,pc] = patchPlotCoords(out(1).tracked.t,reshape(NT,size(NT,1),[]));
 patch(ax(1,1),pc{1},pc{2},"green","FaceAlpha",0.2,"EdgeColor","none")
 abm_plot(1) = plot(ax(1,1),x,y_mean,"green","LineWidth",2,"DisplayName","ABM mean");
 
-[x,y_mean,pc] = my_patchPlot(out(1).tracked.t,reshape(NT(:,:,also_after_restriction),size(NT,1),[]));
+[x,y_mean,pc] = patchPlotCoords(out(1).tracked.t,reshape(NT(:,:,also_after_restriction),size(NT,1),[]));
 patch(ax(1,2),pc{1},pc{2},"green","FaceAlpha",0.2,"EdgeColor","none")
 abm_plot(1,2) = plot(ax(1,2),x,y_mean,"green","LineWidth",2,"DisplayName","ABM mean");
 
@@ -136,7 +137,7 @@ xlabel(ax,"Time (d)")
 % end
 
 %% histograms out objfn for those selected/those not
-C = load("data/cohort_230124175743017/output.mat","ids","lattice_parameters");
+C = load("../../data/cohort_230124175743017/output.mat","ids","lattice_parameters");
 sz = size(C.ids);
 vpi = cell(7,1);
 par_vals = zeros(1,7);
@@ -146,7 +147,7 @@ tt_min = round(1440*tt);
 F = @(t) sum(((interp1(round(t.t*1440),t.NT,tt_min)-data)).^2,'all');
 for i = 1:numel(C.ids)
     [vpi{:},si] = ind2sub(sz,i);
-    load(sprintf("data/sims/%s/output_final.mat",C.ids(i)),"tracked")
+    load(sprintf("../../data/sims/%s/output_final.mat",C.ids(i)),"tracked")
     for j = 1:7
         par_vals(j) = C.lattice_parameters(j).values(vpi{j});
     end
@@ -176,3 +177,5 @@ ylabel(ax(2,:),"PDF")
 % savefig("ItWorked")
 
 %%
+rmpath("../..")
+

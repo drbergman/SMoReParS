@@ -14,7 +14,7 @@ addpath("~/Documents/MATLAB/myfunctions/")
 
 cohort_name = "cohort_230124175743017";
 
-files.data_file = sprintf("../../data/%s/summary.mat",cohort_name);
+files.data_file = sprintf("../../data/%s/summary_short.mat",cohort_name);
 load(files.data_file,"cohort_size");
 
 opts.force_serial = false;
