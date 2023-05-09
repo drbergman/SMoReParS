@@ -40,9 +40,9 @@ profile_params.ub = [Inf;Inf;1e4];
 profile_params.opts = optimset('Display','off','TolFun',1e-12,'TolX',1e-12);
 
 % specify parameter ranges for bounds on profiling
-profile_params.para_ranges = [0,100;     % alpha
-               0,100;  % nu
-               0,1e4]; % beta for chemo activating apoptosis
+profile_params.para_ranges = [0,100;     % lambda
+               0,100;  % alpha
+               0,1e4]; % K
 
 %% objfn_constants
 objfn_constants.fn = @computeTimeSeries;
