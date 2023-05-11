@@ -1,4 +1,4 @@
-function out = computeTimeSeries(p,tt,dose,opts)
+function out = computeTimeSeries(p,tt,dose,opts,~)
 
 % computes the time series solution for the SM at time points tt. Always
 % uses initial conditions of [90;10];
@@ -17,6 +17,8 @@ else
     end
 end
 
-[~,temp] = ode23(@(t,x) odefn(x,p,death_rate),tt,[90;10]);
+sol2 = ode45(@(t,x) odefn(x,p,death_rate),[0 tt(end)],[90;10]);
+sol = ode23(@(t,x) odefn(x,p,death_rate),[0 tt(end)],[90;10]);
+temp = deval(sol,tt)';
 total = sum(temp,2);
 out = [total,temp(:,2)./total];

@@ -1,7 +1,7 @@
 function out = performProfile(files,objfn_constants,profile_params,save_all_pars,force_serial)
 
 
-if ~isfield("objfn_constants","p_setup_fn")
+if ~isfield(objfn_constants,"p_setup_fn")
     objfn_constants.p_setup_fn = @(p) p;
 end
 
@@ -65,7 +65,7 @@ if ~force_serial
             out(:,idx) = temp;
         end
 
-        if mod(i,ceil(0.01*n_abm_vecs))==0
+        if mod(i,ceil(0.001*n_abm_vecs))==0
             temp = toc(t_start);
             fprintf("Finished %d after %s. ETR: %s\n",i,duration(0,0,temp),duration(0,0,temp/i * (n_abm_vecs-i)))
         end
@@ -78,7 +78,7 @@ else
             p = P(:,i);
             out(:,i) = profileLikelihood(p,t,d,C,objfn_constants,profile_params,save_all_pars);
         end
-        if mod(i,ceil(0.01*n_abm_vecs))==0
+        if mod(i,ceil(0.001*n_abm_vecs))==0
             temp = toc(t_start);
             fprintf("Finished %d after %s. ETR: %s\n",i,duration(0,0,temp),duration(0,0,temp/i * (n_abm_vecs-i)))
         end

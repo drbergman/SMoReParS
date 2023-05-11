@@ -59,9 +59,9 @@ for j = 1:profile_params.min_num_steps(i)
 end
 dxi = dxi * profile_params.secondary_step_factor(i); % for the remainder of the search, use this value of dxi
 if dir==-1
-    max_steps = ceil((x0(i)-profile_params.para_ranges(i,1))/dxi);
+    max_steps = min(1000,ceil((x0(i)-profile_params.para_ranges(i,1))/dxi));
 else
-    max_steps = ceil((profile_params.para_ranges(i,2)-x0(i))/dxi);
+    max_steps = min(1000,ceil((profile_params.para_ranges(i,2)-x0(i))/dxi));
 end
 extra_pars = zeros(size(first_pars,1),max_steps);
 extra_vals = zeros(1,max_steps);

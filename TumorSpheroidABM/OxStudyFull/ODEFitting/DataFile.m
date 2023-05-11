@@ -1,3 +1,6 @@
+% This is a file that formats the data (found originally in
+% OriginalDataFile.m) to a format I will use for analysis.
+
 clearvars;
 % Data from Jang et al. Cancer Res Treat 2002;34:372. Millions of cells.
 % Data point for 5 hours taken out, since it is incommensurate.
