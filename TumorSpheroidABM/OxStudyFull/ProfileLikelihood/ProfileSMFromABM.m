@@ -18,10 +18,14 @@ cohort_name = "cohort_2303301105";
 
 files.par_file = "../ODEFitting/data/OptimalParameters_UnLinkedHill.mat";
 files.data_file = sprintf("../../data/%s/summary_new.mat",cohort_name);
-files.previous_profile_file = "temp_profile.mat";
+% files.previous_profile_file = "data/temp_profile.mat";
+files.previous_profile_file = "ProfileLikelihoods.mat";
 
-save_all_pars = true;
-force_serial = false;
+options.save_all_pars = true;
+options.force_serial = false;
+options.temp_profile_name = "data/temp_profile";
+options.save_every_iter = 100; % wait at least this many iterations between saves
+options.save_every_sec = 10*60; % wait at least this many seconds between saves
 
 n_sm_pars = 6;
 
@@ -29,14 +33,15 @@ n_sm_pars = 6;
 profile_params.initial_step_prop = .01*ones(n_sm_pars,1);
 profile_params.min_num_steps = 10*ones(n_sm_pars,1);
 profile_params.smallest_par_step = 1e-1*ones(n_sm_pars,1); % do not let the step size go below this as it steps towards the boundary/threshold
-profile_params.shrinking_factor = 0.9; % factor by which to shrink dx as it gets close to lower boundary
+profile_params.smallest_par_step(3) = 10; % use a larger min step for K
+profile_params.shrinking_factor = 0.9; % factor by which to shrink dx as it gets close to enforced boundary
 profile_params.threshold = chi2inv(0.95,n_sm_pars); % compute threshold value for the parameter confidence intervals
 
 profile_params.secondary_step_factor = 2*ones(n_sm_pars,1); % factor by which to increase the step size after the initial search
 profile_params.step_growth_factor = 2*ones(n_sm_pars,1); % factor by which to increase the step size after successfully extending the profile
 
 % set bounds for optimizing when profiling the other parameters
-profile_params.lb = [0;0;0;0;0;0];
+profile_params.lb = [0;0;200;0;0;0];
 profile_params.ub = [20;200;1e4;20;20;40];
 
 profile_params.opts = optimset('Display','off','TolFun',1e-12,'TolX',1e-12);
@@ -60,7 +65,7 @@ objfn_constants.fn_opts.hill_activation = true; % if unlinked, use hill activati
 objfn_constants.weights = [1;1;1];
 objfn_constants.p_setup_fn = @(p) [p(1:5);fixed_hill_coefficient;p(6)];
 %% perform profile
-out = performProfile(files,objfn_constants,profile_params,save_all_pars,force_serial);
+out = performProfile(files,objfn_constants,profile_params,options);
 
 % %%
 % C = load(sprintf("../../data/%s/output.mat",cohort_name),"cohort_size","lattice_parameters");

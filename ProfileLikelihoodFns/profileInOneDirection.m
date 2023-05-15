@@ -120,7 +120,7 @@ while true
         % return to previous step, shrink step size, and proceed
         max_allowable_step = dxi;
         if profile_params.step_growth_factor(i) > 1
-            dxi = dxi / profile_params.step_growth_factor(i);
+            dxi = dxi * min(1 / profile_params.step_growth_factor(i), (min_val+profile_params.threshold-last_val)/(temp_val-last_val)); % linear interpolate to get step size that would land on threshold, but at least decrease by growth factor
         else
             dxi = 0.5 * dxi;
         end

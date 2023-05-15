@@ -80,7 +80,7 @@ end
 %% reshape to match [conditions,cohort_size]
 D = reshape(D,cohort.cohort_size);
 
-cohort_size = setdiff(1:ndims(D),condition_dim);
+cohort_size = cohort.cohort_size(setdiff(1:ndims(D),condition_dim));
 
 D = permute(D,[condition_dim,cohort_size]);
 
