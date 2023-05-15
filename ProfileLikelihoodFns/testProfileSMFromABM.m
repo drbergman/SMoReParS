@@ -12,6 +12,7 @@ out = reshape(out,npars,[]);
 n_abm_vecs = size(out,2);
 
 if isempty(opts.abm_vec_inds)
+    nsamps = min(nsamps,n_abm_vecs);
     I = randsample(n_abm_vecs,nsamps,false);
 else
     opts.abm_vec_inds(opts.abm_vec_inds>n_abm_vecs) = []; % do not keep any indices that exceed the number of abm parameter vectors

@@ -40,12 +40,12 @@ P = zeros(npars,1);
 %     F = @(p) sum(((computeTimeSeries(p,tt)./cell_count - 1)).^2,'all');
 %     F = @(p) sum(((computeTimeSeries(p,tt) - data)).^2,'all');
     F = @(p) sum(((sum(computeTimeSeries(p,tt),2) - data)./data_std).^2,'all');
-    [pstar,fstar] = fmincon(F,x0,[],[],[],[],lb,ub,[],opts);
+    [P,fstar] = fmincon(F,x0,[],[],[],[],lb,ub,[],opts);
 
 %%
 figure;
 tfull = linspace(0,3,100);
-yy = computeTimeSeries(pstar,tfull);
+yy = computeTimeSeries(P,tfull);
 fit_curve = plot(tfull,sum(yy,2),"--","LineWidth",2,"DisplayName","Fit");
 hold on;
 data_curve = plot(tt,data,"black","Marker","o","MarkerFaceColor","black","DisplayName","Data");

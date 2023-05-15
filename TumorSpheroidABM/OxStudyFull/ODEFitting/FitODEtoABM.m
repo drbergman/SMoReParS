@@ -7,7 +7,7 @@ make_save = false;
 addpath("../../../ODEFittingFns/")
 addpath("~/Documents/MATLAB/myfunctions/")
 
-opts.force_serial = false;
+opts.force_serial = true;
 opts.raw_error_opts.assume_independent_time_series = true; % assume that the two time series have diagonal covariance matrices at each time point
 
 cohort_name = "cohort_2303301105";

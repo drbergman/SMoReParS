@@ -2,6 +2,11 @@ ExperimentalData.mat:
     MAT file that contains experimental data in proper form used for analysis.
     Created by DataFile.m.
 
+ODEFitToData.mat:
+    Best fit of SM to data.
+    Also includes options, bounds, etc. used in this computation.
+    P was manually changed to delete the Hill coefficient, which was fixed at 3.
+
 OptimalParameters.mat:
     Optimal parameters for SM on cohort_2303271138 assuming that the chemo-induced death rate is constant across the two ODE state variables.
 
@@ -11,5 +16,6 @@ OptimalParameters_phase_dependent_death.mat:
 
 OptimalParameters_UnLinkedHill:
     Optimal parameters for SM on cohort_2303301105 assuming that the chemo-induced death rate follows a Hill function that is independent for each phase.
-
+    The Hill coefficient was fixed at 3.
+    After running the script FitODEtoABM.m, I must have manually deleted this ind from the parameter dimension.
 

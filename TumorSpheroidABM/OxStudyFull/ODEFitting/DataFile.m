@@ -5,18 +5,20 @@ clearvars;
 % Data from Jang et al. Cancer Res Treat 2002;34:372. Millions of cells.
 % Data point for 5 hours taken out, since it is incommensurate.
 
-tt = [0   10   24   36   48   72  ]';    % hours
-tt = tt/24;                       % days
+t = [0   10   24   36   48   72  ]';    % hours
+t = t/24;                       % days
 
-doses = [0;0.75;7.55]; % doses in uM
+C = {0;0.75;7.55}; % doses in uM
+
+cohort_size = 1; % only one cohort represented in this data (encompassing 3 conditions)
 
 %% Control data
 count(:,1) = [0.899 1.340 1.633 2.408 3.557 5.583]';  % thousands of cells
 count_std(:,1) = [0.099 0.193 0.207 0.298 0.168 0.364]';  % thousands of cells
 
 % Cell Cycle Distribution (none given)
-state2_prop(:,1) = NaN(size(tt));
-state2_prop_std(:,1) = NaN(size(tt));
+state2_prop(:,1) = NaN(size(t));
+state2_prop_std(:,1) = NaN(size(t));
 
 %% 0.75 uM Oxaliplatin
 count(:,2) = [0.899 1.077 1.658 2.059 2.584 3.387]';  % thousands of cells
@@ -40,5 +42,12 @@ count = count.*temp;
 count_std = count_std.*temp;
 
 clear temp
+
+%% put in new workflow
+for i = 3:-1:1
+    D(i).A = [count(:,i),state2_prop(:,i)];
+    D(i).S = [count_std(:,i),state2_prop_std(:,i)];
+end
+D = reshape(D,[],1); % make sure it's a column vector indicating all 3 go together
 
 save("data/ExperimentalData.mat",'-v7.3')

@@ -34,7 +34,7 @@ MultiDimProfileLikelihoods.mat:
 
 ProfileLikelihoods.mat:
     Profile of the SM from the data.
-    Profiles are not cleaned.
+    Profiles are cleaned.
     See ProfileSMFromABM.m.
 
 ProfileLikelihoods_Data.mat:

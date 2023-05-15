@@ -3,6 +3,14 @@
 
 clearvars;
 
+make_save = false;
+save_fig_opts.save_figs = false;
+save_fig_opts.reprint = false;
+save_fig_opts.file_types = ["fig","png"];
+save_fig_opts.fig_names = "SMFitToData";
+
+addpath("../../../ODEFittingFns/")
+
 addpath("~/Documents/MATLAB/myfunctions/")
 
 p = zeros(4,1);
@@ -67,16 +75,19 @@ end
 % Data from Jang et al. Cancer Res Treat 2002;34:372. Millions of cells.
 % Data point for 5 hours taken out, since it is incommensurate.
 
-D = load("data/ExperimentalData.mat");
+load("data/ExperimentalData.mat","t","D","C");
 
 %%
-P = zeros(npars,1);
-F = @(p) arrayfun(@(i) rawError(p,D.tt,[D.count(:,i),D.state2_prop(:,i)],[D.sigma_count(:,i),D.sigma_state2_prop(:,i)],fn,D.doses(i),fn_opts),1:3)*weights;
+F = @(p) arrayfun(@(i) rawError(p,t,D(i),fn,C{i},fn_opts),1:3)*weights;
 
-[pstar,fstar] = fmincon(F,p,[],[],[],[],lb,ub,[],opts);
+[P,fstar] = fmincon(F,p,[],[],[],[],lb,ub,[],opts);
 
 %%
-figure;
+if make_save
+    save("data/ODEFitToData.mat","P","fstar","weights","fn_opts","lb","ub")
+end
+%%
+f=figure;
 tfull = linspace(0,3,100);
 ax = gobjects(2,3);
 for i = 1:3
@@ -85,14 +96,14 @@ for i = 1:3
     end
 end
 for i = 1:3
-    sim_data = fn(pstar,tfull,D.doses(i),fn_opts);
+    sim_data = fn(P,tfull,C{i},fn_opts);
     plot(ax(1,i),tfull,sim_data(:,1),"--","LineWidth",2,"DisplayName","Fit");
     plot(ax(2,i),tfull,sim_data(:,2),"--","LineWidth",2,"DisplayName","Fit");
-    patch(ax(1,i),[D.tt;flip(D.tt)],[D.count(:,i)-D.sigma_count(:,i);flip(D.count(:,i)+D.sigma_count(:,i))],"black","FaceAlpha",0.2,"EdgeColor","none","DisplayName","+/- SD");
-    plot(ax(1,i),D.tt,D.count(:,i),"black","Marker","o","MarkerFaceColor","black","DisplayName","Data");
-    patch(ax(2,i),[D.tt;flip(D.tt)],[D.state2_prop(:,i)-D.sigma_state2_prop(:,i);flip(D.state2_prop(:,i)+D.sigma_state2_prop(:,i))],"black","FaceAlpha",0.2,"EdgeColor","none","DisplayName","+/- SD");
-    plot(ax(2,i),D.tt,D.state2_prop(:,i),"black","Marker","o","MarkerFaceColor","black","DisplayName","Data");
-    title(ax(1,i),sprintf("C = %3.2fuM",D.doses(i)),"Interpreter","none")
+    patch(ax(1,i),[t;flip(t)],[D(i).A(:,1)-D(i).S(:,1);flip(D(i).A(:,1)+D(i).S(:,1))],"black","FaceAlpha",0.2,"EdgeColor","none","DisplayName","+/- SD");
+    plot(ax(1,i),t,D(i).A(:,1),"black","Marker","o","MarkerFaceColor","black","DisplayName","Data");
+    patch(ax(2,i),[t;flip(t)],[D(i).A(:,2)-D(i).S(:,2);flip(D(i).A(:,2)+D(i).S(:,2))],"black","FaceAlpha",0.2,"EdgeColor","none","DisplayName","+/- SD");
+    plot(ax(2,i),t,D(i).A(:,2),"black","Marker","o","MarkerFaceColor","black","DisplayName","Data");
+    title(ax(1,i),sprintf("C = %3.2fuM",C{i}),"Interpreter","none")
 end
 xlabel(ax,"Time (d)")
 ylabel(ax(1,:),"Scaled Cell Count")
@@ -102,3 +113,8 @@ normalizeYLims(ax(2,:))
 % legend([fit_curve;data_curve;data_patch],"Location","northwest","FontSize",22)
 
 set(ax,"FontSize",20)
+
+saveFigures(f,save_fig_opts)
+
+%% remove paths
+rmpath("../../../ODEFittingFns/")
