@@ -5,11 +5,10 @@ save_figs = false;
 addpath("../../../ProfileLikelihoodFns/")
 
 
-sm_par_display_names = ["\lambda","\alpha","K"];
-profile_file = "data/ProfileLikelihoods.mat";
+sm_par_display_names = ["\lambda","\alpha","K","d_{G1/S}","d_{G2/M}","EC50"];
+profile_file = "ProfileLikelihoods.mat";
 nsamps = 5;
 [f,I] = testProfileSMFromABM(profile_file,nsamps,sm_par_display_names);
-
 
 if save_figs
     fig_names = "SampleProfilesOfSMFromABM";
