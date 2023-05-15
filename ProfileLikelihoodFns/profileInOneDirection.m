@@ -1,5 +1,21 @@
 function [profile,pbest,val_at_center] = profileInOneDirection(profile,F,pbest,val_at_center,i,dir,profile_params,save_all_pars)
 
+% pbest is the best fit at the point. the
+% time series to compare against is given in tt, data, and data_std.
+% para_ranges sets bounds for profiling. lb and ub set bounds for
+% optimization while another parameter is being profiled. opts carries
+% fmincon options. threshold sets a cutoff for when profiling can be
+% stopped. save_all_pars can be passed in as true to save all parameter
+% values, not just the profiled parameter value
+
+% In each direction of pbest(i) (left and right), the ith parameter changes
+% at 1% of pbest(i) for 10 steps. If it is still within para_ranges(i,:)
+% and the value of the output is within F(pbest)+threshold, then continue
+% in that direction until one of those conditions fails.
+
+% will not assume that the pbest came from the same objective function as
+% we are using here
+
 npars = numel(pbest);
 if dir==-1
     par_exceeds_extremum = @(p) p < profile_params.para_ranges(i,1);

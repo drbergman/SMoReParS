@@ -1,5 +1,39 @@
 function out = performProfile(files,objfn_constants,profile_params,input_opts)
 
+% profiles each SM parameter for each "column" of the data array, Data 
+% array being reshaped to a 2D array. 
+% 
+% files: struct with fields 
+%   par_file: best fit SM parameters for each column of Data
+%   data_file: the data in size [nconditions,cohort_size]
+%   previous_profile_file (optional): partially completed profile
+% objfn_constants: struct with fields that do vary by condition
+%   p_setup_fn (optional): function that transforms SM parameter vector (can be used to fix a given SM parameter, e.g.)
+%   fn: function used by rawError to generate SM output to compare against data
+%   fn_opts: options to be used by fn for all conditions
+%   weights: weights to use across conditions for objective function
+% profile_params: struct with fields
+%   lb: lower bound of SM parameters in calls to fmincon
+%   ub: upper bound of SM parameters in calls to fmincon
+%   A (optional): array to give A*x<=b constraint in fmincon
+%   b (optional): vector to give A*x<=b constraint in fmincon
+%   opts: options to pass in to fmincon
+%   step_growth_factor (optional): factor to increase step size in Stage 2 of profiling
+%   para_ranges: n_sm_pars x 2 array of extrema to be used in profiling for each parameter, i.e. profiles never force this parameter beyond this value
+%   shrinking_factor: factor by which to shrink step sizes when approaching bounds in para_ranges
+%   initial_step_prop: proportion of best parameter to move in Stage 1
+%   smallest_par_step: minimum allowable step size for each parameter; Stage 2 halts when the step size is below this and the threshold is exceeded
+%   min_num_steps: number of steps for each SM to take in Stage 1
+%   threshold: chi2inv value for profile
+%   secondary_step_factor: factor to increase an SM parameter step size when beginning Stage 2
+%   step_growth_factor: factor to increase step size in Stage 2 after successfully extending profile
+% input_opts (optional): struct with fields
+%   force_serial=true: logical to force serial computation of profiles
+%   save_all_pars=true: logical to control whether to save all parameter values (true) or only the current profile parameter and goodness-of-fit value (false)
+%   save_every_iter=Inf: how often (based on iterations) to save profile throughout (protects against errors and workers crashing)
+%   save_every_sec=Inf: how often (based on seconds passed) to save profile throughout (protects against errors and workers crashing)
+%   temp_profile_name: how often to save profile throughout (protects against errors and workers crashing)
+
 opts = defaultPerformProfileOptions;
 if nargin==4 && ~isempty(input_opts)
     opts = overrideDefaultOptions(opts,input_opts);

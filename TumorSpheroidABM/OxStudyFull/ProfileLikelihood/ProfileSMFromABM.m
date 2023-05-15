@@ -158,7 +158,7 @@ out = performProfile(files,objfn_constants,profile_params,options);
 % 
 % end
 
-save("ProfileLikelihoods.mat","out")
+save("data/Profiles_SMFromABM.mat","out")
 
 rmpath("../../../ProfileLikelihoodFns/")
 rmpath("../../../ODEFittingFns/")

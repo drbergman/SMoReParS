@@ -1,4 +1,9 @@
-function [f,I] = testProfileSMFromABM(profile_file,nsamps,sm_par_display_names)
+function [f,I] = testProfileSMFromABM(profile_file,nsamps,sm_par_display_names,input_opts)
+
+opts = defaultTestProfileSMFromABMOptions;
+if nargin>3 && ~isempty(input_opts)
+    opts = overrideDefaultOptions(opts,input_opts);
+end
 
 load(profile_file,"out")
 
@@ -6,7 +11,15 @@ npars = size(out,1);
 out = reshape(out,npars,[]);
 n_abm_vecs = size(out,2);
 
-I = randsample(n_abm_vecs,nsamps,false);
+if isempty(opts.abm_vec_inds)
+    I = randsample(n_abm_vecs,nsamps,false);
+else
+    opts.abm_vec_inds(opts.abm_vec_inds>n_abm_vecs) = []; % do not keep any indices that exceed the number of abm parameter vectors
+    nsamps = min(nsamps,numel(opts.abm_vec_inds)); % limit the number of samples to those selected in options
+    I = randsample(opts.abm_vec_inds,nsamps,false);
+end
+I = unique(I);
+nsamps = numel(I);
 threshold = chi2inv(0.95,npars);
 f = figure;
 ax = gobjects(nsamps,npars);
@@ -34,4 +47,12 @@ end
 
 for i = 1:nsamps
     ylabel(ax(i,1),sprintf("#%d",I(i)),"FontWeight","bold")
+end
+
+end
+
+function default_options = defaultTestProfileSMFromABMOptions
+
+default_options.abm_vec_inds = []; % sample from these ABM vecs (empty ==> sample from all)
+
 end
