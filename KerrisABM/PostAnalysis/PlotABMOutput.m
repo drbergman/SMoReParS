@@ -8,10 +8,12 @@
 
 clearvars;
 
-save_figure = true;
+save_fig_opts.save_figs = true;
+save_fig_opts.file_types = ["fig","png"];
+save_fig_opts.fig_names = "ABMOutput";
 plot_patches = false;
 
-load("summary.mat","D","*par*","t")
+load("data/summary.mat","D","*par*","t")
 Last = sliceof(arrayify(D,"A",1),1,length(t));
 Last = squeeze(Last);
 insensitivity = cell(4,1);
@@ -53,7 +55,7 @@ for ri = 1:nr
             for j = 1:size(D,3)
                 a = D(1,i,j,ri,ci).A;
                 if plot_patches
-                    s = D(1,i,j,ri,ci).S;
+                    s = D(1,i,j,ri,ci).S; %#ok<UNRCH>
                     patch(ax(ri,ci),[t,flip(t)],[a-s;flip(a+s)],colors(j,:),"EdgeColor","none","FaceAlpha",0.2)
                 end
                 plot(ax(ri,ci),t,a,"Color",colors(j,:),"LineStyle",lsty{i},"LineWidth",line_width)
@@ -94,12 +96,5 @@ f.Units = "pixels";
 f.Position = [0 0 1474 875];
 
 %% save the figure
-if save_figure
-
-    savefig(f,"ABMOutput")
-    print(f,"ABMOutput","-dpng")
-
-
-end
-
+saveFigures(f,save_fig_opts)
 

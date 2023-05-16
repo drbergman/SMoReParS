@@ -20,7 +20,7 @@ if nargin<7 || isempty(time_series_names)
 end
 
 P = reshape(P,size(P,1),[]);
-I = randperm(size(P,2),nsamps);
+I = sort(randperm(size(P,2),nsamps));
 
 f = gobjects(2,1);
 %% these will be filled out as new cases are covered with this

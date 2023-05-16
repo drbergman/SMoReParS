@@ -1,10 +1,23 @@
-function p = basePars()
+function p = basePars(model_type)
 
-% this loads up what I will consider the base parameter values for the SM
-% This SM is given by x' = alpha * x^theta - beta * x
 
-p = zeros(3,1);
+switch model_type
+    case "logistic"
+        % This load the base logistic parameters for x' = r * x * (1-x/K)
+        p = zeros(2,1);
+        p(1) = 1; % r
+        p(2) = 1e4; % K
 
-p(1) = 102; % alpha
-p(2) = 2; % nu (theta = 1 - 1/nu) (this allows nu to be on the open interval (0,inf) which hopefully helps with optimization)
-p(3) = 100; % beta
+    case "von_bertalanffy"
+        % this loads up what I will consider the base parameter values for the SM
+        % This SM is given by x' = alpha * x^theta - beta * x
+
+        p = zeros(3,1);
+
+        p(1) = 102; % alpha
+        p(2) = 2; % nu (theta = 1 - 1/nu) (this allows nu to be on the open interval (0,inf) which hopefully helps with optimization)
+        p(3) = 100; % beta
+
+    otherwise
+        error("%s is an unspecified SM model.\n",model_type);
+end

@@ -3,29 +3,28 @@
 
 clearvars;
 
-save_figs = true;
+fn = @computeTimeSeries;
+fn_opts.model_type = "von_bertalanffy";
+
+save_fig_opts.save_figs = true;
+save_fig_opts.file_types = ["fig","png"];
+
+fig_names_spec = ["SampleFitsOfSMToABM_%s","BestSMParameterDistributions_%s"];
+for i = numel(fig_names_spec):-1:1
+    save_fig_opts.fig_names(i) = sprintf(fig_names_spec(i),fn_opts.model_type);
+end
 
 addpath("~/Documents/MATLAB/myfunctions/")
 addpath("../../ODEFittingFns/")
 
+
 par_names = ["\alpha","\nu","\beta"];
 
 nsamps = 36;
-par_file = "data/OptimalParameters.mat";
-data_file = "../PostAnalysis/summary.mat";
+par_file = sprintf("data/OptimalParameters_%s.mat",fn_opts.model_type);
+data_file = "../PostAnalysis/data/summary.mat";
 
-fn = @computeTimeSeries;
 
-f = testSMFitToABM(par_file,data_file,nsamps,fn,[],par_names);
+f = testSMFitToABM(par_file,data_file,nsamps,fn,fn_opts,par_names);
 
-if save_figs
-    fig_names = ["SampleFitsOfSMToABM","BestSMParameterDistributions"];
-    for i = 1:numel(f)
-        if isempty(f(i).Name)
-            f(i).Name = fig_names(i);
-        end
-        savefig(f(i),sprintf("figures/fig/%s",f(i).Name))
-        print(f(i),sprintf("figures/png/%s",f(i).Name),"-dpng")
-    end
-end
-
+saveFigures(f,save_fig_opts)
