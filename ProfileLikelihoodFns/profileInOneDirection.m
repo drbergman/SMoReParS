@@ -18,10 +18,12 @@ function [profile,pbest,val_at_center] = profileInOneDirection(profile,F,pbest,v
 
 npars = numel(pbest);
 if dir==-1
-    par_exceeds_extremum = @(p) p < profile_params.para_ranges(i,1);
+    par_extremum = profile_params.para_ranges(i,1);
+    par_exceeds_extremum = @(p) p < par_extremum;
     update_dxi = @(p,dxi) dxi*profile_params.shrinking_factor^(ceil(log((p-profile_params.para_ranges(i,1))/dxi)/log(profile_params.shrinking_factor))); % if the step takes us below the lower threshold (usuallly 0), then take a smaller step (for the larger threshold, I have better reason to not let that grow too much)
 else
-    par_exceeds_extremum = @(p) p > profile_params.para_ranges(i,2);
+    par_extremum = profile_params.para_ranges(i,2);
+    par_exceeds_extremum = @(p) p > par_extremum;
     update_dxi = @(p,dxi) dxi*profile_params.shrinking_factor^(ceil(log((profile_params.para_ranges(i,2)-p)/dxi)/log(profile_params.shrinking_factor))); % if the step takes us below the lower threshold (usuallly 0), then take a smaller step (for the larger threshold, I have better reason to not let that grow too much)
 end
 
@@ -85,10 +87,13 @@ last_val = first_vals(end);
 j = 0;
 max_allowable_step = Inf;
 while true
+    if x0(i)==par_extremum
+        break; % already reached end of profile previously
+    end
     if par_exceeds_extremum(x0(i) + dir*dxi)
         dxi = update_dxi(x0(i),dxi);
         if dxi < profile_params.smallest_par_step(i)
-            break;
+            dxi = abs(par_extremum - x0(i)); % force it to step exactly onto boundary
         end
     end
     x0_new = x0;

@@ -85,7 +85,7 @@ cohort_size = cohort.cohort_size(setdiff(1:ndims(D),condition_dim));
 D = permute(D,[condition_dim,cohort_size]);
 
 n_time_series = size(D(1).A,2);
-save(sprintf("../../data/%s/summary_new.mat",cohort_name),"D","t","C","cohort_size","nsamps_per_parameter_vector","n_conditions","vals","n_time_series","-v7.3")
+save(sprintf("../../data/%s/summary_new.mat",cohort_name),"D","t","C","cohort_size","nsamps_per_parameter_vector","n_conditions","vals","n_time_series","condition_dim","-v7.3")
 
 
 % %% old code

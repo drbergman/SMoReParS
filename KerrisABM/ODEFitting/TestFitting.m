@@ -6,7 +6,7 @@ clearvars;
 fn = @computeTimeSeries;
 fn_opts.model_type = "von_bertalanffy";
 
-save_fig_opts.save_figs = true;
+save_fig_opts.save_figs = false;
 save_fig_opts.file_types = ["fig","png"];
 
 fig_names_spec = ["SampleFitsOfSMToABM_%s","BestSMParameterDistributions_%s"];
