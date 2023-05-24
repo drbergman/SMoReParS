@@ -16,6 +16,9 @@ I = randi(size(ids,1));
 
 for i = nsamps_per_parameter_vector:-1:1
     S = load(sprintf("../../data/sims/%s/output_final.mat",ids(I,i)));
+    if size(S.tracked.phases,2)>4
+        error("Not sure how we will count the arrested compartment in this.")
+    end
     phase_count(:,:,:,i) = reshape(S.tracked.phases,[],2,2);
 end
 

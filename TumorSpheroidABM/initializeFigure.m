@@ -187,7 +187,7 @@ M.fig.ax(subpop_ind).XLim = xx;
 M.fig.ax(subpop_ind).YLim = [0 1];
 M.fig.ax(subpop_ind).Color = [0 0 0];
 
-for i = 1:4
+for i = 1:M.cycle.n_phases
     M.fig.subpop_plots(i) = plot(M.t,M.tracked.phases(1,i)/M.NT,'Color',phase_colors(i,:),'LineStyle','-','LineWidth',2,'DisplayName',phase_names(i));
 end
 

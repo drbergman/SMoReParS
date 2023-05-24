@@ -45,7 +45,7 @@ M.fig.population_plots(1).XData(end+1) = M.t;
 M.fig.population_plots(1).YData(end+1) = M.NT;
 
 %% subpopulations proportion plot
-for i = 1:4
+for i = 1:M.cycle.n_phases
     M.fig.subpop_plots(i).XData(end+1) = M.t;
     M.fig.subpop_plots(i).YData(end+1) = M.tracked.phases(M.i,i)/(M.NT);
 end

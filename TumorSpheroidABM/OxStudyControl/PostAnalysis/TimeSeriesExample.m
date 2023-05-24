@@ -17,11 +17,11 @@ f=figure;
 ax = gca;
 hold on;
 t = zeros(289,nsamps_per_condition);
-N = zeros(289,nsamps_per_condition,4);
+N = zeros(289,nsamps_per_condition,4); % may need to change this once the arrested compartment is finalized
 for si = 1:nsamps_per_condition
     T(si) = load(sprintf("../../data/sims/%s/output_final.mat",ids(I,si)),"tracked");
     t(:,si) = T(si).tracked.t;
-    N(:,si,:) = T(si).tracked.phases;
+    N(:,si,:) = T(si).tracked.phases; 
 end
 
 colors = lines(4);

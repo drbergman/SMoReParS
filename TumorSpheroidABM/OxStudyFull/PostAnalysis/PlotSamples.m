@@ -1,26 +1,26 @@
 clearvars;
 
-addpath("..")
+addpath("../..")
 addpath("~/Documents/MATLAB/myfunctions/")
-cohort_id = "cohort_2303221446";
+cohort_id = "cohort_2305241543";
 
-load(sprintf("../data/%s/output.mat",cohort_id),"ids","lattice_parameters","nsamps_per_condition")
+load(sprintf("../../data/%s/output.mat",cohort_id),"ids","lattice_parameters","nsamps_per_condition")
 
 ncohorts = numel(ids)/nsamps_per_condition;
-npars = numel(lattice_parameters);
+npars = max(1,numel(lattice_parameters));
 x=(1:ncohorts)';
 val_color = lines(max(size(ids,1:npars)));
 
-figure;
-ax = gobjects(npars,5);
-for i = 1:5
+figureOnRight;
+ax = gobjects(npars,6);
+for i = 1:6
     for j = 1:npars
-        ax(j,i) = subplot(npars,5,r2c(npars,5,[j,i]),"NextPlot","add");
+        ax(j,i) = subplot(npars,6,r2c(npars,6,[j,i]),"NextPlot","add");
     end
 end
 
 cycle = buildCycle();
-S_max = 40;
+S_max = 60;
 
 for j = 1:npars
     l_temp = gobjects(size(ids,j),S_max,4);
@@ -32,11 +32,14 @@ for j = 1:npars
         for l = 1:S
 
             [color_ind,~] = ind2sub([ncohorts,nsamps_per_condition],i);
-            load(sprintf("../data/sims/%s/output_final.mat",id_temp(l)),"tracked")
-            load(sprintf("../data/sims/%s/output_constants.mat",id_temp(l)))
-            for m = 1:4
+            load(sprintf("../../data/sims/%s/output_final.mat",id_temp(l)),"tracked")
+            n_phases = size(tracked.phases,2);
+            load(sprintf("../../data/sims/%s/output_constants.mat",id_temp(l)))
+            for m = 1:n_phases
                 l_temp(k,l,m) = plot(ax(j,m),tracked.t,tracked.phases(:,m),'Color',[val_color(k,:),0.2]);
-                l_temp(k,l,m).DisplayName = sprintf("%3.2f",lattice_parameters(j).values(k));
+                if ~isempty(lattice_parameters)
+                    l_temp(k,l,m).DisplayName = sprintf("%3.2f",lattice_parameters(j).values(k));
+                end
                 if l==1
                     if j==1
                         switch m
@@ -48,9 +51,11 @@ for j = 1:npars
                                 title(ax(j,m),"G2")
                             case cycle.m
                                 title(ax(j,m),"M")
+                            case cycle.arrest
+                                title(ax(j,m),"Arrested")
                         end
                     end
-                    if m==1 && k==size(ids,j)
+                    if m==1 && k==size(ids,j) && ~isempty(lattice_parameters)
                         if iscell(lattice_parameters(j).path)
                             ylabel(ax(j,m),regexprep(lattice_parameters(j).path{1}(end),"_"," "))
                         else
@@ -60,9 +65,9 @@ for j = 1:npars
                     end
                 end
             end
-            plot(ax(j,5),tracked.t,sum(tracked.phases,2),'Color',[val_color(k,:),0.2]);
+            plot(ax(j,n_phases+1),tracked.t,sum(tracked.phases,2),'Color',[val_color(k,:),0.2]);
             if l==1 && j==1
-                title(ax(j,5),"Total")
+                title(ax(j,n_phases+1),"Total")
             end
         end
     end
@@ -72,4 +77,4 @@ for m = 1:4
 normalizeYLims(ax(:,m))
 end
 
-rmpath("..")
+rmpath("../..")

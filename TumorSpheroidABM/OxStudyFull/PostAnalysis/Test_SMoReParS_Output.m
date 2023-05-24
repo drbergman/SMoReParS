@@ -16,6 +16,9 @@ nt = length(t);
 
 %%
 count = reshape(count,[nt,size(C.ids)]);
+if size(S.tracked.phases,2)>4
+    error("Not sure how we will count the arrested compartment in this.")
+end
 phase_count = reshape(phase_count,[nt,4,size(C.ids)]);
 
 %%

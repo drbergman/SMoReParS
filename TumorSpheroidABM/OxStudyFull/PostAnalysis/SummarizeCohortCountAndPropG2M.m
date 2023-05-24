@@ -18,6 +18,9 @@ C = mat2cell(cohort.lattice_parameters(condition_dim).values,[1 1 1]);
 %% load tracked data and concatenate
 for i = numel(cohort.ids):-1:1
     S = load(sprintf("../../data/sims/%s/output_final.mat",cohort.ids(i)));
+    if size(S.tracked.phases,2)>4
+        error("Not sure how we will count the arrested compartment in this.")
+    end
     phase_count(:,:,:,i) = reshape(S.tracked.phases,[],2,2);
 end
 

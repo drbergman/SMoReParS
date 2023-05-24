@@ -1,9 +1,9 @@
 clearvars;
 
-addpath("..")
-cohort_id = "cohort_221215122756612";
+addpath("../..")
+cohort_id = "cohort_2305241433";
 
-load(sprintf("../data/%s/output.mat",cohort_id),"ids","lattice_parameters")
+load(sprintf("../../data/%s/output.mat",cohort_id),"ids","lattice_parameters")
 
 ncohorts = numel(ids)/size(ids,ndims(ids));
 x=(1:ncohorts)';
@@ -20,8 +20,8 @@ val = buildLatticeVals();
 
 for i = 1:numel(ids)
     [color_ind,~] = ind2sub([ncohorts,nsamps],i);
-    load(sprintf("../data/sims/%s/output_final.mat",ids(i)),"tracked")
-    load(sprintf("../data/sims/%s/output_constants.mat",ids(i)))
+    load(sprintf("../../data/sims/%s/output_final.mat",ids(i)),"tracked")
+    load(sprintf("../../data/sims/%s/output_constants.mat",ids(i)))
     for j = 1:3
         plot(ax(j),tracked.t,tracked.phase_cell_days(:,j) / (tracked.t(2)-tracked.t(1)),'Color',colors(color_ind,:))
         if i==1
@@ -37,3 +37,5 @@ for i = 1:numel(ids)
     end
 end
 normalizeYLims(ax)
+
+rmpath("../..")

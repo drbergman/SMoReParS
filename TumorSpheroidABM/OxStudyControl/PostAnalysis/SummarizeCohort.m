@@ -14,6 +14,9 @@ vals = {lattice_parameters.values};
 %%
 for i = numel(ids):-1:1
     S = load(sprintf("../../data/sims/%s/output_final.mat",ids(i)));
+    if size(S.tracked.phases,2)>4
+        error("Not sure how we will count the arrested compartment in this.")
+    end
     phase_count(:,:,:,i) = reshape(S.tracked.phases,[],2,2);
 end
 

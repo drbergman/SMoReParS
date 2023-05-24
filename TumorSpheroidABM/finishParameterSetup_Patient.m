@@ -5,7 +5,7 @@ if M.setup.use_carrying_capacity_for_grid_size
     M.setup.grid_size_microns_x = ceil(nthroot(K,M.setup.ndims));
     M.setup.grid_size_microns_y = ceil(nthroot(K/M.setup.grid_size_microns_x,M.setup.ndims-1));
     if M.setup.ndims==3
-        M.setup.grid_size_microns_z = ceil(K/(M.setup.grid_size_microns_x*M.setup.grid_size_microns_x));
+        M.setup.grid_size_microns_z = ceil(K/(M.setup.grid_size_microns_x*M.setup.grid_size_microns_y));
     end
 end
 
@@ -69,13 +69,20 @@ M.cycle = buildCycle();
 
 %% cycle stuff
 phase_names = fieldnames(M.cycle);
-n_phases = length(phase_names); % number of phases included in current model
+M.cycle.n_phases = length(phase_names); % number of phases included in current model
 
-M.chemo_pars.dna_check = false(1,n_phases);
-M.chemo_pars.arrest_prob = zeros(1,n_phases);
-for i = 1:n_phases
+M.chemo_pars.dna_check = false(1,M.cycle.n_phases);
+M.chemo_pars.arrest_prob = zeros(1,M.cycle.n_phases);
+for i = 1:M.cycle.n_phases
     M.chemo_pars.dna_check(M.cycle.(phase_names{i})) = M.chemo_pars.(sprintf("dna_check_%s",phase_names{i}));
-    M.chemo_pars.arrest_prob(M.cycle.(phase_names{i})) = M.chemo_pars.(sprintf("arrest_coeff_%s",phase_names{i})) * M.chemo_pars.concentration;
+    switch M.chemo_pars.arrest_function
+        case "linear"
+            M.chemo_pars.arrest_prob(M.cycle.(phase_names{i})) = M.chemo_pars.(sprintf("arrest_coeff_%s",phase_names{i})) * M.chemo_pars.concentration;
+        case "hill"
+            M.chemo_pars.arrest_prob(M.cycle.(phase_names{i})) = M.chemo_pars.(sprintf("arrest_coeff_%s",phase_names{i})) * M.chemo_pars.concentration / (M.chemo_pars.arrest_ec50 + M.chemo_pars.concentration);
+        otherwise
+            error("%s is not a specified arrest function.\n",M.chemo_pars.arrest_function)
+    end
 end
 
 M.chemo_pars.dna_check = M.chemo_pars.dna_check & M.chemo_pars.arrest_prob > 0; % in case the check is on, but the probability is 0; will save on drawing random numbers in these cases

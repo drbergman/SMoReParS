@@ -1,9 +1,9 @@
 clearvars;
 
-addpath("..")
-cohort_id = "cohort_221214205852570";
+addpath("../..")
+cohort_id = "cohort_2305241433";
 
-load(sprintf("../data/%s/output.mat",cohort_id),"ids","lattice_parameters")
+load(sprintf("../../data/%s/output.mat",cohort_id),"ids","lattice_parameters")
 
 for ci = 1:3
     figure;
@@ -21,9 +21,11 @@ for ci = 1:3
         if i3~=ci
             continue;
         end
-        load(sprintf("../data/sims/%s/output_final.mat",ids(i)),"tracked")
-        load(sprintf("../data/sims/%s/output_constants.mat",ids(i)))
+        load(sprintf("../../data/sims/%s/output_final.mat",ids(i)),"tracked")
+        load(sprintf("../../data/sims/%s/output_constants.mat",ids(i)))
         plot(ax(i1,i2),tracked.t,tracked.phase_cell_days(:,val.phase_m))
     end
     normalizeYLims(ax)
 end
+
+rmpath("../..")

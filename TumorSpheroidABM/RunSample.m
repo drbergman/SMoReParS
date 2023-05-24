@@ -11,9 +11,6 @@ M.setup.censor_date = 30;
 M.setup.N0 = 1e2;
 M.setup.agent_initialization_location = "uniform";
 M.setup.carrying_capacity = 1000;
-M.setup.grid_size_microns_x = 2000;
-M.setup.grid_size_microns_y = 2000;
-M.setup.grid_size_microns_z = 2000;
 M.setup.use_rates_for_intitial_proportions = false;
 
 M.save_pars.make_save = false;
