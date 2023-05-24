@@ -27,12 +27,15 @@ function out = performProfile(files,objfn_constants,profile_params,input_opts)
 %   threshold: chi2inv value for profile
 %   secondary_step_factor: factor to increase an SM parameter step size when beginning Stage 2
 %   step_growth_factor: factor to increase step size in Stage 2 after successfully extending profile
-% input_opts (optional): struct with fields
+% input_opts (optional): struct with (all optional) fields 
 %   force_serial=true: logical to force serial computation of profiles
 %   save_all_pars=true: logical to control whether to save all parameter values (true) or only the current profile parameter and goodness-of-fit value (false)
 %   save_every_iter=Inf: how often (based on iterations) to save profile throughout (protects against errors and workers crashing)
 %   save_every_sec=Inf: how often (based on seconds passed) to save profile throughout (protects against errors and workers crashing)
 %   temp_profile_name: how often to save profile throughout (protects against errors and workers crashing)
+%   profile_likelihood_options: a structure of options to be passed in to profileLikelihood.m with (all optional) fields
+%       save_all_pars=true: logical to control whether to save all parameter values (true) or only the current profile parameter and goodness-of-fit value (false)
+%       raw_error_opts=[]: if not empty, then a struct of options to be used in rawError.m
 
 opts = defaultPerformProfileOptions;
 if nargin==4 && ~isempty(input_opts)
@@ -87,7 +90,7 @@ if ~opts.force_serial
         current_ind = ind_to_run(i);
         d = D(:,current_ind);
         p = P(:,current_ind);
-        FF(i) = parfeval(ppool,@() profileLikelihood(p,t,d,C,objfn_constants,profile_params,opts.save_all_pars),1);
+        FF(i) = parfeval(ppool,@() profileLikelihood(p,t,d,C,objfn_constants,profile_params,opts.profile_likelihood_options),1);
     end
     fprintf("FevalQueue finished.\n")
     %% fetch profiles performed in parallel
@@ -112,7 +115,7 @@ else
         current_ind = ind_to_run(i);
         d = D(:,current_ind);
         p = P(:,current_ind);
-        out(:,current_ind) = profileLikelihood(p,t,d,C,objfn_constants,profile_params,opts.save_all_pars);
+        out(:,current_ind) = profileLikelihood(p,t,d,C,objfn_constants,profile_params,opts.profile_likelihood_options);
         if mod(i,ceil(0.001*num_to_run))==0
             temp = toc(t_start);    
             fprintf("Finished %d of %d after %s. ETR: %s\n",i,num_to_run,duration(0,0,temp),duration(0,0,temp/i * (num_to_run-i)))
@@ -131,7 +134,6 @@ end
 function default_options = defaultPerformProfileOptions
 
 default_options.force_serial = true;
-default_options.save_all_pars = true;
 default_options.save_every_iter = Inf; % how often (based on iterations) to save profile throughout (protects against errors and workers crashing)
 default_options.save_every_sec = Inf; % how often (based on seconds passed) to save profile throughout (protects against errors and workers crashing)
 
@@ -139,5 +141,6 @@ temp_profile_name_format_spec = "data/temp_profile_%02d";
 num = next_version_number(temp_profile_name_format_spec);
 default_options.temp_profile_name = sprintf(temp_profile_name_format_spec,num); % how often to save profile throughout (protects against errors and workers crashing)
 
+default_options.profile_likelihood_options.save_all_pars = true;
 
 end

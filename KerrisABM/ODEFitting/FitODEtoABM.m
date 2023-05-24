@@ -2,7 +2,9 @@
 % vector. 
 
 clearvars;
-profile_opts.force_serial = true;
+opts.force_serial = true;
+opts.raw_error_opts.resample = true;
+opts.raw_error_opts.t = 15:15:75;
 
 addpath("../../ODEFittingFns/")
 
@@ -18,7 +20,7 @@ p = basePars(fn_opts.model_type);
 switch fn_opts.model_type
     case "logistic"
         lb = [0;0];
-        ub = [100;1e6];
+        ub = [1;1e6];
     case "von_bertalanffy"
         lb = [0;1;0];
         ub = [100;Inf;100];
@@ -29,7 +31,7 @@ npars = numel(p);
 %% load ABM data
 data_file = "../PostAnalysis/data/summary.mat";
 
-P = optimizeSMParsFromABM(data_file,p,fn,fn_opts,lb,ub,optim_opts,1,profile_opts);
+P = optimizeSMParsFromABM(data_file,p,fn,fn_opts,lb,ub,optim_opts,1,opts);
 
 save(sprintf("data/OptimalParameters_%s.mat",fn_opts.model_type),"P")
 

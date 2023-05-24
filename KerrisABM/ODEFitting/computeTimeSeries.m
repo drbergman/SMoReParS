@@ -7,7 +7,7 @@ switch fn_opts.model_type
         % K = p(2);
         % out = y0*p(2)./((p(2)-y0).*exp(-p(1).*tt')+y0);
         out = 100*p(2)./((p(2)-100).*exp(-p(1).*tt')+100);
-        out(1) = 100; % just make sure the initial value is exactly 100
+        out(tt==0) = 100; % just make sure the initial value is exactly 100
 
     case "von_bertalanffy"
 
@@ -17,7 +17,8 @@ switch fn_opts.model_type
         end
         p(2) = 1 - 1/p(2); % p(2) is nu coming in and theta going forward
         opts = odeset("NonNegative",1);
-        [~,out] = ode45(@(t,x) odefn(x,p),tt,100,opts);
+        sol = ode45(@(t,x) odefn(x,p),[0 tt(end)],100,opts);
+        out = deval(sol,tt)';
 
         if any(isnan(out))
             out(isnan(out)) = -1e6; % something really different from whatever data I'm comparing it to so that it gets heavily penalized for getting NaN
