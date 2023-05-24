@@ -9,3 +9,4 @@ M.tracked.tum_apop = 0;
 M.tracked.tum_prolif = 0;
 M.tracked.tum_contact_inhibition = 0;
 M.tracked.chemo_arrest = 0;
+M.tracked.arrest_recovery = 0;

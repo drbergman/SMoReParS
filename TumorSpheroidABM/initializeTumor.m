@@ -44,12 +44,13 @@ switch M.setup.agent_initialization_location
 
 end
 
-%% set event and phase
+%% set event and arrest state
 M.tumor(:,M.I.event) = 0; % event index
+M.tumor(:,M.I.is_arrested) = false;
 
 %% set phase
 if M.setup.use_rates_for_intitial_proportions
-    p = 1./M.cycle_pars.transition_rates;
+    p = 1./M.cycle_pars.transition_rates([M.cycle.g1,M.cycle.s,M.cycle.g2,M.cycle.m]); % assume cells only start in these 4 phases, not an arrested phase
     p = p/sum(p);
 else
     p = [0.5708,0.3292,0.0805,0.0195]; % use these probabilities so that we start with 90% in G1/S and 10% in G2/M according to data

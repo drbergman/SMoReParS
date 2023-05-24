@@ -12,9 +12,16 @@ for ord_ind=1:length(in.active_ind)
             phase = M.tumor(j,M.I.phase);
             if phase==M.cycle.m % then this cell proliferates
                 if M.chemo_pars.dna_check(M.cycle.m) && rand() < M.chemo_pars.arrest_prob(M.cycle.m)
-                    M.tumor(j,M.I.event) = 2; % mark the cell for apoptosis
+                    if M.flags.arrest_is_death % the cell dies
+                        M.tumor(j,M.I.event) = 2; % mark the cell for apoptosis
+                        in = stopFutureEvents(in,j,ord_ind);
+                    else % the cell becomes arrested
+                        M.tumor(j,[M.I.phase,M.I.is_arrested]) = [M.cycle.arrest,true];
+                        if M.pars.move_rate~=0 % the cell can undergo apoptosis from the arrested state
+                            in = stopFutureMoveEvents(in,j,ord_ind);
+                        end
+                    end
                     M.tracked.chemo_arrest(M.i) = M.tracked.chemo_arrest(M.i)+1;
-                    in = stopFutureEvents(in,j,ord_ind);
                     continue;
                 end
 
@@ -62,11 +69,21 @@ for ord_ind=1:length(in.active_ind)
             else % then it just moves along the transition path
                 
                 if M.chemo_pars.dna_check(phase) && rand() <  M.chemo_pars.arrest_prob(phase)
-                    M.tumor(j,M.I.event) = 2; % mark the cell for apoptosis
+                    if M.flags.arrest_is_death % the cell dies
+                        M.tumor(j,M.I.event) = 2; % mark the cell for apoptosis
+                        in = stopFutureEvents(in,j,ord_ind);
+                    else % the cell becomes arrested
+                        M.tumor(j,[M.I.phase,M.I.is_arrested]) = [M.cycle.arrest,true];
+                        if M.pars.move_rate~=0 % the cell can undergo apoptosis from the arrested state
+                            in = stopFutureMoveEvents(in,j,ord_ind);
+                        end
+                    end
                     M.tracked.chemo_arrest(M.i) = M.tracked.chemo_arrest(M.i)+1;
-                    in = stopFutureEvents(in,j,ord_ind);
                 else
-                    M.tumor(j,M.I.phase) = M.cycle.advancer(M.tumor(j,M.I.phase));
+                    if M.tumor(j,M.I.is_arrested)==true
+                        M.tracked.arrest_recovery(M.i) = M.tracked.arrest_recovery(M.i)+1;
+                    end
+                    M.tumor(j,[M.I.phase,M.I.is_arrested]) = [M.cycle.advancer(M.tumor(j,M.I.phase)),false];
                 end
             end
 
@@ -108,4 +125,8 @@ end
 
 function in = stopFutureEvents(in,j,ord_ind)
 in.events(ord_ind + find(in.active_ind(ord_ind+1:end)==j)) = 4;
+end
+
+function in = stopFutureMoveEvents(in,j,ord_ind)
+in.events(ord_ind + find(in.active_ind(ord_ind+1:end)==j & in.events(ord_ind+1:end)==3)) = 4;
 end
