@@ -5,11 +5,11 @@ is_cleaned = false;
 
 addpath("../../ProfileLikelihoodFns/")
 
-model_type = "von_bertalanffy";
+model_type = "logistic";
 
 save_fig_opts.save_figs = true;
 save_fig_opts.file_types = ["fig","png"];
-save_fig_opts.fig_names = sprintf("SampleProfilesOfSMFromABM_%s",model_type);
+save_fig_opts.fig_names = "SampleProfilesOfSMFromABM_" + model_type;
 
 switch model_type
     case "logistic"

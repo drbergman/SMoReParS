@@ -15,6 +15,9 @@ data_file = "../PostAnalysis/data/summary.mat";
 
 fn = @computeTimeSeries;
 
+raw_error_opts.resample = true;
+raw_error_opts.t = 15:15:75;
+
 
 n_models = numel(model_types);
 load(data_file,"t","D","C","cohort_size")
@@ -25,7 +28,7 @@ for i = 1:n_models
     P = reshape(P,size(P,1),[]);
     fn_opts.model_type = model_types(i);
     for j = 1:size(P,2)
-        AIC(i,j) = rawError(P(:,j),t,D(j),fn,C{1},fn_opts) + 2*size(P,1);
+        AIC(i,j) = rawError(P(:,j),t,D(j),fn,C{1},fn_opts,raw_error_opts) + 2*size(P,1);
     end
 
 end

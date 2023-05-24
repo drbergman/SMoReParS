@@ -5,7 +5,7 @@ switch model_type
     case "logistic"
         % This load the base logistic parameters for x' = r * x * (1-x/K)
         p = zeros(2,1);
-        p(1) = 1; % r
+        p(1) = 1e-2; % r
         p(2) = 1e4; % K
 
     case "von_bertalanffy"

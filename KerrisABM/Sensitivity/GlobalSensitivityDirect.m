@@ -6,7 +6,7 @@ clearvars;
 %% identify the data
 f = dir("data/sims/*/Number*.txt");
 load("data/MOATLHSSample.mat","points"); % points at which the MOAT samples were taken
-load("../PostAnalysis/summary.mat","display_par_names")
+load("../PostAnalysis/data/summary.mat","display_par_names")
 
 %% process points
 nfacs = size(points,2);
@@ -49,7 +49,7 @@ sigma = std(abs(ee),[],2);
 sigma = sigma(order);
 ordered_par_names = display_par_names(order);
 
-save("data/GlobalSensitivityDirect","mu_star","sigma","ordered_par_names","npoints");
+% save("data/GlobalSensitivityDirect","mu_star","sigma","ordered_par_names","npoints");
 
 
 

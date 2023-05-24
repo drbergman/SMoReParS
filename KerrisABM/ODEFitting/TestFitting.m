@@ -4,9 +4,10 @@
 clearvars;
 
 fn = @computeTimeSeries;
-fn_opts.model_type = "von_bertalanffy";
+% fn_opts.model_type = "von_bertalanffy";
+fn_opts.model_type = "logistic";
 
-save_fig_opts.save_figs = false;
+save_fig_opts.save_figs = true;
 save_fig_opts.file_types = ["fig","png"];
 
 fig_names_spec = ["SampleFitsOfSMToABM_%s","BestSMParameterDistributions_%s"];
@@ -17,8 +18,12 @@ end
 addpath("~/Documents/MATLAB/myfunctions/")
 addpath("../../ODEFittingFns/")
 
-
-par_names = ["\alpha","\nu","\beta"];
+switch fn_opts.model_type
+    case "logistic"
+        par_names = ["r","K"];
+    case "von_bertalanffy"
+        par_names = ["\alpha","\nu","\beta"];
+end
 
 nsamps = 36;
 par_file = sprintf("data/OptimalParameters_%s.mat",fn_opts.model_type);

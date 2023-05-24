@@ -1,4 +1,4 @@
-function out = profileLikelihood(pbest,t,D,C,objfn_constants,profile_params,save_all_pars)
+function out = profileLikelihood(pbest,t,D,C,objfn_constants,profile_params,input_opts)
 
 % profiles each parameter in pbest. pbest is the best fit at the point. the
 % time series to compare against is given in tt, data, and data_std.
@@ -16,11 +16,16 @@ function out = profileLikelihood(pbest,t,D,C,objfn_constants,profile_params,save
 % will not assume that the pbest came from the same objective function as
 % we are using here
 
+opts = defaultProfileLikelihoodOptions;
+if nargin > 6 && ~isempty(input_opts)
+    opts = overrideDefaultOptions(opts,input_opts);
+end
+
 m = numel(D); % number of conditions used
 
 % F = @(p) arrayfun(@(j) rawError([p(1:5);objfn_constants.hill_coefficient;p(6)],t,squeeze(D(:,j,:)),squeeze(S(:,j,:)),objfn_constants.fn,objfn_constants.doses(j),objfn_constants.fn_opts),1:3)*objfn_constants.weights; % leave this here for now to remember the form of this function for the OxStudyFull 
 F = @(p) arrayfun(@(j) rawError(objfn_constants.p_setup_fn(p),t,...
-    D(j),objfn_constants.fn,C{j},objfn_constants.fn_opts),1:m)*objfn_constants.weights;
+    D(j),objfn_constants.fn,C{j},objfn_constants.fn_opts,opts.raw_error_opts),1:m)*objfn_constants.weights;
 
 %% make sure pbest is best
 [pbest,val_at_center] = fmincon(F,pbest,profile_params.A,profile_params.b,[],[],profile_params.lb,profile_params.ub,[],profile_params.opts);
@@ -29,7 +34,7 @@ npars = numel(pbest);
 
 out = cell(npars,1);
 for i = 1:npars
-    if save_all_pars
+    if opts.save_all_pars
         out{i} = [pbest;val_at_center];
         par_ind = i;
     else
@@ -37,8 +42,17 @@ for i = 1:npars
         par_ind = 1;
     end
     for dir = [-1,1] % move left and right along this parameter dimension
-        [out{i},pbest,val_at_center] = profileInOneDirection(out{i},F,pbest,val_at_center,i,dir,profile_params,save_all_pars);
+        [out{i},pbest,val_at_center] = profileInOneDirection(out{i},F,pbest,val_at_center,i,dir,profile_params,opts.save_all_pars);
     end
     [~,order] = sort(out{i}(par_ind,:),"ascend");
     out{i} = out{i}(:,order);
+end
+
+end
+
+function default_options = defaultProfileLikelihoodOptions
+
+default_options.save_all_pars = true;
+default_options.raw_error_opts = [];
+
 end

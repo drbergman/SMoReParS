@@ -30,6 +30,6 @@ end
 if ~exist("figures/png","dir")
     mkdir("figures/png")
 end
-savefig(sprintf("figures/fig/%s",filename))
-print(sprintf("figures/png/%s",filename),"-dpng")
+% savefig(sprintf("figures/fig/%s",filename))
+% print(sprintf("figures/png/%s",filename),"-dpng")
 

@@ -49,7 +49,7 @@ studied_function = @(x) moatSampleFromSM(x,display_par_names,BS,T,D,vals,nsamps,
 display_par_names = display_par_names(order);
 
 %% save result
-save(sprintf("data/GlobalSensitivityIndirect_%s_very_large_sample.mat",fn_opts.model_type),"mu_star","sigma","display_par_names","npoints")
+save(sprintf("data/GlobalSensitivityIndirect_%s_very_large.mat",fn_opts.model_type),"mu_star","sigma","display_par_names","npoints")
 
 %% clean path
 rmpath("../ODEFitting/")

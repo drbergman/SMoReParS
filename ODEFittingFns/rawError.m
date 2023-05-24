@@ -19,12 +19,25 @@ function out = rawError(p,tt,D,fn,C,fn_opts,input_opts)
 % options that do NOT vary within one call to the objective function, e.g.
 % options that specify the version of the SM
 
-sim_data = fn(p,tt,C,fn_opts,D.A);
-
 opts = defaultRawErrorOptions;
-if nargin>=7 && ~isempty(input_opts)
+if nargin>6 && ~isempty(input_opts)
     opts = overrideDefaultOptions(opts,input_opts);
 end
+
+if opts.resample
+    if opts.t(end) > tt(end)
+        warning("Sampled time values appear to go beyond observed time values: %3.2f > %3.2f.\n",opts.t(end),tt(end))
+    end
+    D.A = interp1(tt,D.A,reshape(opts.t,[],1));
+    if opts.assume_independent_time_series
+        D.S = interp1(tt,D.S,reshape(opts.t,[],1));
+    else
+        D.C = interp1(tt,D.C,reshape(opts.t,[],1));
+    end
+    tt = opts.t;
+end
+
+sim_data = fn(p,tt,C,fn_opts,D.A);
 
 if opts.assume_independent_time_series % no opts passed in or chose to do independent time series
     out = -sum(((sim_data - D.A)./D.S).^2,"all","omitnan");
@@ -50,5 +63,9 @@ function default_options = defaultRawErrorOptions
 default_options.assume_independent_time_series = true; % assume that the time series produced by the SM are independent (crazy, right? but it's what I had initially assumed, so this is the default value)
 default_options.only_use_z_scores = true; % whether to use the constant and SD terms from the LL for normal distributions, or (if false) just use the sum of z-scores
 default_options.report_as_error = true; % whether to report the value as an error for optimization purposes
+
+default_options.resample = false; % whether or not to resample output at different time points
+default_options.t = []; % time points to resample at
+
 
 end

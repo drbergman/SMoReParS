@@ -11,8 +11,10 @@ addpath("../../ProfileLikelihoodFns/")
 addpath("~/Documents/MATLAB/myfunctions/")
 addpath("../ODEFitting/")
 
-opts.save_all_pars = true;
 opts.force_serial = true;
+opts.profile_likelihood_options.save_all_pars = true;
+opts.profile_likelihood_options.raw_error_opts.resample = true;
+opts.profile_likelihood_options.raw_error_opts.t = 15:15:75;
 
 %% objfn_constants
 objfn_constants.fn = @computeTimeSeries;
@@ -45,10 +47,10 @@ switch objfn_constants.fn_opts.model_type
 
         % set bounds for optimizing when profiling the other parameters
         profile_params.lb = [0;0];
-        profile_params.ub = [100;1e6];
+        profile_params.ub = [1;1e6];
 
         % specify parameter ranges for bounds on profiling
-        profile_params.para_ranges = [0,100;     % r
+        profile_params.para_ranges = [0,1;     % r
             0,1e6];  % K
 
     case "von_bertalanffy"
