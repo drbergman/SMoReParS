@@ -51,7 +51,7 @@ for j = 1:npars
                                 title(ax(j,m),"G2")
                             case cycle.m
                                 title(ax(j,m),"M")
-                            case cycle.arrest
+                            case cycle.arrest_g1
                                 title(ax(j,m),"Arrested")
                         end
                     end

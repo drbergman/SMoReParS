@@ -7,7 +7,7 @@ M = allBaseParameters();
 
 %%
 M.setup.ndims = 2;
-M.setup.censor_date = 30;
+M.setup.censor_date = 3;
 M.setup.N0 = 1e2;
 M.setup.agent_initialization_location = "uniform";
 M.setup.carrying_capacity = 1000;
@@ -34,13 +34,19 @@ M.chemo_pars.dna_check_g1 = true;
 M.chemo_pars.dna_check_s = false;
 M.chemo_pars.dna_check_g2 = true;
 M.chemo_pars.dna_check_m = false;
-M.chemo_pars.dna_check_arrest = false;
+M.chemo_pars.dna_check_arrest_g1 = false;
+M.chemo_pars.dna_check_arrest_s = false;
+M.chemo_pars.dna_check_arrest_g2 = false;
+M.chemo_pars.dna_check_arrest_m = false;
 
 M.chemo_pars.arrest_coeff_g1 = 0.05;
 M.chemo_pars.arrest_coeff_s = 0.00;
 M.chemo_pars.arrest_coeff_g2 = 0.05;
 M.chemo_pars.arrest_coeff_m = 0.00;
-M.chemo_pars.arrest_coeff_arrest = 0.00;
+M.chemo_pars.arrest_coeff_arrest_g1 = 0.00;
+M.chemo_pars.arrest_coeff_arrest_s = 0.00;
+M.chemo_pars.arrest_coeff_arrest_g2 = 0.00;
+M.chemo_pars.arrest_coeff_arrest_m = 0.00;
 
 M.plot_pars.plot_fig = false;
 M.plot_pars.plot_location = true;

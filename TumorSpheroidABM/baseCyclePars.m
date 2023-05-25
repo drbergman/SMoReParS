@@ -7,4 +7,7 @@ cycle_pars.g2_to_m = 24/4;
 cycle_pars.m_to_g1 = 24/1;
 
 % transition from arrested state back into cell cycle in per day
-cycle_pars.arrest_to_g1 = 0.06;
+cycle_pars.arrest_g1_to_g1 = 0.06;
+cycle_pars.arrest_s_to_g1 = 0.06;
+cycle_pars.arrest_g2_to_g1 = 0.06;
+cycle_pars.arrest_m_to_g1 = 0.06;
