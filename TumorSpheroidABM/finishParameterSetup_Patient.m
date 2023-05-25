@@ -78,7 +78,8 @@ for i = 1:M.cycle.n_phases
         case "linear"
             M.chemo_pars.arrest_prob(M.cycle.(M.cycle.phase_names(i))) = M.chemo_pars.(sprintf("arrest_coeff_%s",M.cycle.phase_names(i))) * M.chemo_pars.concentration;
         case "hill"
-            M.chemo_pars.arrest_prob(M.cycle.(M.cycle.phase_names(i))) = M.chemo_pars.(sprintf("arrest_coeff_%s",M.cycle.phase_names(i))) * M.chemo_pars.concentration / (M.chemo_pars.arrest_g1_ec50 + M.chemo_pars.concentration);
+            M.chemo_pars.arrest_prob(M.cycle.(M.cycle.phase_names(i))) = M.chemo_pars.(sprintf("arrest_coeff_%s",M.cycle.phase_names(i))) * M.chemo_pars.concentration / (M.chemo_pars.("arrest_" + M.cycle.(M.cycle.phase_names(i)) + "_ec50") + M.chemo_pars.concentration);
+            % M.chemo_pars.arrest_prob(M.cycle.(M.cycle.phase_names(i))) = M.chemo_pars.(sprintf("arrest_coeff_%s",M.cycle.phase_names(i))) * M.chemo_pars.concentration / (M.chemo_pars.arrest_g1_ec50 + M.chemo_pars.concentration);
         otherwise
             error("%s is not a specified arrest function.\n",M.chemo_pars.arrest_function)
     end
@@ -89,5 +90,18 @@ M.chemo_pars.dna_check = M.chemo_pars.dna_check & M.chemo_pars.arrest_prob > 0; 
 M.cycle.advancer = [M.cycle.s,M.cycle.g2,M.cycle.m,M.cycle.g1,M.cycle.g1,M.cycle.g1,M.cycle.g1,M.cycle.g1]; % this gives the index of the next cycle (final four are for arrested compartments returning to g1)
 M.cycle_pars.transition_rates = [M.cycle_pars.g1_to_s,M.cycle_pars.s_to_g2,M.cycle_pars.g2_to_m,M.cycle_pars.m_to_g1,M.cycle_pars.arrest_g1_to_g1,M.cycle_pars.arrest_s_to_g1,M.cycle_pars.arrest_g2_to_g1,M.cycle_pars.arrest_m_to_g1];
 
+%% apoptosis rates
+switch M.chemo_pars.apoptosis_function
+    case "none" % arrested cells have no additional apoptosis rate
+        M.chemo_pars.apop_rate = 0;
+    case "constant" % arrested cells have additional apoptosis rate that is independent of the chemo concentration
+        M.chemo_pars.apop_rate = M.chemo_pars.apop_c0;
+    case "linear" % arrested cells have additional apoptosis rate that grows linearly with the chemo concentration
+        M.chemo_pars.apop_rate = M.chemo_pars.apop_c0 + M.chemo_pars.apop_c1*M.chemo_pars.concentration;
+    case "hill" % arrested cells have additional apoptosis rate that grows like a hill function with the chemo concentration
+        M.chemo_pars.apop_rate = M.chemo_pars.apop_c0 + M.chemo_pars.apop_c1*M.chemo_pars.concentration/(M.chemo_pars.apop_ec50+M.chemo_pars.concentration);
+    otherwise
+        error("%s is not a specified apoptosis function.\n",M.chemo_pars.apoptosis_function)
+end
 %% events
 M = initializeEvents(M);

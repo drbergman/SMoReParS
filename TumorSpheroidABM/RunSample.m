@@ -34,19 +34,19 @@ M.chemo_pars.dna_check_g1 = true;
 M.chemo_pars.dna_check_s = false;
 M.chemo_pars.dna_check_g2 = true;
 M.chemo_pars.dna_check_m = false;
-M.chemo_pars.dna_check_arrest_g1 = false;
-M.chemo_pars.dna_check_arrest_s = false;
-M.chemo_pars.dna_check_arrest_g2 = false;
-M.chemo_pars.dna_check_arrest_m = false;
+M.chemo_pars.dna_check_g1a = false;
+M.chemo_pars.dna_check_sa = false;
+M.chemo_pars.dna_check_g2a = false;
+M.chemo_pars.dna_check_ma = false;
 
 M.chemo_pars.arrest_coeff_g1 = 0.05;
 M.chemo_pars.arrest_coeff_s = 0.00;
 M.chemo_pars.arrest_coeff_g2 = 0.05;
 M.chemo_pars.arrest_coeff_m = 0.00;
-M.chemo_pars.arrest_coeff_arrest_g1 = 0.00;
-M.chemo_pars.arrest_coeff_arrest_s = 0.00;
-M.chemo_pars.arrest_coeff_arrest_g2 = 0.00;
-M.chemo_pars.arrest_coeff_arrest_m = 0.00;
+M.chemo_pars.arrest_coeff_g1a = 0.00;
+M.chemo_pars.arrest_coeff_sa = 0.00;
+M.chemo_pars.arrest_coeff_g2a = 0.00;
+M.chemo_pars.arrest_coeff_ma = 0.00;
 
 M.plot_pars.plot_fig = false;
 M.plot_pars.plot_location = true;

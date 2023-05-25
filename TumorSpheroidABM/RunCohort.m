@@ -61,7 +61,7 @@ M.chemo_pars.dna_check_g1 = true;
 M.chemo_pars.dna_check_s = false;
 M.chemo_pars.dna_check_g2 = true;
 M.chemo_pars.dna_check_m = false;
-M.chemo_pars.dna_check_arrest_g1 = false;
+M.chemo_pars.dna_check_g1a = false;
 
 % arrest_coeffs = [0.025;0.05;0.075];
 
@@ -73,7 +73,7 @@ M.chemo_pars.arrest_coeff_g1 = arrest_coeffs;
 M.chemo_pars.arrest_coeff_s = 0;
 M.chemo_pars.arrest_coeff_g2 = arrest_coeffs;
 M.chemo_pars.arrest_coeff_m = 0;
-M.chemo_pars.arrest_coeff_arrest_g1 = 0;
+M.chemo_pars.arrest_coeff_g1a = 0;
 
 M.plot_pars.plot_fig = false;
 M.plot_pars.plot_location = false;
