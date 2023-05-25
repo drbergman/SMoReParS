@@ -1,12 +1,12 @@
 function LP = linkArrest(LP,cohort_pars)
 
 if cohort_pars.link_arrest_coeffs % enforce that the arrest coefficients are identical
-    for li = 1:size(cohort_pars.linkings,1) % linking index
+    for li = 1:numel(cohort_pars.linkings) % linking index
         arrest_coeff_inds = [];
         vals = {};
         paths = {};
         for i = 1:numel(LP)
-            if ~iscell(LP(i).path) && startsWith(LP(i).path(end),"arrest_coeff") && any(endsWith(LP(i).path(end),cohort_pars.linkings(li,:)))
+            if ~iscell(LP(i).path) && startsWith(LP(i).path(end),"arrest_coeff") && any(endsWith(LP(i).path(end),cohort_pars.linkings{li}))
                 arrest_coeff_inds(end+1) = i;
                 vals{end+1} = LP(i).values;
                 paths{end+1} = LP(i).path;
