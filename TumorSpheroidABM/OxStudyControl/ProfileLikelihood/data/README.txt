@@ -19,6 +19,7 @@ ABMParamEstimates_FromProfile3.mat:
     See SMoReParS_ProfileSample.m.
 
 ABMParamEstimates_FromProfile_WithK.mat:
+    The best version from SMoRe ParS.
     ABM parameters admitted by SMoRe ParS.
     Used full combination information, including on K, to admit ABM parameters.
     SMoReParS_ProfileSample_WithK.m.
