@@ -10,13 +10,17 @@ addpath("~/Documents/MATLAB/myfunctions/")
 %% cohort structure
 cohort_pars.nsamps_per_condition = 6;
 cohort_pars.min_parfor_num = 4;
-cohort_pars.linkingFunction = @linkArrest; % a function to link any parameters across the cohort (e.g. arrest coefficients or dosing parameters)
-cohort_pars.link_arrest_coeffs = false; % whether or not to even attempt to link arrest coefficients
-cohort_pars.linkings = {}; % phases in a given cell have identical arrest coefficients (if they are being varied within the cohort)
+cohort_pars.linkingFunction = @linkByName; % a function to link any parameters across the cohort (e.g. arrest coefficients or dosing parameters)
+
+% parameters to link; each cell containts a string array of parameter values to link (if they are being varied); they must be varied over the same number of parameters
+cohort_pars.linkings = {["g1a_to_g1","g2a_to_g1"],... % recovery is identical for all arrested compartments
+                        ["arrest_ec50_g1","arrest_ec50_g2"]}; % ec50 for arrest is the same
+
 cohort_pars.check_cohort_grab = true;
 cohort_pars.previous_cohort_output_pattern = "data/cohort_*/output.mat";
 cohort_pars.sim_function = @simPatient;
-cohort_pars.update_timer_every = 10;
+cohort_pars.n_per_batch = 3^4*6;
+cohort_pars.update_timer_every = 8;
 cohort_pars.parpool_options.resources = "Processes";
 
 %%
@@ -39,41 +43,41 @@ M.save_pars.fields_to_keep = ["t","phases"];
 M.pars.max_dt = 0.25 / 24; % number of days per step
 M.pars.occmax_3d = 20;
 M.pars.occmax_2d = [4;5;6];
-M.pars.apop_rate = 0.5;
+M.pars.apop_rate = 0;
 M.pars.move_rate_microns = 10 * [0;1;2];
 
-M.flags.apop_only_for_arrested = true;
-
-% M.chemo_pars.concentration = [0;0.75;7.55];
-M.chemo_pars.concentration = 7.55;
 M.flags.arrest_is_death = false;
 
+M.chemo_pars.concentration = [0;0.75;7.55];
+
+M.chemo_pars.apoptosis_function = "hill";
+M.chemo_pars.apop_c0 = 0;
+M.chemo_pars.apop_c1 = [0.1;0.8;1.5];
+M.chemo_pars.apop_ec50 = [0.5;3.5;6.5];
+
 % transition_factors = [0.8;1;1.2];
-transition_factors = 1;
+transition_factors = 1; % the model was the least sensitive to these
 
 M.cycle_pars.g1_to_s = 24/11 * transition_factors;
 M.cycle_pars.s_to_g2 = 24/8 * transition_factors;
 M.cycle_pars.g2_to_m = 24/4 * transition_factors;
 M.cycle_pars.m_to_g1 = 24/1 * transition_factors;
-M.cycle_pars.arrest_to_g1 = 0.06;
+
+recovery_rate = [0.03;0.06;0.09];
+M.cycle_pars.g1a_to_g1 = recovery_rate;
+M.cycle_pars.g2a_to_g1 = recovery_rate;
 
 M.chemo_pars.dna_check_g1 = true;
-M.chemo_pars.dna_check_s = false;
 M.chemo_pars.dna_check_g2 = true;
-M.chemo_pars.dna_check_m = false;
-M.chemo_pars.dna_check_arrest = false;
-
-% arrest_coeffs = [0.025;0.05;0.075];
 
 M.chemo_pars.arrest_function = "hill";
-
-arrest_coeffs = 0.05;
+arrest_coeffs = [0.25;0.5;0.75];
+arrest_ec50s = [0.5;3.5;6.5];
 
 M.chemo_pars.arrest_coeff_g1 = arrest_coeffs;
-M.chemo_pars.arrest_coeff_s = 0;
 M.chemo_pars.arrest_coeff_g2 = arrest_coeffs;
-M.chemo_pars.arrest_coeff_m = 0;
-M.chemo_pars.arrest_coeff_arrest = 0;
+M.chemo_pars.arrest_ec50_g1 = arrest_ec50s;
+M.chemo_pars.arrest_ec50_g2 = arrest_ec50s;
 
 M.plot_pars.plot_fig = false;
 M.plot_pars.plot_location = false;

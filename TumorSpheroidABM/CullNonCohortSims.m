@@ -3,7 +3,7 @@ clearvars;
 % This script will go through the sims in data/sims and make sure they all
 % belong to at least one cohort. If not, they will be deleted
 
-delete_sims = false; % whether to actually delete these sims, or just identify them
+delete_sims = true; % whether to actually delete these sims, or just identify them
 
 f = dir("data/sims/*");
 f = f([f.isdir]);

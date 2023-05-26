@@ -10,26 +10,27 @@ for ord_ind=1:length(in.active_ind)
         case 1 % transition
             %%
             phase = M.tumor(j,M.I.phase);
-            if phase==M.cycle.m % then this cell proliferates
-                if M.chemo_pars.dna_check(M.cycle.m) && rand() < M.chemo_pars.arrest_prob(M.cycle.m)
-                    if M.flags.arrest_is_death % the cell dies
-                        M.tumor(j,M.I.event) = 2; % mark the cell for apoptosis
-                        in = stopFutureEvents(in,j,ord_ind);
-                    else % the cell becomes arrested
-                        M.tumor(j,[M.I.phase,M.I.is_arrested]) = [M.cycle.arrest,true];
-                        if M.pars.move_rate~=0 % the cell can undergo apoptosis from the arrested state
-                            in = stopFutureMoveEvents(in,j,ord_ind);
-                        end
+            if M.chemo_pars.dna_check(phase) && rand() < M.chemo_pars.arrest_prob(phase)
+                if M.flags.arrest_is_death % the cell dies
+                    M.tumor(j,M.I.event) = 2; % mark the cell for apoptosis
+                    in = stopFutureEvents(in,j,ord_ind);
+                else % the cell becomes arrested
+                    M.tumor(j,M.I.phase) = M.cycle.(M.cycle.phase_names(phase)+"a");
+                    M.tumor(j,M.I.is_arrested) = true;
+                    if M.pars.move_rate~=0 % the cell can undergo apoptosis from the arrested state
+                        in = stopFutureMoveEvents(in,j,ord_ind);
                     end
-                    M.tracked.chemo_arrest(M.i) = M.tracked.chemo_arrest(M.i)+1;
-                    continue;
                 end
+                M.tracked.chemo_arrest(M.i,phase) = M.tracked.chemo_arrest(M.i,phase)+1;
+                continue;
+            end
+
+            if phase==M.cycle.m % then this cell proliferates
 
                 [n_ind,non_border_neighbors] = getCellNeighborIndsOnGrid(M.tumor(j,M.I.ind),M.tumor(j,M.I.subs),M); % neighbor indices
                 if M.setup.ndims==3
                     if (nnz(M.L(n_ind)) + (26-length(n_ind)))<=M.pars.occmax % check how many M.pars.neighbors are occupied
                         weights = (M.L(n_ind)==0).*M.pars.neighbor_weights(non_border_neighbors);
-                        %                 ind = randsample(length(n_ind),1,true,weights); % weight by whether sites are empty and by the reciprocal of the distance
                         ind = find(sum(weights)*rand() < cumsum(weights),1);
                         rel_loc = M.pars.neighbors(non_border_neighbors(ind),:); % get the relative position of the new spot
                         M.tumor(end+1,:) = 0;
@@ -37,7 +38,8 @@ for ord_ind=1:length(in.active_ind)
                         M.tumor(end,M.I.ind) = n_ind(ind); % store new array-specific locations
 
                         M.L(n_ind(ind)) = M.val.tum; % set value at lattice site
-                        M.tumor([j,end],M.I.phase) = M.cycle.g1;
+                        M.tumor(j,M.I.phase) = M.cycle.g1;
+                        M.tumor(end,M.I.phase) = M.cycle.g1;
 
                         M.tracked.tum_prolif(M.i) = M.tracked.tum_prolif(M.i)+1;
 
@@ -48,7 +50,6 @@ for ord_ind=1:length(in.active_ind)
                 else
                     if (nnz(M.L(n_ind)) + (8-length(n_ind)))<=M.pars.occmax % check how many M.pars.neighbors are occupied
                         weights = (M.L(n_ind)==0).*M.pars.neighbor_weights(non_border_neighbors);
-                        %                 ind = randsample(length(n_ind),1,true,weights); % weight by whether sites are empty and by the reciprocal of the distance
                         ind = find(sum(weights)*rand() < cumsum(weights),1);
                         rel_loc = M.pars.neighbors(non_border_neighbors(ind),:); % get the relative position of the new spot
                         M.tumor(end+1,:) = 0;
@@ -56,7 +57,8 @@ for ord_ind=1:length(in.active_ind)
                         M.tumor(end,M.I.ind) = n_ind(ind); % store new array-specific locations
 
                         M.L(n_ind(ind)) = M.val.tum; % set value at lattice site
-                        M.tumor([j,end],M.I.phase) = M.cycle.g1;
+                        M.tumor(j,M.I.phase) = M.cycle.g1;
+                        M.tumor(end,M.I.phase) = M.cycle.g1;
 
                         M.tracked.tum_prolif(M.i) = M.tracked.tum_prolif(M.i)+1;
 
@@ -67,24 +69,11 @@ for ord_ind=1:length(in.active_ind)
 
                 end
             else % then it just moves along the transition path
-                
-                if M.chemo_pars.dna_check(phase) && rand() <  M.chemo_pars.arrest_prob(phase)
-                    if M.flags.arrest_is_death % the cell dies
-                        M.tumor(j,M.I.event) = 2; % mark the cell for apoptosis
-                        in = stopFutureEvents(in,j,ord_ind);
-                    else % the cell becomes arrested
-                        M.tumor(j,[M.I.phase,M.I.is_arrested]) = [M.cycle.arrest,true];
-                        if M.pars.move_rate~=0 % the cell can undergo apoptosis from the arrested state
-                            in = stopFutureMoveEvents(in,j,ord_ind);
-                        end
-                    end
-                    M.tracked.chemo_arrest(M.i) = M.tracked.chemo_arrest(M.i)+1;
-                else
-                    if M.tumor(j,M.I.is_arrested)==true
-                        M.tracked.arrest_recovery(M.i) = M.tracked.arrest_recovery(M.i)+1;
-                    end
-                    M.tumor(j,[M.I.phase,M.I.is_arrested]) = [M.cycle.advancer(M.tumor(j,M.I.phase)),false];
+                if M.tumor(j,M.I.is_arrested)==true
+                    M.tracked.arrest_recovery(M.i,phase) = M.tracked.arrest_recovery(M.i,phase)+1;
                 end
+                M.tumor(j,M.I.phase) = M.cycle.advancer(M.tumor(j,M.I.phase));
+                M.tumor(j,M.I.is_arrested) = false;
             end
 
         case 2 % spontaneous apoptosis
@@ -108,11 +97,6 @@ for ord_ind=1:length(in.active_ind)
             end
 
         case 4 % arrested cell skipped some event
-            %%
-%             error("no longer have this")
-%             M.L(M.tumor(j,M.I.ind)) = M.val.tum_apop;
-%             M.tracked.chemo_arrest(M.i) = M.tracked.chemo_arrest(M.i)+1;
-%             M.tumor(j,M.I.event) = 2; % mark it as apoptotic to be removed later
 
         otherwise
             %%

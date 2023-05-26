@@ -2,7 +2,7 @@ clearvars;
 
 addpath("../..")
 addpath("~/Documents/MATLAB/myfunctions/")
-cohort_id = "cohort_2305241543";
+cohort_id = "cohort_230526154658";
 
 load(sprintf("../../data/%s/output.mat",cohort_id),"ids","lattice_parameters","nsamps_per_condition")
 
@@ -12,10 +12,10 @@ x=(1:ncohorts)';
 val_color = lines(max(size(ids,1:npars)));
 
 figureOnRight;
-ax = gobjects(npars,6);
-for i = 1:6
+ax = gobjects(npars,9);
+for i = 1:9
     for j = 1:npars
-        ax(j,i) = subplot(npars,6,r2c(npars,6,[j,i]),"NextPlot","add");
+        ax(j,i) = subplot(npars,9,r2c(npars,9,[j,i]),"NextPlot","add");
     end
 end
 
@@ -51,7 +51,7 @@ for j = 1:npars
                                 title(ax(j,m),"G2")
                             case cycle.m
                                 title(ax(j,m),"M")
-                            case cycle.arrest
+                            case cycle.g1a
                                 title(ax(j,m),"Arrested")
                         end
                     end
