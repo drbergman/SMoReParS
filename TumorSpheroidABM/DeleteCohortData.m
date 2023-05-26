@@ -6,7 +6,7 @@ clearvars;
 
 delete_data = true; % whether to actually delete these sims, or just identify them (MAKE SURE THEY AREN'T USED BY ANOTHER COHORT!!!!)
 
-cohort_names = "cohort_2305241543";
+cohort_names = "cohort_2305261431";
 
 for j = 1:numel(cohort_names)
     load("data/" + cohort_names(j) + "/output.mat","ids")
