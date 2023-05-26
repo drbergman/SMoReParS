@@ -19,8 +19,8 @@ cohort_pars.linkings = {["g1a_to_g1","g2a_to_g1"],... % recovery is identical fo
 cohort_pars.check_cohort_grab = true;
 cohort_pars.previous_cohort_output_pattern = "data/cohort_*/output.mat";
 cohort_pars.sim_function = @simPatient;
-cohort_pars.n_per_batch = 15;
-cohort_pars.update_timer_every = 1;
+cohort_pars.n_per_batch = 3^4*6;
+cohort_pars.update_timer_every = 8;
 cohort_pars.parpool_options.resources = "Processes";
 
 %%
