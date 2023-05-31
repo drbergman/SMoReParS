@@ -48,7 +48,11 @@ for j = 1:profile_params.min_num_steps(i)
         % then we're at the end of the range; so stop now
         first_pars = first_pars(:,1:j-1);
         first_vals = first_vals(1:j-1);
-        break;
+        if j==1
+            return; % we started at the edge of the range so just be done and don't record anything
+        else
+            break;
+        end
     end
     if par_exceeds_extremum(x0(i) + dir*dxi)
         dxi = update_dxi(x0(i),dxi);

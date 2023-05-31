@@ -2,7 +2,7 @@ clearvars;
 
 addpath("../..")
 addpath("~/Documents/MATLAB/myfunctions/")
-cohort_id = "cohort_230526154658";
+cohort_id = "cohort_2305270925";
 
 load(sprintf("../../data/%s/output.mat",cohort_id),"ids","lattice_parameters","nsamps_per_condition")
 
@@ -20,7 +20,7 @@ for i = 1:9
 end
 
 cycle = buildCycle();
-S_max = 60;
+S_max = 20;
 
 for j = 1:npars
     l_temp = gobjects(size(ids,j),S_max,4);
@@ -74,7 +74,7 @@ for j = 1:npars
 end
 
 for m = 1:4
-normalizeYLims(ax(:,m))
+    normalizeYLims(ax(:,m))
 end
 
 rmpath("../..")

@@ -32,3 +32,13 @@ cohort_2304292140:
     1000 simulations with the same parameter values to test the independence of G1/S and G2/M compartments in the ABM.
     Turns out they were pretty independent (diagonal covariance matrix) by later time points, which I was surpised by.
 
+cohort_2305270925:
+    This is a new proposed main cohort for the OxStudyFull (the full chemo model).
+    This added arrest compartments for each phase (though only some can become arrested when attempting to transition).
+    The arrest function is now a Hill function with rate coefficient being phase-specific, EC50 being phase-independent (+1), and Hill coefficient being fixed at 1.
+    Apoptosis occurs only in the arrested compartments in a phase-independent manner.
+    The rate follows a Hill function which is 0 at no drug and maxes out at M.chemo_pars.apop_c1 (+2).
+    Recovery is phase-independent and constant (+1).
+    The above additions introduce 4 new parameters.
+    To keep this computationally feasible, we removed the 4 least sensitive parameters from the control study: the 4 transition rates along the cell cycle.
+

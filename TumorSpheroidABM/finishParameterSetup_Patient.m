@@ -79,7 +79,6 @@ for i = 1:M.cycle.n_phases
             M.chemo_pars.arrest_prob(M.cycle.(M.cycle.phase_names(i))) = M.chemo_pars.(sprintf("arrest_coeff_%s",M.cycle.phase_names(i))) * M.chemo_pars.concentration;
         case "hill"
             M.chemo_pars.arrest_prob(M.cycle.(M.cycle.phase_names(i))) = M.chemo_pars.(sprintf("arrest_coeff_%s",M.cycle.phase_names(i))) * M.chemo_pars.concentration / (M.chemo_pars.("arrest_ec50_" + M.cycle.phase_names(i)) + M.chemo_pars.concentration);
-            % M.chemo_pars.arrest_prob(M.cycle.(M.cycle.phase_names(i))) = M.chemo_pars.(sprintf("arrest_coeff_%s",M.cycle.phase_names(i))) * M.chemo_pars.concentration / (M.chemo_pars.arrest_ec50_g1 + M.chemo_pars.concentration);
         otherwise
             error("%s is not a specified arrest function.\n",M.chemo_pars.arrest_function)
     end

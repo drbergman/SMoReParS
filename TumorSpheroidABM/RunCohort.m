@@ -35,6 +35,7 @@ M.setup.carrying_capacity = [500;1000;1500];
 M.setup.use_rates_for_intitial_proportions = false;
 
 M.save_pars.make_save = true;
+M.save_pars.save_constants = false;
 M.save_pars.dt = Inf;
 M.save_pars.interpolate_tracked = true; % only save certain interpolated values
 M.save_pars.t_min = [0 10 24 36 48 72] * 60;

@@ -1,3 +1,7 @@
+% Not really sure the origin of this script. It seems to be an old version
+% of saving cohort data into a format to be used by SMoRe ParS and then
+% make some plots.
+
 clearvars;
 
 addpath("~/Documents/MATLAB/myfunctions/")

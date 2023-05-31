@@ -1,7 +1,7 @@
 % a script to summarize cohort data just with count and proportion in g2/m.
 
 clearvars;
-cohort_name = "cohort_2303301105";
+cohort_name = "cohort_2305270925";
 addpath("~/Documents/MATLAB/myfunctions/")
 
 %% load cohort data
@@ -11,17 +11,34 @@ vals = {cohort.lattice_parameters.values};
 
 %% get conditions
 n_conditions = 3; % [control;0.75;7.55] uM of Oxaliplatin
-LP_paths = arrayify(cohort.lattice_parameters,"path");
-condition_dim = find(all(LP_paths == ["chemo_pars","concentration"],2));
+% LP_paths = arrayify(cohort.lattice_parameters,"path");
+for i = 1:numel(cohort.lattice_parameters)
+    if iscell(cohort.lattice_parameters(i).path)
+        continue
+    end
+    if all(cohort.lattice_parameters(i).path==["chemo_pars","concentration"])
+        condition_dim = i;
+        break;
+    end
+end
+% condition_dim = find(all(LP_paths == ["chemo_pars","concentration"],2));
 C = mat2cell(cohort.lattice_parameters(condition_dim).values,[1 1 1]);
 
 %% load tracked data and concatenate
 for i = numel(cohort.ids):-1:1
     S = load(sprintf("../../data/sims/%s/output_final.mat",cohort.ids(i)));
-    if size(S.tracked.phases,2)>4
-        error("Not sure how we will count the arrested compartment in this.")
+    n_phases = size(S.tracked.phases,2);
+    temp = S.tracked.phases;
+    switch n_phases
+        case 4
+            temp = reshape(temp,[],2,2);
+        case 8
+            temp = reshape(temp,[],2,2,2);
+            temp = sum(temp,4); % add arrested compartments in
+        otherwise
+            error("Not sure how we will count the arrested compartment in this.")
     end
-    phase_count(:,:,:,i) = reshape(S.tracked.phases,[],2,2);
+    phase_count(:,:,:,i) = temp;
 end
 
 t_abm = S.tracked.t;
@@ -36,14 +53,16 @@ phase_count = reshape(phase_count,[nt_abm,2,2,size(cohort.ids)]);
 phase_count_sampled = interp1(t_abm,phase_count,t); % All this does is remove the t=0 point as the ABM data was saved just at the sample data points
 count = sum(phase_count_sampled,2:3);
 count = reshape(count,nt,[],nsamps_per_parameter_vector);
-count_avg = mean(count,ndims(count));
-count_std = std(count,[],ndims(count));
+sample_dim = 3; % see reshape above for which dimension samples are placed
+count_avg = mean(count,sample_dim);
+count_std = std(count,[],sample_dim);
 
 state_vars = sum(phase_count_sampled,2);
 state_vars = reshape(state_vars,nt,2,[],nsamps_per_parameter_vector);
 state2_prop = squeeze(state_vars(:,2,:,:))./count;
-state2_prop_avg = mean(state2_prop,ndims(state2_prop));
-state2_prop_std = std(state2_prop,[],ndims(state2_prop));
+sample_dim = 3; % see reshape above for which dimension samples are placed, note that slice |> squeeze will remove a dimension
+state2_prop_avg = mean(state2_prop,sample_dim);
+state2_prop_std = std(state2_prop,[],sample_dim);
 % 
 % all_avg = mean(state_vars,ndims(state_vars));
 % all_std = std(state_vars,[],ndims(state_vars));
@@ -82,13 +101,14 @@ end
 
 %% reshape to match [conditions,cohort_size]
 D = reshape(D,cohort.cohort_size);
+parameter_dims = setdiff(1:ndims(D),condition_dim);
 
-cohort_size = cohort.cohort_size(setdiff(1:ndims(D),condition_dim));
+cohort_size = cohort.cohort_size(parameter_dims);
 
-D = permute(D,[condition_dim,cohort_size]);
+D = permute(D,[condition_dim,parameter_dims]);
 
 n_time_series = size(D(1).A,2);
-save(sprintf("../../data/%s/summary_new.mat",cohort_name),"D","t","C","cohort_size","nsamps_per_parameter_vector","n_conditions","vals","n_time_series","condition_dim","-v7.3")
+save(sprintf("../../data/%s/summary.mat",cohort_name),"D","t","C","cohort_size","nsamps_per_parameter_vector","n_conditions","vals","n_time_series","condition_dim","-v7.3")
 
 
 % %% old code
