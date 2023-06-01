@@ -3,9 +3,9 @@
 
 clearvars;
 
-make_save = true;
-save_fig_opts.save_figs = true;
-save_fig_opts.reprint = true;
+make_save = false;
+save_fig_opts.save_figs = false;
+save_fig_opts.reprint = false;
 save_fig_opts.file_types = ["fig","png"];
 save_fig_opts.fig_names = "SMFitToData";
 
@@ -13,23 +13,45 @@ addpath("../../../ODEFittingFns/")
 
 addpath("~/Documents/MATLAB/myfunctions/")
 
-%         1     2   3   4      5      6    7   8       9  10  11
-% p = [lambda,alpha,K,alphaR,alphaP,kalpha,a,delta0,kdelta,b,rho0]
-fixed_pars = ["lambda","alpha","K","b","a"];
-[p,lb,ub] = basePars(fixed_pars);
-p = min(ub,(max(lb,p.*(1+2*randn(11,1)))));
+p = zeros(4,1);
+p(1) = 24/19; % lambda
+p(2) = 24/5; % alpha
+p(3) = 1e3; % K
+p(4) = 0.1; % chemo-induced death rate per uM of drug
+
+p_unlinked = [1.9;1.9]; % chemo-induced death rates if they are unlinked
+p_hill = [3;.1]; % [hill coefficient ; EC50] if unlinked
+
 fn = @computeTimeSeries;
-fn_opts = [];
-% lb = zeros(11,1);
-% ub = [Inf;Inf;1e4;10;10;10;10;10;10;10;0];
+fn_opts.phase_dependent_death = true; % does chemo death occur over entirety of each phase (true)? Or is it a one-time event during a phase and so it happens at a higher rate during shorter phases (false)?
+fn_opts.link_phase_death_rates = false; % whether to link the two phases death rates
+fn_opts.hill_activation = true; % if unlinked, use hill activation?
+
+ub = [Inf;Inf;1e4;2];
 
 weight_choice = "uniform";
 
-opts = optimset('Display','on','TolFun',1e-12,'TolX',1e-12);
+opts = optimset('Display','off','TolFun',1e-12,'TolX',1e-12);
 
 %%
+if ~fn_opts.link_phase_death_rates
+    p = [p(1:3);p_unlinked];
+    ub(5) = 2;
+    if fn_opts.hill_activation
+        p = [p;p_hill];
+        ub(6:7) = [3;Inf];
+    end
+end
 
 npars = length(p);
+lb = zeros(npars,1);
+
+if ~fn_opts.link_phase_death_rates
+    if fn_opts.hill_activation
+        lb(6) = 3;
+    end
+end
+
 switch weight_choice
     case "uniform"
         weights = ones(3,1);
@@ -62,7 +84,7 @@ F = @(p) arrayfun(@(i) rawError(p,t,D(i),fn,C{i},fn_opts),1:3)*weights;
 
 %%
 if make_save
-    save("data/ODEFitToData.mat","P","fstar","weights","fn_opts","lb","ub","fixed_pars","fn","fn_opts","opts")
+    save("data/ODEFitToData.mat","P","fstar","weights","fn_opts","lb","ub")
 end
 %%
 f=figure;

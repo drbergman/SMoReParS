@@ -10,7 +10,7 @@ addpath("../ODEFitting/")
 
 addpath("~/Documents/MATLAB/myfunctions/")
 
-files.par_file = "../ODEFitting/data/ODEFitToDataWithArrestedCompartments";
+files.par_file = "../ODEFitting/data/ODEFitToData.mat";
 files.data_file = "../ODEFitting/data/ExperimentalData.mat";
 % files.previous_profile_file = "ProfileLikelihoods.mat";
 
@@ -20,19 +20,11 @@ options.force_serial = true;
 % options.save_every_iter = 100; % wait at least this many iterations between saves
 % options.save_every_sec = 10*60; % wait at least this many seconds between saves
 
-% fixed_pars = ["a","b","theta","rho0","kalpha","VT","V0"];
-fixed_pars = ["a","b","theta"];
+fixed_pars = ["lambda","alpha","K","b","a"];
 
 %% process fixed pars
 fixed_pars = sort(fixed_pars);
-for i = 1:numel(fixed_pars)
-    files.par_file = files.par_file + "_" + fixed_pars(i);
-end
-files.par_file = files.par_file + ".mat";
-if ~exist(files.par_file,"file")
-    files.par_file = "../ODEFitting/data/ODEFitToDataWithArrestedCompartments.mat";
-end
-n_sm_pars = 13;
+n_sm_pars = 11;
 
 %% setup profile params
 profile_params.initial_step_prop = .01*ones(n_sm_pars,1);
@@ -67,7 +59,7 @@ profile_params.para_ranges = [profile_params.lb,profile_params.ub];
 %% objfn_constants
 % fixed_hill_coefficient = 3;
 
-objfn_constants.fn = @computeTimeSeriesWithArrestedCompartments;
+objfn_constants.fn = @computeTimeSeries;
 objfn_constants.fn_opts = [];
 % objfn_constants.fn_opts.phase_dependent_death = true; % does chemo death occur over entirety of each phase (true)? Or is it a one-time event during a phase and so it happens at a higher rate during shorter phases (false)?
 % objfn_constants.fn_opts.link_phase_death_rates = false; % whether to link the two phases death rates
@@ -80,7 +72,7 @@ objfn_constants.weights = [1;1;1];
 out = performProfile(files,objfn_constants,profile_params,options);
 
 %% save the output
-% save("data/Profiles_SMFromDataWithArrestedCompartments.mat","out")
+save("data/Profiles_SMFromData.mat","out")
 
 rmpath("../../../ProfileLikelihoodFns/")
 rmpath("../../../ODEFittingFns/")

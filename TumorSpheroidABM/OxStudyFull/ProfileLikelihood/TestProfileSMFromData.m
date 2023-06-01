@@ -10,8 +10,8 @@ addpath("../../../ProfileLikelihoodFns/")
 
 opts = struct();
 % opts.abm_vec_inds = 1:3; % set this to fix a subset of ABM parameters to test profiles
-sm_par_display_names = ["\lambda","\alpha","K","d_{G1/S}","d_{G2/M}","EC50"];
-profile_file = "data/Profiles_SMFromData_clean.mat";
+sm_par_display_names = ["\lambda";"\alpha";"K";"\alpha_R";"\alpha_P";"k_\alpha";"a";"\delta_0";"k_\delta";"b";"\rho_0"];
+profile_file = "data/Profiles_SMFromData.mat";
 nsamps = 1;
 [f,I] = testProfileSMFromABM(profile_file,nsamps,sm_par_display_names,opts);
 

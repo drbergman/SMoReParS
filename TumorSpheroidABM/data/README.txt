@@ -42,3 +42,10 @@ cohort_2305270925:
     The above additions introduce 4 new parameters.
     To keep this computationally feasible, we removed the 4 least sensitive parameters from the control study: the 4 transition rates along the cell cycle.
 
+cohort_2305311216:
+    This is similar to cohort_2305270925.
+    It fixes all ABM parameters varied in the control model, not just transition rates.
+    That is, it also fixes carrying capacity, contact inhibition, and migration rate.
+    These values are fixed by the average of admitted ABM parameters from the control model (this was not the case for the transition rates in cohort_2305270925).
+
+

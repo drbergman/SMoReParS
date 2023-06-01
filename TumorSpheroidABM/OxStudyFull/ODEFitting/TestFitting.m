@@ -3,34 +3,36 @@
 
 clearvars;
 
+save_figs = true;
+cohort_name = "cohort_2305311216";
+
 addpath("~/Documents/MATLAB/myfunctions/")
+addpath("../../../ODEFittingFns/")
 
-cohort_name = "cohort_2303301105";
-nsamps = 5;
-phase_dependent_death = true;
-% 
-% if ~phase_dependent_death
-%     load("data/OptimalParameters.mat")
-% else
-%     load("data/OptimalParameters_phase_dependent_death.mat")
-% end
-load("data/OptimalParameters_UnLinkedHill.mat");
+par_names = ["\alpha_R";"\alpha_P";"k_\alpha";"\delta_0";"k_\delta";"\rho_0"];
 
-Sum = load(sprintf("../../data/%s/summary.mat",cohort_name),"count_*","state2_prop_*");
-load(sprintf("../../data/%s/output.mat",cohort_name),"ids","lattice_parameters");
-load(sprintf("../../data/sims/%s/output_final.mat",ids(1)),"tracked");
-tt = tracked.t';
-I = randperm(numel(P)/size(P,1),nsamps);
 
-chemo_dim = 8; % dimension along which chemo concentration varies; make sure this is still dim 8!!
-if ~any(cohort_name==["cohort_2303231625","cohort_2303271138"]) && ~isequal(lattice_parameters(chemo_dim).path,["chemo_pars","concentration"])
-    error("make sure the chemo concentration dim is still the 8th!")
+nsamps = 10;
+par_file = "data/OptimalParameters.mat";
+data_file = sprintf("../../data/%s/summary.mat",cohort_name);
+
+fn = @computeTimeSeries;
+
+load("data/ODEFitToData.mat","fixed_pars")
+D = parameterOrdering("LogisticModel");
+
+[p,lb,ub] = basePars(fixed_pars);
+fixed_inds = zeros(numel(fixed_pars),1);
+for i = 1:numel(fixed_pars)
+    fixed_inds(i) = D(fixed_pars(i));
 end
+lb(fixed_inds) = [];
+ub(fixed_inds) = [];
+fixed_vals = p(fixed_inds);
+p(fixed_inds) = [];
+fn_opts.p_setup_fn = @(p) this__p_setup_fn(p,fixed_inds,fixed_vals);
 
-fn_opts.phase_dependent_death = true; % does chemo death occur over entirety of each phase (true)? Or is it a one-time event during a phase and so it happens at a higher rate during shorter phases (false)?
-fn_opts.link_phase_death_rates = false; % whether to link the two phases death rates
-fn_opts.hill_activation = true; % if unlinked, use hill activation?
-
+[f,I] = testSMFitToABM(par_file,data_file,nsamps,fn,fn_opts,par_names);
 
 %% setup Avg and Std so that they go [time,death rate per uM,all other pars]
 count = Sum.count_average;
@@ -93,4 +95,13 @@ for i = 1:size(P,1)
     title(par_names(i))
 end
 
+rmpath("../../../ODEFittingFns/")
 
+
+function p = this__p_setup_fn(p_in,fixed_inds,fixed_vals)
+
+p = zeros(11,1);
+p(fixed_inds) = fixed_vals;
+p(p==0) = p_in;
+
+end

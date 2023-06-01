@@ -23,7 +23,6 @@ end
 
 m = numel(D); % number of conditions used
 
-% F = @(p) arrayfun(@(j) rawError([p(1:5);objfn_constants.hill_coefficient;p(6)],t,squeeze(D(:,j,:)),squeeze(S(:,j,:)),objfn_constants.fn,objfn_constants.doses(j),objfn_constants.fn_opts),1:3)*objfn_constants.weights; % leave this here for now to remember the form of this function for the OxStudyFull 
 F = @(p) arrayfun(@(j) rawError(objfn_constants.p_setup_fn(p),t,...
     D(j),objfn_constants.fn,C{j},objfn_constants.fn_opts,opts.raw_error_opts),1:m)*objfn_constants.weights;
 

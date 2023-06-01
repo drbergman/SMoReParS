@@ -1,4 +1,4 @@
-function f = testSMFitToABM(par_file,data_file,nsamps,fn,fn_opts,par_names,time_series_names)
+function [f,I] = testSMFitToABM(par_file,data_file,nsamps,fn,fn_opts,par_names,column_names)
 
 
 if contains(path,"myfunctions")
@@ -12,12 +12,7 @@ load(par_file,"P")
 load(data_file,"t","D","C","cohort_size","nsamps_per_parameter_vector","n_time_series","n_conditions"); % some of these variables are not used now, but they might be once I get to filling out the conditional statements below
 
 
-if nargin<7 || isempty(time_series_names)
-    time_series_names = strings(n_time_series,1);
-    for i = 1:n_time_series
-        time_series_names(i) = sprintf("Time Series #%d",i);
-    end
-end
+
 
 P = reshape(P,size(P,1),[]);
 I = sort(randperm(size(P,2),nsamps));
@@ -38,6 +33,12 @@ if n_time_series == 1 && n_conditions == 1 % just plot in a rough square
         title(ax(i),sprintf("#%d",I(i)),"FontWeight","bold")
     end
 elseif n_time_series > 1 && n_conditions == 1
+    if nargin<7 || isempty(column_names)
+        column_names = strings(n_time_series,1);
+        for i = 1:n_time_series
+            column_names(i) = sprintf("Time Series #%d",i);
+        end
+    end
     f(1)=figure;
     nr = nsamps;
     nc = n_time_series;
@@ -53,7 +54,39 @@ elseif n_time_series > 1 && n_conditions == 1
         ylabel(ax(ri,1),sprintf("#%d",I(ri)),"FontWeight","bold")
     end
     for ci = 1:n_time_series
-        title(ax(1,ci),time_series_names(ci))
+        title(ax(1,ci),column_names(ci))
+    end
+elseif n_time_series==2 && n_conditions > 1
+    f(1)=figure;
+    nr = nsamps;
+    nc = n_conditions*n_time_series;
+    ax = gobjects(nsamps,n_conditions,n_time_series);
+
+    if nargin<7 || isempty(column_names)
+        column_names = strings(n_conditions,n_time_series);
+        for ci = 1:n_conditions
+            for tsi = 1:n_time_series
+                column_names(ci,tsi) = sprintf("Condition #%d, Series #%d",ci,tsi);
+            end
+        end
+    end
+
+    for ri = 1:nsamps
+        for ci = 1:n_conditions
+            out = fn(P(:,I(ri)),t,C{ci},fn_opts);
+            for tsi = 1:n_time_series
+                ax(ri,ci,tsi) = subplot(nr,nc,r2c(nr,nc,[ri,(ci-1)*n_time_series+tsi]),"NextPlot","add");
+                patch(ax(ri,ci,tsi),[t(:);flip(t(:))],[D(ci,I(ri)).A(:,tsi)-D(ci,I(ri)).S(:,tsi);flipud(D(ci,I(ri)).A(:,tsi)+D(ci,I(ri)).S(:,tsi))],"black","FaceAlpha",0.2,"EdgeColor","none")
+                plot(ax(ri,ci,tsi),t,D(ci,I(ri)).A(:,tsi),"black")
+                plot(ax(ri,ci,tsi),t,out(:,tsi),"--","LineWidth",2)
+            end
+        end
+        ylabel(ax(ri,1,1),sprintf("#%d",I(ri)),"FontWeight","bold")
+    end
+    for ci = 1:n_conditions
+        for tsi = 1:n_time_series
+            title(ax(1,ci,tsi),column_names(ci,tsi))
+        end
     end
 end
 xlim(ax,[t(1) t(end)])

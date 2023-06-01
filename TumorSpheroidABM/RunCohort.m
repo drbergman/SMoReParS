@@ -31,7 +31,8 @@ M.setup.ndims = 2;
 M.setup.censor_date = 3;
 M.setup.N0 = 1e2;
 M.setup.agent_initialization_location = "uniform";
-M.setup.carrying_capacity = [500;1000;1500];
+% M.setup.carrying_capacity = [500;1000;1500];
+M.setup.carrying_capacity = 1167.726550079491289579891599714756011962890625;
 M.setup.use_rates_for_intitial_proportions = false;
 
 M.save_pars.make_save = true;
@@ -43,9 +44,11 @@ M.save_pars.fields_to_keep = ["t","phases"];
 
 M.pars.max_dt = 0.25 / 24; % number of days per step
 M.pars.occmax_3d = 20;
-M.pars.occmax_2d = [4;5;6];
+% M.pars.occmax_2d = [4;5;6];
+M.pars.occmax_2d = 5;
 M.pars.apop_rate = 0;
-M.pars.move_rate_microns = 10 * [0;1;2];
+% M.pars.move_rate_microns = 10 * [0;1;2];
+M.pars.move_rate_microns = 8.791732909379968;
 
 M.flags.arrest_is_death = false;
 
@@ -56,13 +59,18 @@ M.chemo_pars.apop_c0 = 0;
 M.chemo_pars.apop_c1 = [0.1;0.8;1.5];
 M.chemo_pars.apop_ec50 = [0.5;3.5;6.5];
 
-% transition_factors = [0.8;1;1.2];
-transition_factors = 1; % the model was the least sensitive to these
+% % transition_factors = [0.8;1;1.2];
+% transition_factors = 1; % the model was the least sensitive to these
+% 
+% M.cycle_pars.g1_to_s = 24/11 * transition_factors;
+% M.cycle_pars.s_to_g2 = 24/8 * transition_factors;
+% M.cycle_pars.g2_to_m = 24/4 * transition_factors;
+% M.cycle_pars.m_to_g1 = 24/1 * transition_factors;
 
-M.cycle_pars.g1_to_s = 24/11 * transition_factors;
-M.cycle_pars.s_to_g2 = 24/8 * transition_factors;
-M.cycle_pars.g2_to_m = 24/4 * transition_factors;
-M.cycle_pars.m_to_g1 = 24/1 * transition_factors;
+M.cycle_pars.g1_to_s = 2.10273160861396490872721187770366668701171875;
+M.cycle_pars.s_to_g2 = 2.939904610492844572178228190750814974308013916015625;
+M.cycle_pars.g2_to_m = 5.96565977742448705356537175248377025127410888671875;
+M.cycle_pars.m_to_g1 = 24.038155802861748355780946440063416957855224609375;
 
 recovery_rate = [0.03;0.06;0.09];
 M.cycle_pars.g1a_to_g1 = recovery_rate;

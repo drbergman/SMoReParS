@@ -1,24 +1,16 @@
-function out = computeTimeSeries(p,tt,dose,opts,~)
+function out = computeTimeSeries(p,tt,dose,fn_opts,~)
 
 % computes the time series solution for the SM at time points tt. Always
-% uses initial conditions of [90;10];
+% uses initial conditions of [90;10;0;0];
 
-if opts.link_phase_death_rates
-    if ~opts.phase_dependent_death
-        death_rate = p(4) * dose;
-    else
-        death_rate = p(4) * dose * [p(1);p(2)];
-    end
-else
-    if opts.hill_activation
-        death_rate = p(4:5).*dose^p(6)/(dose^p(6)+p(7)^p(6));
-    else
-        death_rate = p(4:5) * dose;
-    end
+if isfield(fn_opts,"p_setup_fn")
+    p = fn_opts.p_setup_fn(p);
 end
 
-% sol2 = ode45(@(t,x) odefn(x,p,death_rate),[0 tt(end)],[90;10]);
-sol = ode23(@(t,x) odefn(x,p,death_rate),[0 tt(end)],[90;10]);
+dose_arrest_factor = 1/(1+(p(6)/dose)^p(7));
+dose_apoptosis_factor = p(8)/(1+(p(9)/dose)^p(10));
+
+sol = ode45(@(t,x) odefn(x,p,dose_arrest_factor,dose_apoptosis_factor),[0 tt(end)],[90;10;0;0]);
 temp = deval(sol,tt)';
 total = sum(temp,2);
-out = [total,temp(:,2)./total];
+out = [total,(temp(:,2)+temp(:,4))./total];
