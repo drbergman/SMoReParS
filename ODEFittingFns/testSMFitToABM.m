@@ -11,9 +11,6 @@ end
 load(par_file,"P")
 load(data_file,"t","D","C","cohort_size","nsamps_per_parameter_vector","n_time_series","n_conditions"); % some of these variables are not used now, but they might be once I get to filling out the conditional statements below
 
-
-
-
 P = reshape(P,size(P,1),[]);
 I = sort(randperm(size(P,2),nsamps));
 
