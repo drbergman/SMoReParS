@@ -11,7 +11,7 @@ opts.force_serial = false;
 opts.n_starts = 10;
 opts.temp_profile_name = "data/temp_optimal";
 opts.save_every_iter = 100; % wait at least this many iterations between saves
-opts.save_every_sec = 10*60; % wait at least this many seconds between saves
+opts.save_every_sec = 5*60; % wait at least this many seconds between saves
 opts.raw_error_opts.assume_independent_time_series = true; % assume that the two time series have diagonal covariance matrices at each time point
 
 cohort_name = "cohort_2305311216";
