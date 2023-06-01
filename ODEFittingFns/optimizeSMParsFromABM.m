@@ -14,16 +14,15 @@ m = size(D,1); % number of conditions used
 assert(isempty(C) || (numel(C)==m && numel(weights)==m)) % make sure that these match if there are any conditions
 
 npars = numel(p0);
-P = zeros(npars,n_abm_vecs);
 sz = [opts.n_starts,n_abm_vecs];
 n_total = prod(sz);
 if isfield(files,"previous_optim_file")
     load(files.previous_optim_file,"p_all","f_all");
-    p_all = reshape(p_all,[npars,n_total]);
+    p_all = reshape(p_all,[npars,sz]);
     f_all = reshape(f_all,sz);
     ind_to_run = find(f_all(:)==0);
 else
-    p_all = zeros([npars,n_total]);
+    p_all = zeros([npars,sz]);
     f_all = zeros(sz);
     ind_to_run = 1:n_total;
 end
@@ -44,7 +43,7 @@ if ~opts.force_serial
     %% This submits them all using parfeval
     FF(1:num_to_run) = parallel.FevalFuture;
     for i = 1:num_to_run
-        [abm_par_ind,sample_ind] = ind2sub(sz,ind_to_run(i));
+        [sample_ind,abm_par_ind] = ind2sub(sz,ind_to_run(i));
         if m==1
             d = D(abm_par_ind);
             F = @(p) rawError(p,t,d,fn,C{1},fn_opts,opts.raw_error_opts);
@@ -62,9 +61,9 @@ if ~opts.force_serial
 
     for i = 1:num_to_run
         [temp_idx,p_temp,f_temp] = fetchNext(FF);
-        idx = ind_to_run(temp_idx);
-        p_all(:,idx) = p_temp;
-        f_all(idx) = f_temp;
+        [sample_ind,abm_par_ind] = ind2sub(sz,ind_to_run(temp_idx));
+        p_all(:,sample_ind,abm_par_ind) = p_temp;
+        f_all(sample_ind,abm_par_ind) = f_temp;
 
         if mod(i,round(.01*num_to_run))==0
             fprintf("Finished %d of %d.\n",i,num_to_run)
@@ -79,7 +78,7 @@ if ~opts.force_serial
 else
     p_all = reshape(p_all,[npars,sz]);
     for i = 1:num_to_run
-        [abm_par_ind,sample_ind] = ind2sub(sz,ind_to_run(i));
+        [sample_ind,abm_par_ind] = ind2sub(sz,ind_to_run(i));
 
         if sample_ind>1
             p0_si = min(ub,max(lb,p0.*exp(.5*randn(npars,1))));
@@ -105,8 +104,8 @@ else
 
 end
 
-p_all = reshape(p_all,[npars,sz]);
 [~,best_case_inds] = min(f_all,[],1);
+P = zeros(npars,n_abm_vecs);
 for i = 1:n_abm_vecs
     P(:,i) = p_all(:,best_case_inds(i),i);
 end
