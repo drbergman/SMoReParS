@@ -8,9 +8,6 @@ end
 sz = reshape(cellfun(@numel,par_vals),1,[]);
 N = prod(sz);
 npars = length(sz);
-if ~isfield("objfn_constants","p_setup_fn")
-    objfn_constants.p_setup_fn = @(p) p;
-end
 
 load(files.data_file,"t","D","C","cohort_size");
 m = size(D,1);

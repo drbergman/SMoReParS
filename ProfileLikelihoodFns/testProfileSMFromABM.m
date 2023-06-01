@@ -5,11 +5,11 @@ if nargin>3 && ~isempty(input_opts)
     opts = overrideDefaultOptions(opts,input_opts);
 end
 
-load(profile_file,"out")
+load(profile_file,"profiles")
 
-npars = size(out,1);
-out = reshape(out,npars,[]);
-n_abm_vecs = size(out,2);
+npars = size(profiles,1);
+profiles = reshape(profiles,npars,[]);
+n_abm_vecs = size(profiles,2);
 
 if isempty(opts.abm_vec_inds)
     nsamps = min(nsamps,n_abm_vecs);
@@ -26,15 +26,15 @@ f = figure;
 ax = gobjects(nsamps,npars);
 for i = 1:nsamps
     for j = 1:npars
-        if size(out{j,I(i)},1) == 2
+        if size(profiles{j,I(i)},1) == 2
             par_ind = 1;
         else
             par_ind = j;
         end
         ax(i,j) = subplot(nsamps,npars,r2c(nsamps,npars,[i,j]));
-        min_val = min(out{j,I(i)}(end,:));
-        x = out{j,I(i)}(par_ind,:);
-        y = out{j,I(i)}(end,:);
+        min_val = min(profiles{j,I(i)}(end,:));
+        x = profiles{j,I(i)}(par_ind,:);
+        y = profiles{j,I(i)}(end,:);
         plot(ax(i,j),x,y,"LineWidth",2);
         yline(ax(i,j),min_val+threshold,"LineStyle","--")
         ax(i,j).YLim(1) = max(ax(i,j).YLim(1),.9*min_val);

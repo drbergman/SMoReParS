@@ -1,10 +1,10 @@
 function f = testAllProfileSMFromABM(profile_file,n_per_fig,sm_par_display_names)
 
-load(profile_file,"out")
+load(profile_file,"profiles")
 
-npars = size(out,1);
-out = reshape(out,npars,[]);
-n_abm_vecs = size(out,2);
+npars = size(profiles,1);
+profiles = reshape(profiles,npars,[]);
+n_abm_vecs = size(profiles,2);
 
 threshold = chi2inv(0.95,npars);
 
@@ -19,15 +19,15 @@ for fi = 1:nfigs
     ax = gobjects(n_per_fig,npars,nfigs);
     for i = 1:numel(I)
         for j = 1:npars
-            if size(out{j,I(i)},1) == 2
+            if size(profiles{j,I(i)},1) == 2
                 par_ind = 1;
             else
                 par_ind = j;
             end
             ax(i,j,fi) = subplot(n_per_fig,npars,r2c(n_per_fig,npars,[i,j]));
-            min_val = min(out{j,I(i)}(end,:));
-            x = out{j,I(i)}(par_ind,:);
-            y = out{j,I(i)}(end,:);
+            min_val = min(profiles{j,I(i)}(end,:));
+            x = profiles{j,I(i)}(par_ind,:);
+            y = profiles{j,I(i)}(end,:);
             plot(ax(i,j,fi),x,y);
             yline(ax(i,j,fi),min_val+threshold,"LineStyle","--")
             ax(i,j,fi).YLim(1) = max(ax(i,j,fi).YLim(1),.9*min_val);

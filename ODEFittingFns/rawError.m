@@ -1,4 +1,4 @@
-function out = rawError(p,tt,D,fn,C,fn_opts,input_opts)
+function raw_error = rawError(p,tt,D,fn,C,fn_opts,input_opts)
 
 % This function will compute the raw error (raw meaning it may be weighted
 % later based on number of data points, etc) of the surrogate model. It 
@@ -40,20 +40,20 @@ end
 sim_data = fn(p,tt,C,fn_opts,D.A);
 
 if opts.assume_independent_time_series % no opts passed in or chose to do independent time series
-    out = -sum(((sim_data - D.A)./D.S).^2,"all","omitnan");
+    raw_error = -sum(((sim_data - D.A)./D.S).^2,"all","omitnan");
     if ~opts.only_use_z_scores
-        out = 0.5*out - 0.5*size(sim_data,2)*log(2*pi()) - 0.5*sum(log(D.S),"all");
+        raw_error = 0.5*raw_error - 0.5*size(sim_data,2)*log(2*pi()) - 0.5*sum(log(D.S),"all");
     end
 else
     if opts.only_use_z_scores
-        out = sum(my_mvnpdf(sim_data,D.A,D.C,struct("only_use_z_scores",true)));
+        raw_error = sum(my_mvnpdf(sim_data,D.A,D.C,struct("only_use_z_scores",true)));
     else
-        out = sum(my_mvnpdf(sim_data,D.A,D.C,struct("only_use_z_scores",false)));
+        raw_error = sum(my_mvnpdf(sim_data,D.A,D.C,struct("only_use_z_scores",false)));
     end
 end
 
 if opts.report_as_error
-    out = -out;
+    raw_error = -raw_error;
 end
 
 end

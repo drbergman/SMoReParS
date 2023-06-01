@@ -13,15 +13,12 @@ addpath("../../../ODEFittingFns/")
 
 addpath("~/Documents/MATLAB/myfunctions/")
 
+model_type = "LogisticModel";
 %         1     2   3   4      5      6    7   8       9  10  11
 % p = [lambda,alpha,K,alphaR,alphaP,kalpha,a,delta0,kdelta,b,rho0]
 fixed_pars = ["lambda","alpha","K","b","a"];
-[p,lb,ub] = basePars(fixed_pars);
-p = min(ub,(max(lb,p.*(1+2*randn(11,1)))));
 fn = @computeTimeSeries;
-fn_opts = [];
-% lb = zeros(11,1);
-% ub = [Inf;Inf;1e4;10;10;10;10;10;10;10;0];
+[p,lb,ub,fn_opts.p_setup_fn] = fixParameters(model_type,fixed_pars);
 
 weight_choice = "uniform";
 

@@ -1,4 +1,4 @@
-function out = performProfile(files,objfn_constants,profile_params,input_opts)
+function profiles = performProfile(files,objfn_constants,profile_params,input_opts)
 
 % profiles each SM parameter for each "column" of the data array, Data 
 % array being reshaped to a 2D array. 
@@ -8,7 +8,6 @@ function out = performProfile(files,objfn_constants,profile_params,input_opts)
 %   data_file: the data in size [nconditions,cohort_size]
 %   previous_profile_file (optional): partially completed profile
 % objfn_constants: struct with fields that do vary by condition
-%   p_setup_fn (optional): function that transforms SM parameter vector (can be used to fix a given SM parameter, e.g.)
 %   fn: function used by rawError to generate SM output to compare against data
 %   fn_opts: options to be used by fn for all conditions
 %   weights: weights to use across conditions for objective function
@@ -42,10 +41,6 @@ if nargin==4 && ~isempty(input_opts)
     opts = overrideDefaultOptions(opts,input_opts);
 end
 
-if ~isfield(objfn_constants,"p_setup_fn")
-    objfn_constants.p_setup_fn = @(p) p;
-end
-
 if ~isfield(profile_params,"A")
     profile_params.A = [];
     profile_params.b = [];
@@ -60,11 +55,11 @@ P = reshape(P,size(P,1),[]);
 npars = size(P,1);
 t_start = tic;
 if isfield(files,"previous_profile_file")
-    load(files.previous_profile_file,"out")
-    out = reshape(out,npars,n_abm_vecs);
-    ind_to_run = find(any(cellfun(@isempty,out),1));
+    load(files.previous_profile_file,"profiles")
+    profiles = reshape(profiles,npars,n_abm_vecs);
+    ind_to_run = find(any(cellfun(@isempty,profiles),1));
 else
-    out = cell(npars,n_abm_vecs);
+    profiles = cell(npars,n_abm_vecs);
     ind_to_run = 1:n_abm_vecs;
 end
 
@@ -97,14 +92,14 @@ if ~opts.force_serial
     for i = 1:num_to_run
 
         [idx,temp] = fetchNext(FF);
-        out(:,ind_to_run(idx)) = temp;
+        profiles(:,ind_to_run(idx)) = temp;
 
         if mod(i,ceil(0.001*num_to_run))==0
             temp = toc(t_start);
             fprintf("Finished %d of %d after %s. ETR: %s\n",i,num_to_run,duration(0,0,temp),duration(0,0,temp/i * (num_to_run-i)))
         end
         if mod(i,opts.save_every_iter)==0 && toc(last_save_time) > opts.save_every_sec
-            save(opts.temp_profile_name,"out")
+            save(opts.temp_profile_name,"profiles")
             fprintf("---------------Saved at iteration i = %d---------------\n",i)
             last_save_time = tic;
         end
@@ -115,19 +110,19 @@ else
         current_ind = ind_to_run(i);
         d = D(:,current_ind);
         p = P(:,current_ind);
-        out(:,current_ind) = profileLikelihood(p,t,d,C,objfn_constants,profile_params,opts.profile_likelihood_options);
+        profiles(:,current_ind) = profileLikelihood(p,t,d,C,objfn_constants,profile_params,opts.profile_likelihood_options);
         if mod(i,ceil(0.001*num_to_run))==0
             temp = toc(t_start);    
             fprintf("Finished %d of %d after %s. ETR: %s\n",i,num_to_run,duration(0,0,temp),duration(0,0,temp/i * (num_to_run-i)))
         end
         if mod(i,opts.save_every_iter)==0 && toc(last_save_time) > opts.save_every_sec
-            save(opts.temp_profile_name,"out")
+            save(opts.temp_profile_name,"profiles")
             fprintf("---------------Saved at iteration i = %d---------------\n",i)
             last_save_time = tic;
         end
     end
 end
-out = reshape(out,[npars,cohort_size]);
+profiles = reshape(profiles,[npars,cohort_size]);
 
 end
 

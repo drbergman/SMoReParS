@@ -3,7 +3,10 @@
 
 clearvars;
 
-save_figs = true;
+save_fig_opts.save_figs = true;
+save_fig_opts.file_types = ["fig","png"];
+save_fig_opts.fig_names = ["SampleFitsOfSMToABM","BestSMParameterDistributions"];
+
 cohort_name = "cohort_230124175743017";
 
 addpath("~/Documents/MATLAB/myfunctions/")
@@ -20,20 +23,4 @@ fn_opts.condition_on_previous = false;
 
 f = testSMFitToABM(par_file,data_file,nsamps,fn,fn_opts,par_names);
 
-if save_figs
-    fig_names = ["SampleFitsOfSMToABM_Using_DependentStatesAndTimeSeries","BestSMParameterDistributions_Using_DependentStatesAndTimeSeries"];
-    for i = 1:numel(f)
-        if isempty(f(i).Name)
-            f(i).Name = fig_names(i);
-        end
-        fig_folders = ["figures/fig","figures/png"];
-        for j = 1:numel(fig_folders)
-            if ~exist(fig_folders(j),"dir")
-                mkdir(fig_folders(j))
-            end
-        end
-        savefig(f(i),sprintf("figures/fig/%s",f(i).Name))
-        print(f(i),sprintf("figures/png/%s",f(i).Name),"-dpng")
-    end
-end
-
+saveFigures(f,save_fig_opts)
