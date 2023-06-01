@@ -16,7 +16,7 @@ opts.raw_error_opts.assume_independent_time_series = true; % assume that the two
 
 cohort_name = "cohort_2305311216";
 files.data_file = sprintf("../../data/%s/summary.mat",cohort_name);
-files.previous_optim_file = "data/temp_optimal.mat";
+% files.previous_optim_file = "data/temp_optimal.mat";
 
 load("data/ODEFitToData.mat","fixed_pars")
 D = parameterOrdering("LogisticModel");
