@@ -7,8 +7,13 @@ if isfield(fn_opts,"p_setup_fn")
     p = fn_opts.p_setup_fn(p);
 end
 
-dose_arrest_factor = 1/(1+(p(6)/dose)^p(7));
-dose_apoptosis_factor = p(8)/(1+(p(9)/dose)^p(10));
+if dose~=0
+    dose_arrest_factor = 1/(1+(p(6)/dose)^p(7));
+    dose_apoptosis_factor = p(8)/(1+(p(9)/dose)^p(10));
+else
+    dose_arrest_factor = 0;
+    dose_apoptosis_factor = 0;
+end
 
 sol = ode45(@(t,x) odefn(x,p,dose_arrest_factor,dose_apoptosis_factor),[0 tt(end)],[90;10;0;0]);
 temp = deval(sol,tt)';

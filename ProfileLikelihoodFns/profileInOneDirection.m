@@ -1,21 +1,16 @@
 function [profile,pbest,val_at_center] = profileInOneDirection(profile,F,pbest,val_at_center,i,dir,profile_params,save_all_pars)
 
-% pbest is the best fit at the point. the
-% time series to compare against is given in tt, data, and data_std.
-% para_ranges sets bounds for profiling. lb and ub set bounds for
-% optimization while another parameter is being profiled. opts carries
-% fmincon options. threshold sets a cutoff for when profiling can be
-% stopped. save_all_pars can be passed in as true to save all parameter
+% pbest is the best fit at the point. The time series to compare against is
+% encoded by F. profile_params is a struct of parameter ranges, bounds, etc
+% for profiling. save_all_pars can be passed in as true to save all parameter
 % values, not just the profiled parameter value
 
 % In each direction of pbest(i) (left and right), the ith parameter changes
-% at 1% of pbest(i) for 10 steps. If it is still within para_ranges(i,:)
+% at proportionally to pbest(i) for n1 steps. If it is still within para_ranges(i,:)
 % and the value of the output is within F(pbest)+threshold, then continue
 % in that direction until one of those conditions fails.
 
-% will not assume that the pbest came from the same objective function as
-% we are using here
-
+%% setup profiling stuff
 npars = numel(pbest);
 if dir==-1
     par_extremum = profile_params.para_ranges(i,1);
@@ -37,6 +32,8 @@ else
     dxi = profile_params.smallest_par_step(i); % do not let the step size go below this as it steps towards a boundary
 end
 x0 = pbest;
+
+%% Stage 1: take at least n steps in one direction from pbest(i)
 first_vals = zeros(1,profile_params.min_num_steps(i));
 if save_all_pars
     first_pars = zeros(npars,profile_params.min_num_steps(i));
@@ -79,6 +76,8 @@ for j = 1:profile_params.min_num_steps(i)
         x0 = x0_new; % continue on from the new x0 value
     end
 end
+
+%% Stage 2: take adaptive step sizes until reaching the extremum for parameter i or until exceeding the threshold
 dxi = dxi * profile_params.secondary_step_factor(i); % for the remainder of the search, use this value of dxi
 if dir==-1
     max_steps = min(1000,ceil((x0(i)-profile_params.para_ranges(i,1))/dxi));
@@ -105,14 +104,14 @@ while true
     lb_temp(i) = x0_new(i);
     ub_temp(i) = x0_new(i);
     [x0_new,temp_val] = fmincon(F,x0_new,profile_params.A,profile_params.b,[],[],lb_temp,ub_temp,[],profile_params.opts);
-    if log10(temp_val/last_val) > 1
+    if temp_val > 10*last_val % if the new value is too much bigger (10x bigger) than then previous value, rerun the optimization with this new IC; This has helped in some cases, even if I increased the max function evaluations. It feels hacky, but it worked in that case.
         temp_val_prev = Inf;
-        while log10(temp_val_prev/temp_val) > 1
+        while temp_val_prev > 10*temp_val
             temp_val_prev = temp_val;
             [x0_new,temp_val] = fmincon(F,x0_new,profile_params.A,profile_params.b,[],[],lb_temp,ub_temp,[],profile_params.opts);
         end
     end
-    if temp_val < min_val + profile_params.threshold
+    if temp_val < min_val + profile_params.threshold % then record this and continue profiling
         j = j+1;
         if save_all_pars
             extra_pars(:,j) = x0_new;

@@ -31,9 +31,9 @@ if n_time_series == 1 && n_conditions == 1 % just plot in a rough square
     end
 elseif n_time_series > 1 && n_conditions == 1
     if nargin<7 || isempty(column_names)
-        column_names = strings(n_time_series,1);
+        column_names = cell(n_time_series,1);
         for i = 1:n_time_series
-            column_names(i) = sprintf("Time Series #%d",i);
+            column_names{i} = sprintf("Time Series #%d",i);
         end
     end
     f(1)=figure;
@@ -51,7 +51,7 @@ elseif n_time_series > 1 && n_conditions == 1
         ylabel(ax(ri,1),sprintf("#%d",I(ri)),"FontWeight","bold")
     end
     for ci = 1:n_time_series
-        title(ax(1,ci),column_names(ci))
+        title(ax(1,ci),column_names{ci})
     end
 elseif n_time_series==2 && n_conditions > 1
     f(1)=figure;
@@ -60,10 +60,10 @@ elseif n_time_series==2 && n_conditions > 1
     ax = gobjects(nsamps,n_conditions,n_time_series);
 
     if nargin<7 || isempty(column_names)
-        column_names = strings(n_conditions,n_time_series);
+        column_names = cell(n_conditions,n_time_series);
         for ci = 1:n_conditions
             for tsi = 1:n_time_series
-                column_names(ci,tsi) = sprintf("Condition #%d, Series #%d",ci,tsi);
+                column_names{ci,tsi} = sprintf("Condition #%d, Series #%d",ci,tsi);
             end
         end
     end
@@ -82,7 +82,7 @@ elseif n_time_series==2 && n_conditions > 1
     end
     for ci = 1:n_conditions
         for tsi = 1:n_time_series
-            title(ax(1,ci,tsi),column_names(ci,tsi))
+            title(ax(1,ci,tsi),column_names{ci,tsi})
         end
     end
 end

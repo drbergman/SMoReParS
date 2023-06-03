@@ -2,12 +2,12 @@
 % initial cell count is 100
 
 clearvars;
-
-make_save = true;
+file_name = "SMFitToData_Fit_b";
+make_save = false;
 save_fig_opts.save_figs = true;
-save_fig_opts.reprint = true;
+save_fig_opts.reprint = false;
 save_fig_opts.file_types = ["fig","png"];
-save_fig_opts.fig_names = "SMFitToData";
+save_fig_opts.fig_names = file_name;
 
 addpath("../../../ODEFittingFns/")
 
@@ -16,13 +16,13 @@ addpath("~/Documents/MATLAB/myfunctions/")
 model_type = "LogisticModel";
 %         1     2   3   4      5      6    7   8       9  10  11
 % p = [lambda,alpha,K,alphaR,alphaP,kalpha,a,delta0,kdelta,b,rho0]
-fixed_pars = ["lambda","alpha","K","b","a"];
+fixed_pars = ["lambda","alpha","K","a"];
 fn = @computeTimeSeries;
 [p,lb,ub,fn_opts.p_setup_fn] = fixParameters(model_type,fixed_pars);
 
 weight_choice = "uniform";
 
-opts = optimset('Display','on','TolFun',1e-12,'TolX',1e-12);
+optim_opts = optimset('Display','on','TolFun',1e-12,'TolX',1e-12,'MaxFunEval',1e4);
 
 %%
 
@@ -55,11 +55,11 @@ load("data/ExperimentalData.mat","t","D","C");
 %%
 F = @(p) arrayfun(@(i) rawError(p,t,D(i),fn,C{i},fn_opts),1:3)*weights;
 
-[P,fstar] = fmincon(F,p,[],[],[],[],lb,ub,[],opts);
+[P,fstar] = fmincon(F,p,[],[],[],[],lb,ub,[],optim_opts);
 
 %%
 if make_save
-    save("data/ODEFitToData.mat","P","fstar","weights","fn_opts","lb","ub","fixed_pars","fn","fn_opts","opts")
+    save("data/" + file_name,"P","fstar","weights","fn_opts","lb","ub","fixed_pars","fn","fn_opts","optim_opts","model_type") %#ok<*UNRCH>
 end
 %%
 f=figure;

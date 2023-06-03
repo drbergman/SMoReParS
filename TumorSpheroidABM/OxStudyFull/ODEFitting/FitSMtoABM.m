@@ -3,12 +3,10 @@
 
 clearvars;
 
+file_name = "SMFitToABM_Fit_b";
 make_save = true;
 addpath("../../../ODEFittingFns/")
 addpath("~/Documents/MATLAB/myfunctions/")
-
-model_type = "LogisticModel";
-
 
 opts.force_serial = false;
 opts.n_starts = 10;
@@ -21,12 +19,9 @@ cohort_name = "cohort_2305311216";
 files.data_file = sprintf("../../data/%s/summary.mat",cohort_name);
 % files.previous_optim_file = "data/temp_optimal.mat";
 
-load("data/ODEFitToData.mat","fixed_pars")
-
-fn = @computeTimeSeries;
-[p,lb,ub,fn_opts.p_setup_fn] = fixParameters(model_type,fixed_pars);
-
-optim_opts = optimset('Display','off','TolFun',1e-12,'TolX',1e-12);
+load("data/SMFitToData_Fit_b.mat","fixed_pars","fn","lb","ub","fn_opts","model_type","optim_opts")
+optim_opts.Display = "off";
+[p,~,~,~] = fixParameters(model_type,fixed_pars);
 
 weights = [1;1;1];
 
@@ -34,7 +29,7 @@ weights = [1;1;1];
 P = optimizeSMParsFromABM(files,p,fn,fn_opts,lb,ub,optim_opts,weights,opts);
 
 if make_save
-    save("data/ODEFitToABM.mat","P") 
+    save("data/" + file_name,"P") 
 end
 
 rmpath("../../../ODEFittingFns/")

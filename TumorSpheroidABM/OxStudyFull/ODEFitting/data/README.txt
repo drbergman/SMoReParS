@@ -2,7 +2,11 @@ ExperimentalData.mat:
     MAT file that contains experimental data in proper form used for analysis.
     Created by DataFile.m.
 
-OptimalParameters.mat:
+ODEFitToABM.mat:
+    Optimal parameters for SM on experimental data.
+    lambda, alpha, K, a, b are all fixed.
+
+ODEFitToABM.mat:
     Optimal parameters for SM on cohort_2305311216.
     lambda, alpha, K, a, b are all fixed.
     
