@@ -28,14 +28,13 @@ function profile = cleanThisProfile(profile,i,j,threshold)
 try % if this returns without error, then just trim the profile
     profile = trimProfile(profile,threshold);
 catch % but if there's an error, then there's multiple crosses, remove extraneous times it rose above the threshold
-    [inds_before_drop,inds_before_rise,~] = findMaxCrosses(profile(end,:),threshold);
+    [inds_before_drop,inds_before_rise,max_val] = findMaxCrosses(profile(end,:),threshold);
     [i1,~] = find(inds_before_drop'-inds_before_rise==1); % I1 contains indices where the value began to drop; if these come right after an increase over the threshold, then these are likely outliers we want to ignore
     if ~isempty(i1) % then there was at least one time a jump occurred, ignore these
         profile(:,inds_before_drop(i1)) = [];
         profile = cleanThisProfile(profile,i,j,threshold);
     else
         % plot unclean profile
-        max_val = min(profile(end,:)) + threshold;
         f=figureOnRight;
         plot(profile(j,:),profile(end,:),"Marker",".")
         yline(max_val)
