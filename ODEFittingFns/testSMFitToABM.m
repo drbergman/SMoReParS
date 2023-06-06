@@ -99,7 +99,7 @@ end
 %% histograms of RSS values
 if isfield(files,"sm_fit_file")
     warning("off",'MATLAB:load:variableNotFound')
-    load(files.sm_file,"raw_error_options","weights")
+    load(files.sm_fit_file,"raw_error_options","weights")
     warning("on",'MATLAB:load:variableNotFound')
     if ~exist("raw_error_options","var")
         raw_error_options = [];

@@ -1,13 +1,18 @@
 clearvars;
 
-save_fig_opts.save_figs = true;
+save_fig_opts.save_figs = false;
 save_fig_opts.file_types = ["fig","png"];
 save_fig_opts.reprint = true;
 
+file_base_name = "Data";
 
-load("data/Profiles_SMFromData_clean.mat","out")
-sm_par_display_names = ["\lambda","\alpha","K","d_{G1/S}","d_{G2/M}","EC50"];
-sm_par_file_names = ["lambda","alpha","K","dG1S","dG2M","ec50"];
+load("../ODEFitting/data/SMFitTo" + file_base_name,"fixed_pars")
+load("data/Profiles_SMFrom" + file_base_name + "_clean.mat","profiles")
+sm_par_display_names = ["\lambda";"\alpha";"K";"\alpha_R";"\alpha_P";"k_\alpha";"a";"\delta_0";"k_\delta";"b";"\rho_0"];
+for i = 1:numel(fixed_pars)
+    sm_par_display_names(regexprep(sm_par_display_names,'\','')==fixed_pars(i)) = [];
+end
+sm_par_file_names = regexprep(sm_par_display_names,'\','');
 
 figure_layout = "individual";
 
@@ -18,17 +23,17 @@ switch figure_layout
         f = figureOnRight("Name","ParTriplesAll","Units","pixels","Position",[0 0 1440 820]);
         tiledlayout("flow")
 
-        np = size(out,1);
+        np = size(profiles,1);
         for xi = 1:np
             for yi = (xi+1):np
                 for zi = (yi+1):np
                     nexttile; hold on;
-                    % scatter3(out{xi}(xi,:),out{xi}(yi,:),out{xi}(zi,:),"filled","DisplayName",sm_par_display_names(xi))
-                    % scatter3(out{yi}(xi,:),out{yi}(yi,:),out{yi}(zi,:),"filled","DisplayName",sm_par_display_names(yi))
-                    % scatter3(out{zi}(xi,:),out{zi}(yi,:),out{zi}(zi,:),"filled","DisplayName",sm_par_display_names(zi))
-                    plot3(out{xi}(xi,:),out{xi}(yi,:),out{xi}(zi,:),"Marker","o","MarkerFaceColor",colors(1,:),"MarkerSize",2,"DisplayName",sm_par_display_names(xi))
-                    plot3(out{yi}(xi,:),out{yi}(yi,:),out{yi}(zi,:),"Marker","o","MarkerFaceColor",colors(2,:),"MarkerSize",2,"DisplayName",sm_par_display_names(yi))
-                    plot3(out{zi}(xi,:),out{zi}(yi,:),out{zi}(zi,:),"Marker","o","MarkerFaceColor",colors(3,:),"MarkerSize",2,"DisplayName",sm_par_display_names(zi))
+                    % scatter3(profiles{xi}(xi,:),profiles{xi}(yi,:),profiles{xi}(zi,:),"filled","DisplayName",sm_par_display_names(xi))
+                    % scatter3(profiles{yi}(xi,:),profiles{yi}(yi,:),profiles{yi}(zi,:),"filled","DisplayName",sm_par_display_names(yi))
+                    % scatter3(profiles{zi}(xi,:),profiles{zi}(yi,:),profiles{zi}(zi,:),"filled","DisplayName",sm_par_display_names(zi))
+                    plot3(profiles{xi}(xi,:),profiles{xi}(yi,:),profiles{xi}(zi,:),"Marker","o","MarkerFaceColor",colors(1,:),"MarkerSize",2,"DisplayName",sm_par_display_names(xi))
+                    plot3(profiles{yi}(xi,:),profiles{yi}(yi,:),profiles{yi}(zi,:),"Marker","o","MarkerFaceColor",colors(2,:),"MarkerSize",2,"DisplayName",sm_par_display_names(yi))
+                    plot3(profiles{zi}(xi,:),profiles{zi}(yi,:),profiles{zi}(zi,:),"Marker","o","MarkerFaceColor",colors(3,:),"MarkerSize",2,"DisplayName",sm_par_display_names(zi))
                     xlabel(sm_par_display_names(xi))
                     ylabel(sm_par_display_names(yi))
                     zlabel(sm_par_display_names(zi))
@@ -41,7 +46,7 @@ switch figure_layout
 
     case "individual" % plot all triples on own figure
         save_fig_opts.subfolder = "ParameterTriples";
-        np = size(out,1);
+        np = size(profiles,1);
         fi = 0;
         for xi = 1:np
             for yi = (xi+1):np
@@ -49,12 +54,12 @@ switch figure_layout
                     fi = fi+1;
                     f(fi) = figureOnRight("Name",sprintf("ParTriple_%s_%s_%s",sm_par_file_names(xi),sm_par_file_names(yi),sm_par_file_names(zi)));
                     hold on;
-                    % scatter3(out{xi}(xi,:),out{xi}(yi,:),out{xi}(zi,:),"filled","DisplayName",sm_par_display_names(xi))
-                    % scatter3(out{yi}(xi,:),out{yi}(yi,:),out{yi}(zi,:),"filled","DisplayName",sm_par_display_names(yi))
-                    % scatter3(out{zi}(xi,:),out{zi}(yi,:),out{zi}(zi,:),"filled","DisplayName",sm_par_display_names(zi))
-                    plot3(out{xi}(xi,:),out{xi}(yi,:),out{xi}(zi,:),"Marker","o","MarkerFaceColor",colors(1,:),"MarkerSize",2,"DisplayName",sm_par_display_names(xi))
-                    plot3(out{yi}(xi,:),out{yi}(yi,:),out{yi}(zi,:),"Marker","o","MarkerFaceColor",colors(2,:),"MarkerSize",2,"DisplayName",sm_par_display_names(yi))
-                    plot3(out{zi}(xi,:),out{zi}(yi,:),out{zi}(zi,:),"Marker","o","MarkerFaceColor",colors(3,:),"MarkerSize",2,"DisplayName",sm_par_display_names(zi))
+                    % scatter3(profiles{xi}(xi,:),profiles{xi}(yi,:),profiles{xi}(zi,:),"filled","DisplayName",sm_par_display_names(xi))
+                    % scatter3(profiles{yi}(xi,:),profiles{yi}(yi,:),profiles{yi}(zi,:),"filled","DisplayName",sm_par_display_names(yi))
+                    % scatter3(profiles{zi}(xi,:),profiles{zi}(yi,:),profiles{zi}(zi,:),"filled","DisplayName",sm_par_display_names(zi))
+                    plot3(profiles{xi}(xi,:),profiles{xi}(yi,:),profiles{xi}(zi,:),"Marker","o","MarkerFaceColor",colors(1,:),"MarkerSize",2,"DisplayName",sm_par_display_names(xi))
+                    plot3(profiles{yi}(xi,:),profiles{yi}(yi,:),profiles{yi}(zi,:),"Marker","o","MarkerFaceColor",colors(2,:),"MarkerSize",2,"DisplayName",sm_par_display_names(yi))
+                    plot3(profiles{zi}(xi,:),profiles{zi}(yi,:),profiles{zi}(zi,:),"Marker","o","MarkerFaceColor",colors(3,:),"MarkerSize",2,"DisplayName",sm_par_display_names(zi))
                     xlabel(sm_par_display_names(xi))
                     ylabel(sm_par_display_names(yi))
                     zlabel(sm_par_display_names(zi))
