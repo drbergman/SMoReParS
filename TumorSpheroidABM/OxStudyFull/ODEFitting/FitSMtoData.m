@@ -2,10 +2,10 @@
 % initial cell count is 100
 
 clearvars;
-file_name = "SMFitToData_Fit_b";
-make_save = false;
+file_name = "SMFitToData_FitAll";
+make_save = true;
 save_fig_opts.save_figs = true;
-save_fig_opts.reprint = false;
+save_fig_opts.reprint = true;
 save_fig_opts.file_types = ["fig","png"];
 save_fig_opts.fig_names = file_name;
 
@@ -16,9 +16,12 @@ addpath("~/Documents/MATLAB/myfunctions/")
 model_type = "LogisticModel";
 %         1     2   3   4      5      6    7   8       9  10  11
 % p = [lambda,alpha,K,alphaR,alphaP,kalpha,a,delta0,kdelta,b,rho0]
-fixed_pars = ["lambda","alpha","K","a"];
+% fixed_pars = ["lambda","alpha","K","a","b"];
+fixed_pars = [];
 fn = @computeTimeSeries;
 [p,lb,ub,fn_opts.p_setup_fn] = fixParameters(model_type,fixed_pars);
+
+p = p.*exp(0.5*randn(size(p)));
 
 weight_choice = "uniform";
 

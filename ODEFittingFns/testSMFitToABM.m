@@ -1,4 +1,4 @@
-function [f,I] = testSMFitToABM(par_file,data_file,nsamps,fn,fn_opts,par_names,column_names)
+function [f,I] = testSMFitToABM(files,nsamps,fn,fn_opts,par_names,column_names)
 
 
 if contains(path,"myfunctions")
@@ -8,11 +8,12 @@ else
     addpath("~/Documents/MATLAB/myfunctions/")
 end
 
-load(par_file,"P")
-load(data_file,"t","D","C","cohort_size","nsamps_per_parameter_vector","n_time_series","n_conditions"); % some of these variables are not used now, but they might be once I get to filling out the conditional statements below
+load(files.par_file,"P")
+load(files.data_file,"t","D","C","cohort_size","nsamps_per_parameter_vector","n_time_series","n_conditions"); %#ok<NASGU> % some of these variables are not used now, but they might be once I get to filling out the conditional statements below
 
 P = reshape(P,size(P,1),[]);
 I = sort(randperm(size(P,2),nsamps));
+D = reshape(D,n_conditions,[]);
 
 f = gobjects(2,1);
 %% these will be filled out as new cases are covered with this
@@ -94,6 +95,27 @@ for i = 1:size(P,1)
     histogram(P(i,:))
     title(par_names(i))
 end
+
+%% histograms of RSS values
+if isfield(files,"sm_fit_file")
+    warning("off",'MATLAB:load:variableNotFound')
+    load(files.sm_file,"raw_error_options","weights")
+    warning("on",'MATLAB:load:variableNotFound')
+    if ~exist("raw_error_options","var")
+        raw_error_options = [];
+    end
+    f(3) = figure;
+    RSS = zeros(1,size(P,2));
+    for i = 1:size(P,2)
+        RSS(i) = arrayfun(@(j) rawError(P(:,i),t,D(j,i),fn,C{j},fn_opts,raw_error_options),1:n_conditions)*weights;
+    end
+    histogram(RSS);
+    title("RSS of All Fits")
+    xlabel("RSS")
+    ylabel("Frequency")
+
+end
+
 
 if path_changed
     rmpath("~/Documents/MATLAB/myfunctions/")

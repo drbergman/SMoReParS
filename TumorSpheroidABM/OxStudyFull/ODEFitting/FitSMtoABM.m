@@ -3,7 +3,7 @@
 
 clearvars;
 
-file_name = "SMFitToABM_Fit_b";
+file_name = "SMFitToABM_FitAll";
 make_save = true;
 addpath("../../../ODEFittingFns/")
 addpath("~/Documents/MATLAB/myfunctions/")
@@ -19,7 +19,7 @@ cohort_name = "cohort_2305311216";
 files.data_file = sprintf("../../data/%s/summary.mat",cohort_name);
 % files.previous_optim_file = "data/temp_optimal.mat";
 
-load("data/SMFitToData_Fit_b.mat","fixed_pars","fn","lb","ub","fn_opts","model_type","optim_opts")
+load("data/SMFitToData_FitAll.mat","fixed_pars","fn","lb","ub","fn_opts","model_type","optim_opts")
 optim_opts.Display = "off";
 [p,~,~,~] = fixParameters(model_type,fixed_pars);
 

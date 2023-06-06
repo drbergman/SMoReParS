@@ -4,14 +4,15 @@
 clearvars;
 
 save_fig_opts.save_figs = true;
-save_fig_opts.reprint = true;
+save_fig_opts.reprint = false;
 save_fig_opts.file_types = ["fig","png"];
-save_fig_opts.fig_names = ["SampleFitsOfSMToABM_Fit_b","BestSMParameterDistributions_Fit_b"];
+save_fig_opts.fig_names = ["SampleFitsOfSMToABM_Fit_b","BestSMParameterDistributions_Fit_b","RSSOfSMFitsToABM_Fit_b"];
 
 cohort_name = "cohort_2305311216";
 
-par_file = "data/SMFitToABM_Fit_b.mat";
-data_file = sprintf("../../data/%s/summary.mat",cohort_name);
+files.par_file = "data/SMFitToABM_Fit_b.mat";
+files.data_file = sprintf("../../data/%s/summary.mat",cohort_name);
+files.sm_fit_file = "data/SMFitToData_Fit_b.mat";
 
 addpath("~/Documents/MATLAB/myfunctions/")
 addpath("../../../ODEFittingFns/")
@@ -23,10 +24,9 @@ column_names = {["Control Count";"NOT Fit"],["Control G2/M Prop";"NOT Fit"];
 
 nsamps = 10;
 
-load("data/SMFitToData_Fit_b.mat","fixed_pars","fn","lb","ub","fn_opts","model_type")
-[p,~,~,~] = fixParameters(model_type,fixed_pars);
+load("data/SMFitToData_Fit_b.mat","fn","fn_opts")
 
-[f,I] = testSMFitToABM(par_file,data_file,nsamps,fn,fn_opts,par_names,column_names);
+[f,I] = testSMFitToABM(files,nsamps,fn,fn_opts,par_names,column_names);
 
 saveFigures(f,save_fig_opts)
 

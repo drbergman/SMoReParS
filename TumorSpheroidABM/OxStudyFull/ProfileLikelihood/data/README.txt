@@ -1,8 +1,38 @@
-Profiles_SMFromData:
+Profiles_SMFromABM.mat:
+    Profile of SM from ABM fixing 5 parameters:
+        control parameters (lambda, alpha, K)
+        Hill coefficients (a,b)
+    Not cleaned.
+
+Profiles_SMFromABM_clean.mat:
+    Cleaned version of Profiles_SMFromABM.mat.
+
+Profiles_SMFromABM_Fit_b.mat:
+    Profile of SM from ABM fixing 6 parameters:
+        control parameters (lambda, alpha, K)
+        Hill coefficient controlling arrest rate (a)
+    Not cleaned.
+
+Profiles_SMFromABM_Fit_b_clean.mat:
+    Cleaned version of Profiles_SMFromABM_Fit_b.mat.
+
+Profiles_SMFromData.mat:
     Profile of SM from data fixing 5 parameters:
         control parameters (lambda, alpha, K)
         Hill coefficients (a,b)
-    Cleaned.
+    Not cleaned.
+
+Profiles_SMFromData_clean.mat:
+    Cleaned version of Profiles_SMFromData.mat.
+
+Profiles_SMFromData_Fit_b.mat:
+    Profile of SM from data fixing 6 parameters:
+        control parameters (lambda, alpha, K)
+        Hill coefficient controlling arrest rate (a)
+    Not cleaned.
+
+Profiles_SMFromData_Fit_b_clean.mat:
+    Cleaned version of Profiles_SMFromData_Fit_b.mat.
 
 Graveyard:
     These were all done with the first version for this model.

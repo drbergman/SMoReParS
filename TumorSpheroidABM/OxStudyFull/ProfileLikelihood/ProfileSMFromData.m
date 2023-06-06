@@ -10,11 +10,13 @@ addpath("../ODEFitting/")
 
 addpath("~/Documents/MATLAB/myfunctions/")
 
-file_name = "Profiles_SMFromData_Fit_b";
+file_name = "Profiles_SMFromData";
 
-files.par_file = "../ODEFitting/data/SMFitToData_Fit_b.mat";
+files.par_file = "../ODEFitting/data/SMFitToData.mat";
 files.data_file = "../ODEFitting/data/ExperimentalData.mat";
 % files.previous_profile_file = "ProfileLikelihoods.mat";
+
+load("../ODEFitting/data/SMFitToData.mat","fixed_pars","fn","lb","ub","fn_opts","model_type","optim_opts")
 
 options.profile_likelihood_options.save_all_pars = true;
 options.force_serial = true;
@@ -22,7 +24,6 @@ options.force_serial = true;
 % options.save_every_iter = 100; % wait at least this many iterations between saves
 % options.save_every_sec = 10*60; % wait at least this many seconds between saves
 
-load("../ODEFitting/data/SMFitToData_Fit_b.mat","fixed_pars","fn","lb","ub","fn_opts","model_type","optim_opts")
 optim_opts.Display = "off";
 [p,~,~,~] = fixParameters(model_type,fixed_pars);
 
