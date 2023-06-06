@@ -16,6 +16,13 @@ Profiles_SMFromABM_Fit_b.mat:
 Profiles_SMFromABM_Fit_b_clean.mat:
     Cleaned version of Profiles_SMFromABM_Fit_b.mat.
 
+Profiles_SMFromABM_FitAll.mat (not created yet!):
+    Profile of SM from ABM fitting all SM parameters.
+    Not cleaned.
+
+Profiles_SMFromABM_FitAll_clean.mat (not created yet!):
+    Cleaned version of Profiles_SMFromABM_FitAll.mat.
+
 Profiles_SMFromData.mat:
     Profile of SM from data fixing 5 parameters:
         control parameters (lambda, alpha, K)
