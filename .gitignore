@@ -5,6 +5,7 @@
 #TumorSpheroidABM/data (now handling this with a subfolder level .gitignore)
 KerrisABM/data
 KerrisABM/Sensitivity/data
+.vscode
 
 # file formats not to save
 **.asv
