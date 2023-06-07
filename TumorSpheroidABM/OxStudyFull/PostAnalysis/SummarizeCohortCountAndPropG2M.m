@@ -1,7 +1,7 @@
 % a script to summarize cohort data just with count and proportion in g2/m.
 
 clearvars;
-cohort_name = "cohort_2305311216";
+cohort_name = "cohort_2306062212";
 addpath("~/Documents/MATLAB/myfunctions/")
 
 %% load cohort data

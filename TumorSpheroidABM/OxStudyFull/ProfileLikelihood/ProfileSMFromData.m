@@ -10,13 +10,13 @@ addpath("../ODEFitting/")
 
 addpath("~/Documents/MATLAB/myfunctions/")
 
-file_name = "Profiles_SMFromData_FitAll";
+file_name = "Profiles_SMFromData_LMS";
 
-files.par_file = "../ODEFitting/data/SMFitToData_FitAll.mat";
+files.par_file = "../ODEFitting/data/SMFitToData_LMS.mat";
 files.data_file = "../ODEFitting/data/ExperimentalData.mat";
 % files.previous_profile_file = "ProfileLikelihoods.mat";
 
-load("../ODEFitting/data/SMFitToData_FitAll.mat","fixed_pars","fn","lb","ub","fn_opts","model_type","optim_opts")
+load("../ODEFitting/data/SMFitToData_LMS.mat","fixed_pars","fn","lb","ub","fn_opts","model_type","optim_opts")
 
 options.profile_likelihood_options.save_all_pars = true;
 options.force_serial = true; % no benefit to running this in parallel (only for doing this across multiple ABM parameter vectors)
