@@ -18,6 +18,14 @@ sz = [opts.n_starts,n_abm_vecs];
 n_total = prod(sz);
 if isfield(files,"previous_optim_file")
     load(files.previous_optim_file,"p_all","f_all");
+    if size(f_all,1)>opts.n_starts % now asking for fewer initializations for optimization
+        f_all = f_all(1:opts.n_starts,:);
+        p_all = p_all(:,1:opts.n_starts,:);
+    elseif size(f_all,1)<opts.n_starts % now asking for more initializations for optimization
+        n_new = opts.n_starts-size(f_all,1);
+        f_all = cat(1,f_all,zeros(n_new,n_abm_vecs));
+        p_all = cat(2,p_all,zeros(npars,n_new,n_abm_vecs));
+    end
     p_all = reshape(p_all,[npars,sz]);
     f_all = reshape(f_all,sz);
     ind_to_run = find(f_all(:)==0);

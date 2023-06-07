@@ -3,7 +3,7 @@ clearvars;
 addpath("../../../ProfileLikelihoodFns/")
 
 overwrite_profile = false;
-profile_to_clean = "data/Profiles_SMFromData";
+profile_to_clean = "data/Profiles_SMFromData_LMS";
 
 %% load and clean profiles
 load(profile_to_clean,"profiles") % profiles from ABM

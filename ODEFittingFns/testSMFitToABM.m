@@ -31,7 +31,7 @@ if n_time_series == 1 && n_conditions == 1 % just plot in a rough square
         title(ax(i),sprintf("#%d",I(i)),"FontWeight","bold")
     end
 elseif n_time_series > 1 && n_conditions == 1
-    if nargin<7 || isempty(column_names)
+    if nargin<6 || isempty(column_names)
         column_names = cell(n_time_series,1);
         for i = 1:n_time_series
             column_names{i} = sprintf("Time Series #%d",i);
@@ -60,7 +60,7 @@ elseif n_time_series==2 && n_conditions > 1
     nc = n_conditions*n_time_series;
     ax = gobjects(nsamps,n_conditions,n_time_series);
 
-    if nargin<7 || isempty(column_names)
+    if nargin<6 || isempty(column_names)
         column_names = cell(n_conditions,n_time_series);
         for ci = 1:n_conditions
             for tsi = 1:n_time_series
@@ -91,7 +91,7 @@ xlim(ax,[t(1) t(end)])
 %% histograms of parameter values
 f(2)=figure;
 for i = 1:size(P,1)
-    subplot(size(P,1),1,i)
+    nexttile
     histogram(P(i,:))
     title(par_names(i))
 end

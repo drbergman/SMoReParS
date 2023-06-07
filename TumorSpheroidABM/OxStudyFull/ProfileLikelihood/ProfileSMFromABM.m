@@ -13,14 +13,14 @@ addpath("../ODEFitting/")
 
 addpath("~/Documents/MATLAB/myfunctions/")
 
-file_name = "Profiles_SMFromABM_Fit_b";
+file_name = "Profiles_SMFromABM_LMS";
 
-% folder to store plots and text files
-cohort_name = "cohort_2305311216";
+files.par_file = "../ODEFitting/data/SMFitToABM_LMS.mat";
 
-files.par_file = "../ODEFitting/data/SMFitToABM_Fit_b.mat";
+load(files.par_file,"cohort_name")
+
 files.data_file = sprintf("../../data/%s/summary.mat",cohort_name);
-files.previous_profile_file = "data/temp_profile.mat";
+% files.previous_profile_file = "data/temp_profile.mat";
 % files.previous_profile_file = "ProfileLikelihoods.mat";
 
 options.profile_likelihood_options.save_all_pars = true;
@@ -29,7 +29,7 @@ options.temp_profile_name = "data/temp_profile";
 options.save_every_iter = 50; % wait at least this many iterations between saves
 options.save_every_sec = 5*60; % wait at least this many seconds between saves
 
-load("../ODEFitting/data/SMFitToData_Fit_b.mat","fixed_pars","fn","lb","ub","fn_opts","model_type","optim_opts")
+load("../ODEFitting/data/SMFitToData_LMS.mat","fixed_pars","fn","lb","ub","fn_opts","model_type","optim_opts")
 optim_opts.Display = "off";
 [p,~,~,~] = fixParameters(model_type,fixed_pars);
 

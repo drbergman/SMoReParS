@@ -1,25 +1,34 @@
 clearvars;
 
+addpath("../ODEFitting/")
+
 save_fig_opts.save_figs = true;
 save_fig_opts.file_types = ["fig","png"];
-save_fig_opts.reprint = false;
+save_fig_opts.reprint = true;
 
-show_legend = false;
+show_legend = true;
 
-file_base_name = "Data_FitAll";
+file_base_name = "Data_LMS";
 
-load("../ODEFitting/data/SMFitTo" + file_base_name,"fixed_pars")
+load("../ODEFitting/data/SMFitTo" + file_base_name,"fixed_pars","model_type")
 load("data/Profiles_SMFrom" + file_base_name + "_clean.mat","profiles")
-sm_par_display_names = ["\lambda";"\alpha";"K";"\alpha_R";"\alpha_P";"k_\alpha";"a";"\delta_0";"k_\delta";"b";"\rho_0"];
-for i = 1:numel(fixed_pars)
-    sm_par_display_names(regexprep(sm_par_display_names,'\','')==fixed_pars(i)) = [];
-end
-sm_par_file_names = regexprep(sm_par_display_names,'\','');
+sm_par_file_names = ["lambda";"alpha";"K";"alphaR";"alphaP";"kalpha";"a";"low_dose_apop";"delta_dose_apop";"rho0"];
 
-figure_layout = "unified";
+figure_layout = "individual"; % unified or individual
 
 colors = lines(2); % for when I need to use this to specifiy a color
 
+
+%% set up parameter names
+D = parameterDisplayNameDictionary(model_type);
+[~,I] = setdiff(sm_par_file_names,fixed_pars);
+sm_par_file_names = sm_par_file_names(sort(I));
+sm_par_display_names = sm_par_file_names;
+for i = 1:numel(sm_par_display_names)
+    sm_par_display_names(i) = D(sm_par_display_names(i));
+end
+
+%% plots
 switch figure_layout
     case "unified" % plot all doubles on single figure
         f = figureOnRight("Name","ParDoublesAll_SMFitTo" + file_base_name,"Units","pixels","Position",[0 0 1440 820]);
@@ -43,8 +52,11 @@ switch figure_layout
         if ~show_legend
             L = legend(["x","y"],"Location","best","FontSize",16);
             title(L,"Profiled Dimension")
+            fprintf("You probably want to move the legend off the final plot. Pausing for you to do that...\n")
+            pause
+        else
+            fprintf("You probably want to move legends off the plots.\n")
         end
-
     case "individual" % plot all doubles on own figure
         save_fig_opts.subfolder = "ParameterDoubles_SMFitTo" + file_base_name;
         np = size(profiles,1);
@@ -71,3 +83,6 @@ end
 
 %% save figures
 saveFigures(f,save_fig_opts);
+
+%% reset path
+rmpath("../ODEFitting/")

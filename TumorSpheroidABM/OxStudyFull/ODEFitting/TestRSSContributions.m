@@ -5,12 +5,12 @@
 clearvars;
 
 save_fig_opts.save_figs = true;
-save_fig_opts.reprint = false;
+save_fig_opts.reprint = true;
 save_fig_opts.file_types = ["fig","png"];
 
-load("data/SMFitToABM_FitAll.mat","P")
-load("data/SMFitToData_FitAll.mat","fn_opts")
-load("../../data/cohort_2305311216/summary.mat","D","C","n_conditions","n_time_series","t")
+load("data/SMFitToABM_LMS.mat","P","cohort_name")
+load("data/SMFitToData_LMS.mat","fn_opts")
+load(sprintf("../../data/%s/summary.mat",cohort_name),"D","C","n_conditions","n_time_series","t")
 
 P = reshape(P,size(P,1),[]);
 
@@ -18,7 +18,7 @@ condition_titles = ["Control","0.75\mu M","7.55\mu M"];
 time_series_titles = ["Count","G2/M Prop"];
 
 RSS = zeros(n_conditions,n_time_series,size(P,2));
-f = figureOnRight("Name","RSSBreakdown_SMFitToABM_FitAll");
+f = figureOnRight("Name","RSSBreakdown_SMFitToABM_LMS");
 ax = gobjects(n_conditions,n_time_series);
 for j = 1:n_conditions
     title_str = condition_titles(j);
