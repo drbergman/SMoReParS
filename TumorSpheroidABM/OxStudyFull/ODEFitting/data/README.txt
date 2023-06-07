@@ -2,13 +2,29 @@ ExperimentalData.mat:
     MAT file that contains experimental data in proper form used for analysis.
     Created by DataFile.m.
 
-ODEFitToABM.mat:
-    Optimal parameters for SM on experimental data.
-    lambda, alpha, K, a, b are all fixed.
-
-ODEFitToABM.mat:
+SMFitToABM_Fit_b.mat:
     Optimal parameters for SM on cohort_2305311216.
-    lambda, alpha, K, a, b are all fixed.
+    lambda, alpha, K, a are all fixed.
+
+SMFitToABM_FitAll.mat:
+    Similar to SMFitToABM_Fit_b.mat.
+    All SM parameters fit.
+
+SMFitToABM.mat:
+    Similar to SMFitToABM_Fit_b.mat.
+    This also fixes b compared to that one.
+
+SMFitToData_Fit_b.mat:
+    Optimal parameters for SM on experimental data.
+    lambda, alpha, K, a are all fixed.
+
+SMFitToData_FitAll.mat:
+    Similar to SMFitToData_Fit_b.mat.
+    All SM parameters fit.
+
+SMFitToData.mat:
+    Similar to SMFitToData_Fit_b.mat.
+    This also fixes b compared to that one.
     
 Graveyard:
     From the first SM that was the control with chemo-induced death.
