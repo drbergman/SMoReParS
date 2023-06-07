@@ -2,10 +2,10 @@
 % initial cell count is 100
 
 clearvars;
-file_name = "SMFitToData_FitAll";
+file_name = "SMFitToData_LMS";
 make_save = true;
 save_fig_opts.save_figs = true;
-save_fig_opts.reprint = true;
+save_fig_opts.reprint = false;
 save_fig_opts.file_types = ["fig","png"];
 save_fig_opts.fig_names = file_name;
 
@@ -13,13 +13,13 @@ addpath("../../../ODEFittingFns/")
 
 addpath("~/Documents/MATLAB/myfunctions/")
 
-model_type = "LogisticModel";
+model_type = "LogisticModelSimplified";
 %         1     2   3   4      5      6    7   8       9  10  11
 % p = [lambda,alpha,K,alphaR,alphaP,kalpha,a,delta0,kdelta,b,rho0]
-% fixed_pars = ["lambda","alpha","K","a","b"];
-fixed_pars = [];
+fixed_pars = "rho0";
+% fixed_pars = [];
 fn = @computeTimeSeries;
-[p,lb,ub,fn_opts.p_setup_fn] = fixParameters(model_type,fixed_pars);
+[p,lb,ub,fn_opts.p_setup_fn,fixed_vals] = fixParameters(model_type,fixed_pars);
 
 p = p.*exp(0.5*randn(size(p)));
 
@@ -62,7 +62,7 @@ F = @(p) arrayfun(@(i) rawError(p,t,D(i),fn,C{i},fn_opts),1:3)*weights;
 
 %%
 if make_save
-    save("data/" + file_name,"P","fstar","weights","fn_opts","lb","ub","fixed_pars","fn","fn_opts","optim_opts","model_type") %#ok<*UNRCH>
+    save("data/" + file_name,"P","fstar","weights","fn_opts","lb","ub","fixed_pars","fn","fn_opts","optim_opts","model_type","fixed_vals") %#ok<*UNRCH>
 end
 %%
 f=figure;

@@ -48,4 +48,6 @@ cohort_2305311216:
     That is, it also fixes carrying capacity, contact inhibition, and migration rate.
     These values are fixed by the average of admitted ABM parameters from the control model (this was not the case for the transition rates in cohort_2305270925).
 
-
+cohort_2306062212:
+    This is similar to cohort_2305311216.
+    It fixes the recovery rate to 0 for all arrested compartments.

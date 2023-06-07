@@ -19,7 +19,7 @@ cohort_pars.linkings = {["g1a_to_g1","g2a_to_g1"],... % recovery is identical fo
 cohort_pars.check_cohort_grab = true;
 cohort_pars.previous_cohort_output_pattern = "data/cohort_*/output.mat";
 cohort_pars.sim_function = @simPatient;
-cohort_pars.n_per_batch = 3^4*6;
+cohort_pars.n_per_batch = 3^3*6;
 cohort_pars.update_timer_every = 8;
 cohort_pars.parpool_options.resources = "Processes";
 
@@ -72,7 +72,7 @@ M.cycle_pars.s_to_g2 = 2.939904610492844572178228190750814974308013916015625;
 M.cycle_pars.g2_to_m = 5.96565977742448705356537175248377025127410888671875;
 M.cycle_pars.m_to_g1 = 24.038155802861748355780946440063416957855224609375;
 
-recovery_rate = [0.03;0.06;0.09];
+recovery_rate = 0; % [0.03;0.06;0.09];
 M.cycle_pars.g1a_to_g1 = recovery_rate;
 M.cycle_pars.g2a_to_g1 = recovery_rate;
 

@@ -1,7 +1,7 @@
 clearvars;
 
 addpath("../..")
-cohort_id = "cohort_2305261503";
+cohort_id = "cohort_2306062207";
 
 load(sprintf("../../data/%s/output.mat",cohort_id),"ids","lattice_parameters")
 
