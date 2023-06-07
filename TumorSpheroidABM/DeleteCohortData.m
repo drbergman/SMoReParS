@@ -7,7 +7,7 @@ clearvars;
 delete_data = true; % whether to actually delete these sims, or just identify them (MAKE SURE THEY AREN'T USED BY ANOTHER COHORT!!!!)
 
 
-cohort_dirs = dir("data/cohort_230526*");
+cohort_dirs = dir("data/cohort_230607*");
 cohort_names = strings(numel(cohort_dirs),1);
 for i = 1:numel(cohort_dirs)
     cohort_names(i) = string(cohort_dirs(i).name);
