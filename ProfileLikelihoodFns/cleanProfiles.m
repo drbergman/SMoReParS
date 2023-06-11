@@ -12,9 +12,6 @@ n_abm_vecs = size(profiles,2);
 
 for i = 1:n_abm_vecs
     for j = 1:npars
-        if i==178 && j == 4
-            disp('')
-        end
         profiles{j,i} = cleanThisProfile(profiles{j,i},i,j,threshold);
     end
 end

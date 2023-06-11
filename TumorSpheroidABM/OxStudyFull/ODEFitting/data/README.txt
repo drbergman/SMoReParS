@@ -2,6 +2,11 @@ ExperimentalData.mat:
     MAT file that contains experimental data in proper form used for analysis.
     Created by DataFile.m.
 
+SMFitToABM_LMS.mat:
+    LMS stands for LogisticModelSimplified.
+    Optimal parameters for SM on cohort_2306062212.
+    rho0 is fixed at 0.
+
 SMFitToABM_Fit_b.mat:
     Optimal parameters for SM on cohort_2305311216.
     lambda, alpha, K, a are all fixed.
@@ -13,6 +18,10 @@ SMFitToABM_FitAll.mat:
 SMFitToABM.mat:
     Similar to SMFitToABM_Fit_b.mat.
     This also fixes b compared to that one.
+
+SMFitToData_LMS.mat:
+    Optimal parameters for SM using the LogisticModelSimplified on experimental data.
+    rho0 is fixed at 0. 
 
 SMFitToData_Fit_b.mat:
     Optimal parameters for SM on experimental data.

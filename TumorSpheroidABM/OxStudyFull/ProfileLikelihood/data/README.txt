@@ -23,6 +23,13 @@ Profiles_SMFromABM_FitAll.mat (not created yet!):
 Profiles_SMFromABM_FitAll_clean.mat (not created yet!):
     Cleaned version of Profiles_SMFromABM_FitAll.mat.
 
+Profiles_SMFromData_LMS.mat:
+    Profile of SM using LogisticModelSimplified from data fixing rho0=0
+    Not cleaned.
+
+Profiles_SMFromData_LMS_clean.mat:
+    Cleaned version of Profiles_SMFromData_LMS.mat.
+
 Profiles_SMFromData.mat:
     Profile of SM from data fixing 5 parameters:
         control parameters (lambda, alpha, K)

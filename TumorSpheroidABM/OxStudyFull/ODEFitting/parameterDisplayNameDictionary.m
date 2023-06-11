@@ -9,7 +9,7 @@ switch model_type
         display_names = ["\lambda";"\alpha";"K";"\alpha_R";"\alpha_P";"k_\alpha";"a";"\delta_0";"k_\delta";"b";"\rho_0"];
     case "LogisticModelSimplified"
         par_names =     ["lambda";"alpha";"K";"alphaR";"alphaP";"kalpha";"a";"low_dose_apop";"delta_dose_apop";"rho0"];
-        display_names = ["\lambda";"\alpha";"K";"\alpha_R";"\alpha_P";"k_\alpha";"a";"d";"\Delta d";"\rho_0"];
+        display_names = ["\lambda";"\alpha";"K";"\alpha_R";"\alpha_P";"k_\alpha";"a";"d";"\Deltad";"\rho_0"];
     otherwise
         error("%s is not a model type that has been specified.",model_type)
 end

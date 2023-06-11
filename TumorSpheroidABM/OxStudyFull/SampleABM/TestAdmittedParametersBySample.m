@@ -13,27 +13,57 @@ admission_method = "all_profiles_resampled";
 
 experimental_data_file = "../ODEFitting/data/ExperimentalData.mat";
 load("data/AdmittedParameters_" + name_suffix + "_" + admission_method + ".mat","admitted_parameters","cohort_name","files")
-A = load(files.abm_data_file,"D");
+
 E = load(experimental_data_file,"D","t","C");
 nsamps = 10; % number of samples to use if plotting individual simulations
 rss_on_log_scale = true;
+%% load and process ids
+load(sprintf("../../data/%s/output.mat",cohort_name),"ids","lattice_parameters","nsamps_per_condition")
+for i = 1:numel(lattice_parameters)
+    if iscell(lattice_parameters(i).path)
+        continue
+    end
+    if all(lattice_parameters(i).path==["chemo_pars","concentration"])
+        condition_dim = i;
+        break;
+    end
+end
+parameter_dims = setdiff(1:length(lattice_parameters),condition_dim);
+sample_dim = length(lattice_parameters)+1;
+
+ids = permute(ids,[condition_dim,parameter_dims,sample_dim]);
+
 %% select admitted and rejected abm parameter vectors
-admitted = A.D(:,admitted_parameters);
-rejected = A.D(:,~admitted_parameters);
-
-%% unify the runs
-admitted = arrayify(admitted,"A",1);
-rejected = arrayify(rejected,"A",1);
-
-%% add t=0 time point:
-admitted = cat(1,repmat([100,0.1],[1,1,size(admitted,3:ndims(admitted))]),admitted);
-rejected = cat(1,repmat([100,0.1],[1,1,size(rejected,3:ndims(rejected))]),rejected);
+n_admitted = sum(admitted_parameters,"all");
+n_conditions = length(E.D);
+admitted = zeros([size(E.D(1).A),n_conditions,n_admitted*nsamps_per_condition]);
+ad_ind = 1*ones(n_conditions,1);
+n_rejected = sum(~admitted_parameters,"all");
+rejected = zeros([size(E.D(1).A),n_conditions,n_rejected*nsamps_per_condition]);
+re_ind = 1*ones(n_conditions,1);
+par_ind = cell(1,length(parameter_dims));
+for i = 1:numel(ids)
+    S = load(sprintf("../../data/sims/%s/output_final.mat",ids(i)),"tracked");
+    [cond_ind,par_ind{:},~] = ind2sub(size(ids),i);
+    total = sum(S.tracked.phases,2);
+    state2_prop = sum(S.tracked.phases(:,[3,4,7,8]),2)./total;
+    if admitted_parameters(par_ind{:})
+        admitted(:,1,cond_ind,ad_ind(cond_ind)) = total;
+        admitted(:,2,cond_ind,ad_ind(cond_ind)) = state2_prop;
+        ad_ind(cond_ind) = ad_ind(cond_ind)+1;
+    else
+        rejected(:,1,cond_ind,re_ind(cond_ind)) = total;
+        rejected(:,2,cond_ind,re_ind(cond_ind)) = state2_prop;
+        re_ind(cond_ind) = re_ind(cond_ind)+1;
+    end
+end
 
 %% patch plot
-f = figureOnRight("Name","AdmittedVsRejectedTrajectorySummaries_" + name_suffix);
+f = figureOnRight("Name","AdmittedVsRejectedTrajectories_" + name_suffix);
 ax = gobjects(3,2);
 
 patch_plot_opts.patchPlotCoordsOptions.omit_nan = true;
+patch_plot_opts.patchPlotCoordsOptions.split_sd = true;
 patch_plot_opts.min_val = 0;
 
 colors = lines(2);
@@ -71,7 +101,7 @@ set(ax,"FontSize",20)
 saveFigures(f,save_fig_opts)
 
 %% RSS breakdown
-f = figureOnRight("Name","RSSBreakdown_" + name_suffix + "_" + admission_method);
+f = figureOnRight("Name","RSSBreakdownBySamples_" + name_suffix + "_" + admission_method);
 ax = gobjects(3,2);
 RSS_admitted = sum(((admitted - arrayify(E.D,"A",1))./arrayify(E.D,"S",1)).^2,1);
 RSS_rejected = sum(((rejected - arrayify(E.D,"A",1))./arrayify(E.D,"S",1)).^2,1);
@@ -108,8 +138,8 @@ set(ax,"FontSize",20)
 saveFigures(f,save_fig_opts)
 
 %% RSS total
-norm_method = "cdf";
-f = figureOnRight("Name","RSSTotal_" + name_suffix + "_" + admission_method + "_" + norm_method);
+norm_method = "pdf";
+f = figureOnRight("Name","RSSTotalBySample_" + name_suffix + "_" + admission_method + "_" + norm_method);
 ax = gca;
 hold on;
 RSS_admitted = sum(((admitted - arrayify(E.D,"A",1))./arrayify(E.D,"S",1)).^2,1:3,"omitnan");

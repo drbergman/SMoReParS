@@ -37,11 +37,7 @@ switch figure_layout
         for xi = 1:np
             for yi = (xi+1):np
                 for zi = (yi+1):np
-                    nexttile; hold on;
-                    % scatter3(profiles{xi}(xi,:),profiles{xi}(yi,:),profiles{xi}(zi,:),"filled","DisplayName",sm_par_display_names(xi))
-                    % scatter3(profiles{yi}(xi,:),profiles{yi}(yi,:),profiles{yi}(zi,:),"filled","DisplayName",sm_par_display_names(yi))
-                    % scatter3(profiles{zi}(xi,:),profiles{zi}(yi,:),profiles{zi}(zi,:),"filled","DisplayName",sm_par_display_names(zi))
-                    plot3(profiles{xi}(xi,:),profiles{xi}(yi,:),profiles{xi}(zi,:),"Marker","o","MarkerFaceColor",colors(1,:),"MarkerSize",2,"DisplayName",sm_par_display_names(xi))
+                    nexttile; hold on;plot3(profiles{xi}(xi,:),profiles{xi}(yi,:),profiles{xi}(zi,:),"Marker","o","MarkerFaceColor",colors(1,:),"MarkerSize",2,"DisplayName",sm_par_display_names(xi))
                     plot3(profiles{yi}(xi,:),profiles{yi}(yi,:),profiles{yi}(zi,:),"Marker","o","MarkerFaceColor",colors(2,:),"MarkerSize",2,"DisplayName",sm_par_display_names(yi))
                     plot3(profiles{zi}(xi,:),profiles{zi}(yi,:),profiles{zi}(zi,:),"Marker","o","MarkerFaceColor",colors(3,:),"MarkerSize",2,"DisplayName",sm_par_display_names(zi))
                     xlabel(sm_par_display_names(xi))
@@ -70,30 +66,23 @@ switch figure_layout
     case "individual" % plot all triples on own figure
         save_fig_opts.subfolder = "ParameterTriples";
         np = size(profiles,1);
+        f = gobjects(1,nchoosek(np,3));
         fi = 0;
         for xi = 1:np
             for yi = (xi+1):np
                 for zi = (yi+1):np
                     fi = fi+1;
                     f(fi) = figureOnRight("Name",sprintf("ParTriple_%s_%s_%s",sm_par_file_names(xi),sm_par_file_names(yi),sm_par_file_names(zi)));
-                    hold on;
-                    % scatter3(profiles{xi}(xi,:),profiles{xi}(yi,:),profiles{xi}(zi,:),"filled","DisplayName",sm_par_display_names(xi))
-                    % scatter3(profiles{yi}(xi,:),profiles{yi}(yi,:),profiles{yi}(zi,:),"filled","DisplayName",sm_par_display_names(yi))
-                    % scatter3(profiles{zi}(xi,:),profiles{zi}(yi,:),profiles{zi}(zi,:),"filled","DisplayName",sm_par_display_names(zi))
-                    plot3(profiles{xi}(xi,:),profiles{xi}(yi,:),profiles{xi}(zi,:),"Marker","o","MarkerFaceColor",colors(1,:),"MarkerSize",2,"DisplayName",sm_par_display_names(xi))
+                    hold on;plot3(profiles{xi}(xi,:),profiles{xi}(yi,:),profiles{xi}(zi,:),"Marker","o","MarkerFaceColor",colors(1,:),"MarkerSize",2,"DisplayName",sm_par_display_names(xi))
                     plot3(profiles{yi}(xi,:),profiles{yi}(yi,:),profiles{yi}(zi,:),"Marker","o","MarkerFaceColor",colors(2,:),"MarkerSize",2,"DisplayName",sm_par_display_names(yi))
                     plot3(profiles{zi}(xi,:),profiles{zi}(yi,:),profiles{zi}(zi,:),"Marker","o","MarkerFaceColor",colors(3,:),"MarkerSize",2,"DisplayName",sm_par_display_names(zi))
                     view(3)
+                    xlabel(sm_par_display_names(xi))
+                    ylabel(sm_par_display_names(yi))
+                    zlabel(sm_par_display_names(zi))
                     if show_legend
-                        xlabel(sprintf("x=%s",sm_par_display_names(xi))) %#ok<*UNRCH>
-                        ylabel(sprintf("y=%s",sm_par_display_names(yi)))
-                        zlabel(sprintf("z=%s",sm_par_display_names(zi)))
                         L = legend("Location","best","FontSize",16);
                         title(L,"Profiled Parameter")
-                    else
-                        xlabel(sm_par_display_names(xi))
-                        ylabel(sm_par_display_names(yi))
-                        zlabel(sm_par_display_names(zi))
                     end
                     set(gca,"FontSize",16)
                 end
