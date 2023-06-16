@@ -1,32 +1,50 @@
 clearvars;
 
-save_figs = false;
-
+addpath("~/Documents/MATLAB/myfunctions/")
 addpath("../../../ProfileLikelihoodFns/")
+addpath("../ODEFitting/")
 
+profile_file = "data/Profiles_SMFromABM_New_clean.mat";
+
+save_opts.save_figs = true;
+save_opts.reprint = true;
+save_opts.file_types = ["fig","png"];
+save_opts.fig_names = "SampleProfilesOfSMFromABM_New";
+save_opts.resolution = '-r1200';
+
+opts = struct();
+opts.abm_vec_inds = [2,12];
+opts.LineWidth = 0.5;
+opts.place_par_names = "xlabel";
 
 sm_par_display_names = ["\lambda","\alpha","K"];
-profile_file = "data/ProfileLikelihoods.mat";
-nsamps = 5;
-[f,I] = testProfileSMFromABM(profile_file,nsamps,sm_par_display_names);
+nsamps = 4;
+%% color
+fit_color = lines(2);
+fit_color = sqrt(prod(fit_color,1));
+opts.LineColor = fit_color;
 
+%% test profile
+[f,ax,I] = testProfileSMFromABM(profile_file,nsamps,sm_par_display_names,opts);
 
-if save_figs
-    fig_names = "SampleProfilesOfSMFromABM";
-    for i = 1:numel(f)
-        if isempty(f(i).Name)
-            f(i).Name = fig_names(i);
-        end
-        fig_folders = ["figures/fig","figures/png"];
-        for j = 1:numel(fig_folders)
-            if ~exist(fig_folders(j),"dir")
-                mkdir(fig_folders(j))
-            end
-        end
-        savefig(f(i),sprintf("figures/fig/%s",f(i).Name))
-        print(f(i),sprintf("figures/png/%s",f(i).Name),"-dpng")
-    end
+if nsamps==2 % if just doing this for the axes on the box demo of how SP accepts parameters
+    f.Name = "ExampleProfilesFromABMForShow_New";
 end
 
-rmpath("../../../ProfileLikelihoodFns/")
+f.Units = "inches";
+f.Position(3) = 4;
+f.Position(4) = 2;
+set(f.Children,"FontSize",8);
+set(ax(:,2:end),"YTick",[])
 
+%% set margins
+margin = struct("left",.1,"right",.05,"top",.02,"bottom",.15);
+spacing = struct("horizontal",.08,"vertical",.09);
+uniformAxisSpacing(ax,margin,spacing);
+
+%% save figures
+saveFigures(f,save_opts)
+
+%% reset path
+rmpath("../../../ProfileLikelihoodFns/")
+rmpath("../ODEFitting/")

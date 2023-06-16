@@ -15,6 +15,10 @@ if fn_opts.condition_on_previous
 else
     [~,out] = ode45(@(t,x) odefn(x,p),tt,[90;10]);
 end
+if size(data,2)==1
+    out = sum(out,2);
+end
+
 % sol = ode45(@(t,x) odefn(x,p),[0 3],[90;10]);
 % 
 % out = deval(sol,tt)';

@@ -5,7 +5,11 @@ if nargin >= 9 && ~isempty(input_opts)
     opts = overrideDefaultOptions(opts,input_opts);
 end
 
-load(files.data_file,"t","D","C");
+if isfield(files,"data")
+    load(files.data,"t","D","C");
+elseif isfield(files,"data_file") % I used to call it files.data_file. That was because data_file used to be a parameter of this function
+    load(files.data_file,"t","D","C");
+end
 cohort_size = size(D,2:ndims(D)); % size of D is [n conditions, cohort_size]
 D = reshape(D,size(D,1),[]); % string out all the cohorts along the 2nd dim
 n_abm_vecs = size(D,2); % number of ABM parameter vectors used

@@ -4,30 +4,22 @@
 % combinations
 
 clearvars;
-addpath("../../../ODEFittingFns/")
-addpath("../../../ProfileLikelihoodFns/")
-addpath("../ODEFitting/")
 
 addpath("~/Documents/MATLAB/myfunctions/")
+addpath("../../../ProfileLikelihoodFns/")
+addpath("../../../ODEFittingFns/")
+addpath("../ODEFitting/")
 
-file_name = "Profiles_SMFromData_LMS";
-
-files.optimal_parameters = "../ODEFitting/data/SMFitToData_LMS.mat";
-files.data = "../ODEFitting/data/ExperimentalData.mat";
+files.optimal_parameters = "../ODEFitting/data/SMFittoData_New.mat";
+files.data = "../ODEFitting/data/ExperimentalData_New.mat";
 % files.previous_profile_file = "ProfileLikelihoods.mat";
-
-load(files.optimal_parameters,"fixed_pars","fn","lb","ub","fn_opts","model_type","optim_opts")
 
 options.profile_likelihood_options.save_all_pars = true;
 options.force_serial = true; % no benefit to running this in parallel (only for doing this across multiple ABM parameter vectors)
-% options.temp_profile_name = "data/temp_profile";
-% options.save_every_iter = 100; % wait at least this many iterations between saves
-% options.save_every_sec = 10*60; % wait at least this many seconds between saves
 
-optim_opts.Display = "off";
-[p,~,~,~] = fixParameters(model_type,fixed_pars);
-
-%% process fixed pars
+%% load data
+load(files.optimal_parameters,"fn","lb","ub","fn_opts","optim_opts")
+[p,~,~] = basePars();
 n_sm_pars = numel(p);
 
 %% setup profile params
@@ -51,16 +43,49 @@ profile_params.opts = optim_opts;
 %% objfn_constants
 objfn_constants.fn = fn;
 objfn_constants.fn_opts = fn_opts;
-objfn_constants.weights = [1;1;1];
+objfn_constants.weights = 1;
 
-%% perform profile
+%%
+% specify parameter names
+para_names = {'\lambda', '\alpha', 'K'};
+
+%% compute profile likelihoods
 profiles = performProfile(files,objfn_constants,profile_params,options);
 
 %% save the output
-save("data/" + file_name,"profiles")
+save("data/Profiles_SMFromData_New.mat","profiles");
+% ProfileLikelihoods_DataRestricted.mat used better bounds for the
+% parameters in fitting. Use that.
 
+%%  plot parameter combinations
+figure;
+ci=0;
+for i = 1:n_sm_pars-1
+    for j = i+1:n_sm_pars
+        ci = ci+1;
+        subplot(2,n_sm_pars,r2c(2,n_sm_pars,[1,ci]))
+        plot(profiles{i}(i,:),profiles{i}(j,:))
+        xlabel(para_names{i});ylabel(para_names{j})
+        subplot(2,3,r2c(2,3,[2,ci]))
+        plot(profiles{j}(j,:),profiles{j}(i,:))
+        xlabel(para_names{j});ylabel(para_names{i})
+    end
+end
+
+%%  plot parameter combinations
+figure;
+ci=0;
+for i = 1:n_sm_pars-1
+    for j = i+1:n_sm_pars
+        ci = ci+1;
+        subplot(1,n_sm_pars,r2c(1,n_sm_pars,[1,ci])); hold on
+        plot(profiles{i}(i,:),profiles{i}(j,:)) % parameter j values as i was profiled
+        xlabel(para_names{i});ylabel(para_names{j})
+        plot(profiles{j}(i,:),profiles{j}(j,:)) % parameter i values as j was profiled (plotted as para i vs para j so it shares the same axes)
+    end
+end
+
+%%
 rmpath("../../../ProfileLikelihoodFns/")
 rmpath("../../../ODEFittingFns/")
 rmpath("../ODEFitting/")
-
-

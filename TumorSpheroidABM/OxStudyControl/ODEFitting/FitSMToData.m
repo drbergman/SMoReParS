@@ -2,23 +2,18 @@
 % initial cell count is 100
 
 clearvars;
-
-p = basePars();
-
-lb = [0;0;0];
-ub = [Inf;Inf;1e4];
+file_name = "SMFitToData";
+make_save = true;
+save_fig_opts.save_figs = true;
+save_fig_opts.reprint = false;
+save_fig_opts.file_types = ["fig","png"];
+save_fig_opts.fig_names = file_name;
 
 opts = optimset('Display','off','TolFun',1e-12,'TolX',1e-12);
-%%
-% fn = fieldnames(p);
-% npars = numel(fn);
-% x0 = zeros(npars,1);
-% for i = 1:npars
-%     x0(i) = p.(fn{i});
-% end
-x0 = p;
-npars = length(p);
 
+%%
+[p,lb,ub] = basePars();
+npars = length(p);
 
 % Data from Jang et al. Cancer Res Treat 2002;34:372. Millions of cells.
 % Data point for 5 hours taken out, since it is incommensurate.
@@ -40,7 +35,7 @@ P = zeros(npars,1);
 %     F = @(p) sum(((computeTimeSeries(p,tt)./cell_count - 1)).^2,'all');
 %     F = @(p) sum(((computeTimeSeries(p,tt) - data)).^2,'all');
     F = @(p) sum(((sum(computeTimeSeries(p,tt),2) - data)./data_std).^2,'all');
-    [P,fstar] = fmincon(F,x0,[],[],[],[],lb,ub,[],opts);
+    [P,fstar] = fmincon(F,p,[],[],[],[],lb,ub,[],opts);
 
 %%
 figure;

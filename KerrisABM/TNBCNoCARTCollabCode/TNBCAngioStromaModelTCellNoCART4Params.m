@@ -756,7 +756,7 @@ for loop = 1:numel(AB)
     %% Start Iterations
     disp('It starts');
     
-    for time = 1:300                                                                                                                                                                 %For now 50 iteration, 3600 about 10 years
+    for time = 1:3                                                                                                                                                                 %For now 50 iteration, 3600 about 10 years
         
       %  hyploc = zeros(3600,3);
         hypcount = 1;

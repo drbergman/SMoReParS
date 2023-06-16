@@ -46,8 +46,18 @@ if ~isfield(profile_params,"A")
     profile_params.b = [];
 end    
 
-load(files.par_file,"P")
-load(files.data_file,"t","D","C","cohort_size");
+if isfield(files,"optimal_parameters")
+    load(files.optimal_parameters,"P")
+else
+    warning("Rename this field in files from par_file --> optimal_parameters")
+    load(files.par_file,"P")
+end
+if isfield(files,"data")
+    load(files.data,"t","D","C","cohort_size");
+else
+    warning("Rename this field in files from data_file --> data")
+    load(files.data_file,"t","D","C","cohort_size");
+end
 D = reshape(D,size(D,1),[]); % string out all the cohorts along the 2nd dim
 n_abm_vecs = size(D,2); % number of ABM parameter vectors used
 

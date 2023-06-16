@@ -4,13 +4,18 @@
 clearvars;
 addpath("~/Documents/MATLAB/myfunctions/")
 cohort_name = "cohort_230124175743017";
+files.abm_profile = "../ProfileLikelihood/data/ABMParamEstimates_FromProfile_WithK.mat";
+files.experimental_data = "../ODEFitting/data/ExperimentalData.mat";
+
+%%
+files.abm_cohort = sprintf("../../data/%s/output.mat",cohort_name);
 
 %% load SMoRe ParS-derived fitting
-load("../ProfileLikelihood/data/ABMParamEstimates_FromProfile_WithK.mat","LP1","abm_region_1_log")
+load(files.abm_profile,"LP1","abm_region_1_log")
 
 %% load cohort data and experimental data
-C = load(sprintf("../../data/%s/output.mat",cohort_name),"ids","cohort_size","nsamps_per_condition");
-load("../ODEFitting/data/ExperimentalData.mat")
+C = load(files.abm_cohort,"ids","cohort_size","nsamps_per_condition");
+load(files.experimental_data)
 n = size(count,1);
 tt = round(tt*1440); % time in minutes to avoid rounding errors
 nt = length(tt);

@@ -106,36 +106,33 @@ for i = size(temp_avg,3):-1:1
     parfor ti = 1:nt
         dets(ti) = det(covs(:,:,ti));
         invs(ti,:,:) = inv(covs(:,:,ti));
-        stds(ti,:) = sqrt(diag(covs(:,:,ti)));
     end
     D(i).C = covs;
     D(i).D = dets;
     D(i).Q = invs;
-    D(i).S = stds;
 end
 
-% for i = size(temp_avg,3):-1:1
-%     D(i).A = temp_avg(:,:,i);
-%     [I,J] = find(temp_std(:,:,i)==0);
-%     for ii = 1:length(I)
-%         if I(ii)==1 && temp_std(2,J(ii),i)~=0 % if it is the first time point and the second is nonzero, use that
-%             temp_std(1,J(ii),i) = temp_std(2,J(ii),i);
-%         elseif I(ii)==nt && temp_std(nt-1,J(ii),i)~=0 % similarly for the last time point
-%             temp_std(nt,J(ii),i) = temp_std(nt-1,J(ii),i);
-%         elseif all(I(ii)~=[1,nt]) % if it's in the middle...
-%             if all(temp_std(I(ii)+[-1,1],J(ii),i)~=0) % take the average of the SDs on either side
-%                 temp_std(I(ii),J(ii),i) = mean(temp_std(I(ii)+[-1,1],J(ii),i));
-%             elseif any(temp_std(I(ii)+[-1,1],J(ii),i)~=0) % if one is nonzero, use that
-%                 temp_std(I(ii),J(ii),i) = max(temp_std(I(ii)+[-1,1],J(ii),i));
-%             else % if all else fails, set it to 1 to use the acutal error
-%                 temp_std(I(ii),J(ii),i) = 1; 
-%             end
-%         else % then it is at the beginning or end with a zero next to it
-%             temp_std(I(ii),J(ii),i) = 1;
-%         end
-%     end
-%     D(i).S = temp_std(:,:,i);
-% end
+for i = size(temp_avg,3):-1:1
+    [I,J] = find(temp_std(:,:,i)==0);
+    for ii = 1:length(I)
+        if I(ii)==1 && temp_std(2,J(ii),i)~=0 % if it is the first time point and the second is nonzero, use that
+            temp_std(1,J(ii),i) = temp_std(2,J(ii),i);
+        elseif I(ii)==nt && temp_std(nt-1,J(ii),i)~=0 % similarly for the last time point
+            temp_std(nt,J(ii),i) = temp_std(nt-1,J(ii),i);
+        elseif all(I(ii)~=[1,nt]) % if it's in the middle...
+            if all(temp_std(I(ii)+[-1,1],J(ii),i)~=0) % take the average of the SDs on either side
+                temp_std(I(ii),J(ii),i) = mean(temp_std(I(ii)+[-1,1],J(ii),i));
+            elseif any(temp_std(I(ii)+[-1,1],J(ii),i)~=0) % if one is nonzero, use that
+                temp_std(I(ii),J(ii),i) = max(temp_std(I(ii)+[-1,1],J(ii),i));
+            else % if all else fails, set it to 1 to use the acutal error
+                temp_std(I(ii),J(ii),i) = 1; 
+            end
+        else % then it is at the beginning or end with a zero next to it
+            temp_std(I(ii),J(ii),i) = 1;
+        end
+    end
+    D(i).S = temp_std(:,:,i);
+end
 D = reshape(D,[1,cohort_size]);
 
 n_time_series = size(D(1).A,2);

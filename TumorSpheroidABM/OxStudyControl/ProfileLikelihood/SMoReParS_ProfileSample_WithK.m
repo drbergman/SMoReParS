@@ -6,6 +6,8 @@
 
 clearvars;
 
+addpath("../../../ProfileLikelihoodFns/")
+
 cohort_name = "cohort_230124175743017";
 C = load(sprintf("../../data/%s/output.mat",cohort_name),"cohort_size","lattice_parameters");
 load("data/ProfileLikelihoods.mat")

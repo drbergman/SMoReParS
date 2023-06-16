@@ -1,5 +1,7 @@
 function main(INPUT)
 
+% addpath(".")
+
 [loop,si] = ind2sub([81,6],INPUT);
 if ~exist("Data","dir")
     mkdir('Data')
@@ -205,7 +207,7 @@ Agentmat(1:5,1:5,1:4) = 1; %Place cell on grid V6
 %There are 14450 macrophages randomly spread out
 XYZm = [];
 Statem = [];
-numberofcellsm = 3;
+numberofcellsm = 0;
 if macronum > 0
     sizegrid = numel(Agentmat);
     rorder2 = randperm(sizegrid);
@@ -2060,6 +2062,7 @@ for time = 1:n_loops                                                            
     end
     Hypbin=HypCell==1;
     XYZh=XYZ(Hypbin,:);
+    hyptest = sum(Hypbin);
 
     %Save the numberofcells to an array
     cellsovertime(time) = numberofcells;
@@ -2234,37 +2237,37 @@ cd('fig_data')
 dlmwrite(namedataA, cellsovertime, 'delimiter', '\t')
 
 namedataD =strcat('NumberofDeath','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
-% dlmwrite(namedataD, deathovertime, 'delimiter', '\t')
+dlmwrite(namedataD, deathovertime, 'delimiter', '\t')
 
 namedataS =strcat('NumberofStems','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
-% dlmwrite(namedataS, stemsovertime, 'delimiter', '\t')
+dlmwrite(namedataS, stemsovertime, 'delimiter', '\t')
 
 namedataH =strcat('NumberofHypoxic','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
-% dlmwrite(namedataH, hypoxiaovertime, 'delimiter', '\t')
+dlmwrite(namedataH, hypoxiaovertime, 'delimiter', '\t')
 
 namedataH1 =strcat('HypCell','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
-% dlmwrite(namedataH1, HypCell, 'delimiter', '\t')
+dlmwrite(namedataH1, HypCell, 'delimiter', '\t')
 
 namedataM =strcat('NumberofMacro','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
-% dlmwrite(namedataM, macroovertime, 'delimiter', '\t')
+dlmwrite(namedataM, macroovertime, 'delimiter', '\t')
 
 namedataC =strcat('NumberofCCR5','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
-% dlmwrite(namedataC, CCR5overtime, 'delimiter', '\t')
+dlmwrite(namedataC, CCR5overtime, 'delimiter', '\t')
 
 namedataK =strcat('NumberofCART','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
-% dlmwrite(namedataK, cartovertime, 'delimiter', '\t')
+dlmwrite(namedataK, cartovertime, 'delimiter', '\t')
 
 namedataP =strcat('NumberofProlif','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
-% dlmwrite(namedataP, prolifovertime, 'delimiter', '\t')
+dlmwrite(namedataP, prolifovertime, 'delimiter', '\t')
 
 namedataKills =strcat('NumberofKills','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
-% dlmwrite(namedataKills, killsovertime, 'delimiter', '\t')
+dlmwrite(namedataKills, killsovertime, 'delimiter', '\t')
 
 namedataVasc =strcat('NumberofVasc','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
-% dlmwrite(namedataVasc, vascovertime, 'delimiter', '\t')
+dlmwrite(namedataVasc, vascovertime, 'delimiter', '\t')
 
 namehet = strcat("AntigenExp_t_",num2str(time),'.txt');
-% dlmwrite(namehet,AntigenHet, 'delimiter','\t')
+dlmwrite(namehet,AntigenHet, 'delimiter','\t')
 
 
 % cd ..
@@ -2272,23 +2275,23 @@ namehet = strcat("AntigenExp_t_",num2str(time),'.txt');
 
 
 name3 =strcat('XYZ','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
-% dlmwrite(name3, XYZ, 'delimiter', '\t')
+dlmwrite(name3, XYZ, 'delimiter', '\t')
 
 name3b =strcat('XYZh','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
-% dlmwrite(name3b, XYZh, 'delimiter', '\t')
+dlmwrite(name3b, XYZh, 'delimiter', '\t')
 
 name4 =strcat('Stateh','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
-% dlmwrite(name4, CellState, 'delimiter', '\t')
+dlmwrite(name4, CellState, 'delimiter', '\t')
 
 %Also save capillaries
 SaveAddress2 = strcat('CapListp', '_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time));
 CapMatrix = CapillaryList;
-%saveCapMatrix(SaveAddress2, CapMatrix);
-% save(SaveAddress2, 'CapMatrix');
+% saveCapMatrix(SaveAddress2, CapMatrix);
+save(SaveAddress2, 'CapMatrix');
 
-name2 =strcat('CellMatrix','_STEM','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
-%saveAgentmat(name2, Agentmat);
-% save( name2, 'Agentmat');
+name2 =strcat('CellMatrix','_STEM','_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time));
+% saveAgentmat(name2, Agentmat);
+save( name2, 'Agentmat');
 
 % namedata =strcat('rundata',num2str(runnum),'_pdiv',AA_str,'_migmulti',BB_str,'_t',num2str(time),'.txt');
 % fid = fopen(namedata,'w');

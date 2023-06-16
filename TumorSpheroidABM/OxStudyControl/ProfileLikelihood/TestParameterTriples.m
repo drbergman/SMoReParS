@@ -3,41 +3,33 @@ clearvars;
 addpath("../ODEFitting/")
 
 save_fig_opts.save_figs = true;
-save_fig_opts.file_types = ["fig","png"];
 save_fig_opts.reprint = true;
+save_fig_opts.file_types = ["fig","png"];
 
 show_legend = true;
 
-file_base_name = "Data_LMS";
+file_base_name = "Data_New";
 
-load("../ODEFitting/data/SMFitTo" + file_base_name,"fixed_pars","model_type")
+% load("data/ProfileLikelihoods_DataRestricted.mat","out")
+% profiles = out;
 load("data/Profiles_SMFrom" + file_base_name + "_clean.mat","profiles")
-sm_par_file_names = ["lambda";"alpha";"K";"alphaR";"alphaP";"kalpha";"a";"low_dose_apop";"delta_dose_apop";"rho0"];
+sm_par_file_names = ["lambda";"alpha";"K"];
+sm_par_display_names = ["\lambda";"\alpha";"K"];
 
-figure_layout = "individual"; % unified or individual
+figure_layout = "unified"; % unified or individual
 
 colors = lines(3); % for when I need to use this to specifiy a color
-
-%% set up parameter names
-D = parameterDisplayNameDictionary(model_type);
-[~,I] = setdiff(sm_par_file_names,fixed_pars);
-sm_par_file_names = sm_par_file_names(sort(I));
-sm_par_display_names = sm_par_file_names;
-for i = 1:numel(sm_par_display_names)
-    sm_par_display_names(i) = D(sm_par_display_names(i));
-end
 
 %% plots
 switch figure_layout
     case "unified" % plot all triples on single figure
         f = figureOnRight("Name","ParTriplesAll_SMFitTo" + file_base_name,"Units","pixels","Position",[0 0 1440 820]);
-        tiles = tiledlayout("flow");
-
+        hold on;
         np = size(profiles,1);
         for xi = 1:np
             for yi = (xi+1):np
                 for zi = (yi+1):np
-                    nexttile; hold on;plot3(profiles{xi}(xi,:),profiles{xi}(yi,:),profiles{xi}(zi,:),"Marker","o","MarkerFaceColor",colors(1,:),"MarkerSize",2,"DisplayName",sm_par_display_names(xi))
+                    plot3(profiles{xi}(xi,:),profiles{xi}(yi,:),profiles{xi}(zi,:),"Marker","o","MarkerFaceColor",colors(1,:),"MarkerSize",2,"DisplayName",sm_par_display_names(xi))
                     plot3(profiles{yi}(xi,:),profiles{yi}(yi,:),profiles{yi}(zi,:),"Marker","o","MarkerFaceColor",colors(2,:),"MarkerSize",2,"DisplayName",sm_par_display_names(yi))
                     plot3(profiles{zi}(xi,:),profiles{zi}(yi,:),profiles{zi}(zi,:),"Marker","o","MarkerFaceColor",colors(3,:),"MarkerSize",2,"DisplayName",sm_par_display_names(zi))
                     xlabel(sm_par_display_names(xi))
@@ -64,7 +56,7 @@ switch figure_layout
         end
 
     case "individual" % plot all triples on own figure
-        save_fig_opts.subfolder = "ParameterTriples_SMFitTo" + file_base_name;
+        save_fig_opts.subfolder = "ParameterTriples";
         np = size(profiles,1);
         f = gobjects(1,nchoosek(np,3));
         fi = 0;
@@ -73,7 +65,8 @@ switch figure_layout
                 for zi = (yi+1):np
                     fi = fi+1;
                     f(fi) = figureOnRight("Name",sprintf("ParTriple_%s_%s_%s",sm_par_file_names(xi),sm_par_file_names(yi),sm_par_file_names(zi)));
-                    hold on;plot3(profiles{xi}(xi,:),profiles{xi}(yi,:),profiles{xi}(zi,:),"Marker","o","MarkerFaceColor",colors(1,:),"MarkerSize",2,"DisplayName",sm_par_display_names(xi))
+                    hold on;
+                    plot3(profiles{xi}(xi,:),profiles{xi}(yi,:),profiles{xi}(zi,:),"Marker","o","MarkerFaceColor",colors(1,:),"MarkerSize",2,"DisplayName",sm_par_display_names(xi))
                     plot3(profiles{yi}(xi,:),profiles{yi}(yi,:),profiles{yi}(zi,:),"Marker","o","MarkerFaceColor",colors(2,:),"MarkerSize",2,"DisplayName",sm_par_display_names(yi))
                     plot3(profiles{zi}(xi,:),profiles{zi}(yi,:),profiles{zi}(zi,:),"Marker","o","MarkerFaceColor",colors(3,:),"MarkerSize",2,"DisplayName",sm_par_display_names(zi))
                     view(3)

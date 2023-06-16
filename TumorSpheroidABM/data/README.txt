@@ -51,3 +51,9 @@ cohort_2305311216:
 cohort_2306062212:
     This is similar to cohort_2305311216.
     It fixes the recovery rate to 0 for all arrested compartments.
+
+cohort_2306160948:
+    This is similar to cohort_2306062212.
+    It sampled one of the accepted ABM parameter vectors from the control study to set the control ABM parameters.
+    It selected I=2049==>[3,2,3,1,2,3,3] (carrying capacity, contact inhibition, migration rate, g1->s, s->g2, g2->m, m->g1)
+    It fixes the recovery rate to 0 for all arrested compartments.

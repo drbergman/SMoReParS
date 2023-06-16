@@ -60,7 +60,7 @@ F = @(p) arrayfun(@(i) rawError(p,t,D(i),fn,C{i},fn_opts),1:3)*weights;
 
 [P,fstar] = fmincon(F,p,[],[],[],[],lb,ub,[],optim_opts);
 
-%%
+%% save output
 if make_save
     save("data/" + file_name,"P","fstar","weights","fn_opts","lb","ub","fixed_pars","fn","fn_opts","optim_opts","model_type","fixed_vals") %#ok<*UNRCH>
 end
