@@ -24,7 +24,7 @@ cohort_2303271138:
     That makes deletion of cohort_2303231625 and cohort_2303271034 ok since they can quickly be recovered from cohort_2303271138 if that subset of chemo coefficients is desired.
 
 cohort_2303301105:
-    This is the main cohort we are using for OxStudyFull (the full chemo model).
+    This was going to be the main cohort we are using for OxStudyFull (the full chemo model).
     This varied the two arrest coefficients independently over a subset of the values used in cohort_2303271138, specifically [0.025;0.05;0.075].
     Thus, it does not fully subsume all the sims in cohort_2303271138.
 
@@ -33,7 +33,7 @@ cohort_2304292140:
     Turns out they were pretty independent (diagonal covariance matrix) by later time points, which I was surpised by.
 
 cohort_2305270925:
-    This is a new proposed main cohort for the OxStudyFull (the full chemo model).
+    This was a new proposed main cohort for the OxStudyFull (the full chemo model).
     This added arrest compartments for each phase (though only some can become arrested when attempting to transition).
     The arrest function is now a Hill function with rate coefficient being phase-specific, EC50 being phase-independent (+1), and Hill coefficient being fixed at 1.
     Apoptosis occurs only in the arrested compartments in a phase-independent manner.
@@ -49,6 +49,7 @@ cohort_2305311216:
     These values are fixed by the average of admitted ABM parameters from the control model (this was not the case for the transition rates in cohort_2305270925).
 
 cohort_2306062212:
+    This is the main cohort for the OxStudyFull (the full chemo model).
     This is similar to cohort_2305311216.
     It fixes the recovery rate to 0 for all arrested compartments.
 

@@ -8,8 +8,8 @@ switch model_type
         par_names =     ["lambda";"alpha";"K";"alphaR";"alphaP";"kalpha";"a";"delta0";"kdelta";"b";"rho0"];
         display_names = ["\lambda";"\alpha";"K";"\alpha_R";"\alpha_P";"k_\alpha";"a";"\delta_0";"k_\delta";"b";"\rho_0"];
     case "LogisticModelSimplified"
-        par_names =     ["lambda";"alpha";"K";"alphaR";"alphaP";"kalpha";"a";"low_dose_apop";"delta_dose_apop";"rho0"];
-        display_names = ["\lambda";"\alpha";"K";"\alpha_R";"\alpha_P";"k_\alpha";"a";"d";"\Deltad";"\rho_0"];
+        par_names =     ["lambda";"alpha";"K";"alphaR";"alphaP";"kalpha";"a";"low_dose_apop";"delta_dose_apop";"rho0";"delta";"kdelta"];
+        display_names = ["\lambda";"\alpha";"K";"\beta_{1S}";"\beta_{2M}";"\kappa_\beta";"m";"d";"\Deltad";"\rho_0";"\delta";"\kappa_\delta"];
     otherwise
         error("%s is not a model type that has been specified.",model_type)
 end

@@ -22,7 +22,7 @@ f=figure;
 hold on;
 tfull = linspace(0,3,100);
 yy = computeTimeSeries(P,tfull,[],fn_opts,zeros(6,1));
-data_curve = plot(t,D.A,"black","Marker","o","MarkerFaceColor","black","MarkerSize",3,"DisplayName","Data","LineStyle","--");
+data_curve = plot(t,D.A,"black","Marker","*","MarkerFaceColor","black","MarkerSize",3,"DisplayName","Data","LineStyle","--");
 data_patch = patch([t;flip(t)],[D.A-D.S;flip(D.A+D.S)],"black","FaceAlpha",0.2,"EdgeColor","none","DisplayName","+/- SD");
 fit_curve = plot(tfull,sum(yy,2),"Color",fit_color,"LineStyle","-","LineWidth",0.5,"DisplayName","Fit");
 xlabel("Time (d)")

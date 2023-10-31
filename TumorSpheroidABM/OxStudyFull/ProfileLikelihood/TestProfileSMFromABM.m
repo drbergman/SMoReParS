@@ -4,20 +4,23 @@ addpath("~/Documents/MATLAB/myfunctions/")
 addpath("../../../ProfileLikelihoodFns/")
 addpath("../ODEFitting/")
 
-profile_file = "data/Profiles_SMFromABM_LMS_clean.mat";
+profile_file = "data/Profiles_SMFromABM_LMS_2_clean.mat";
 
-save_opts.save_figs = true;
-save_opts.reprint = true;
-save_opts.file_types = ["fig","png"];
-save_opts.fig_names = "SampleProfilesOfSMFromABM_LMS";
+save_fig_opts.save_figs = true;
+save_fig_opts.reprint = false;
+save_fig_opts.file_types = ["fig","png"];
+save_fig_opts.fig_names = "SampleProfilesOfSMFromABM_LMS_bounded";
+save_fig_opts.resolution = "-r1200";
 
-load("../ODEFitting/data/SMFitToData_LMS","fixed_pars","model_type")
+load("../ODEFitting/data/SMFitToData_LMS_bounded","fixed_pars","model_type")
 
 opts = struct();
+opts.place_par_names = "xlabel";
+opts.LineWidth = 0.5;
 % opts.abm_vec_inds = 1:3; % set this to fix a subset of ABM parameters to test profiles
-sm_par_display_names = ["lambda";"alpha";"K";"alphaR";"alphaP";"kalpha";"a";"low_dose_apop";"delta_dose_apop";"rho0"];
+sm_par_display_names = ["lambda";"alpha";"K";"alphaR";"alphaP";"kalpha";"a";"delta";"kdelta";"rho0"];
 
-nsamps = 5;
+nsamps = 4;
 
 %% set up parameter names
 D = parameterDisplayNameDictionary(model_type);
@@ -28,10 +31,25 @@ for i = 1:numel(sm_par_display_names)
 end
 
 %% make plots
-[f,I] = testProfileSMFromABM(profile_file,nsamps,sm_par_display_names,opts);
+[f,ax,I] = testProfileSMFromABM(profile_file,nsamps,sm_par_display_names,opts);
+
+%% finish figure
+f.Units = "inches";
+f.Position(3) = 5;
+f.Position(4) = 3;
+set(ax,"FontSize",8)
+yticks(ax(:,2:end),[])
+for i = 1:numel(ax)
+    ax(i).XAxis.Label.FontWeight = "normal";
+end
+
+%% margins for distributions figure
+margin = struct("left",.06,"right",.02,"top",.0,"bottom",.12);
+spacing = struct("horizontal",0.05,"vertical",0.08);
+uniformAxisSpacing(ax,margin,spacing);
 
 %% save figures
-saveFigures(f,save_opts)
+saveFigures(f,save_fig_opts)
 
 %% reset path
 rmpath("../../../ProfileLikelihoodFns/")

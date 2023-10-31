@@ -5,7 +5,7 @@ clearvars;
 addpath("~/Documents/MATLAB//myfunctions/")
 addpath("../../../ProfileLikelihoodFns/")
 
-save_fig_opts.save_figs = false;
+save_fig_opts.save_figs = true;
 save_fig_opts.reprint = false;
 save_fig_opts.file_types = ["fig","png"];
 save_fig_opts.resolution = '-r1200';
@@ -65,11 +65,21 @@ for pi = 1:3
     % zlabel(ode_par_name{pi})
     set(gca,'FontSize',6*factor)
 
+    % Z = zlabel(gca,ode_par_name{pi});
+    % if ode_par_name{pi}=="K"
+    %     Z.VerticalAlignment = "middle";
+    % end
+
     f(pi).Units = "inches";
     f(pi).Position(3) = 1*factor; % to match how wide the profiles end up
     f(pi).Position(4) = 1*factor;
     % savefig(sprintf("figures/fig/sample_surface_%s.fig",file_name{pi}))
     % print(sprintf("figures/png/sample_surface_%s.png",file_name{pi}),"-dpng")
+
+    % set margins
+    % margin = struct("left",.33,"right",.22,"top",.02,"bottom",.15);
+    % spacing = struct("horizontal",.08,"vertical",.09);
+    % uniformAxisSpacing(gca,margin,spacing);
 end
 
 saveFigures(f,save_fig_opts)

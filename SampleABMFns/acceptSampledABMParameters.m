@@ -1,6 +1,6 @@
-function out = admitSampledABMParameters(files,input_opts)
+function out = acceptSampledABMParameters(files,input_opts)
 
-opts = defaultAdmitSampledABMParametersOptions;
+opts = defaultAcceptSampledABMParametersOptions;
 if nargin > 1 && ~isempty(input_opts)
     opts = overrideDefaultOptions(opts,input_opts);
 end
@@ -46,12 +46,12 @@ for i = 1:npoints
     end
 end
 
-%% admit parameter vectors
-out = admitByMethod(vals,BS,P_data.profiles,opts);
+%% accept parameter vectors
+out = acceptByMethod(vals,BS,P_data.profiles,opts);
 
 end
 
-function out = admitByMethod(abm_vals,BS,data_profile,opts)
+function out = acceptByMethod(abm_vals,BS,data_profile,opts)
 
 sz = cellfun(@(x) size(x,1),abm_vals);
 sz = reshape(sz,1,[]); % make sure it's a row vector
@@ -60,7 +60,7 @@ if numel(sz)==1
 end
 npars_sm = numel(data_profile);
 
-switch opts.admission_method
+switch opts.acceptance_method
     case "single_best"
         % Use only the single_best SM pars from the data to select ABM parameters
         out = false(sz);
@@ -97,7 +97,29 @@ switch opts.admission_method
             for j = 1:opts.nsamples % loop over all sampled points in SM space for this parameter
                 temp = true(1,prod(sz));
                 for pi = 1:npars_sm % loop over SM parameter values at this point
-                    temp = temp & BS(pi,:,1)<=profile(pi,j) & BS(pi,:,2)>=profile(pi,j);
+                    temp = temp & BS(pi,:,1)<=profile(pi,j) & BS(pi,:,2)>=profile(pi,j); % make sure that at this point on the profile path, it lies within each bounding hypersurface at a given ABM parameter
+                end
+                out = out | reshape(temp,sz);
+            end
+        end
+
+    case "all_profiles_resampled_enforce_ci_bounds"
+        % same as "all_profiles_resampled" but will ensure non-profiled
+        % parameters stay within their own CI
+        out = false(sz);
+        ci_bounds = zeros(npars_sm,2);
+        for i = 1:npars_sm % get CI bounds for each parameter's profile
+            ci_bounds(i,:) = data_profile{i}(i,[1,end]);
+        end
+        for i = 1:npars_sm % loop over SM parameter profiles
+            profile = interp1(data_profile{i}(i,:),data_profile{i}',linspace(data_profile{i}(i,1),data_profile{i}(i,end),opts.nsamples))';
+            for j = 1:opts.nsamples % loop over all sampled points in SM space for this parameter
+                if any(profile(1:npars_sm,j) < ci_bounds(:,1) | profile(1:npars_sm,j) > ci_bounds(:,2)) % then the profile leaves the CI bounds for at least one of the SM pars
+                    continue
+                end
+                temp = true(1,prod(sz));
+                for pi = 1:npars_sm % loop over SM parameter values at this point
+                    temp = temp & BS(pi,:,1)<=profile(pi,j) & BS(pi,:,2)>=profile(pi,j); % make sure that at this point on the profile path, it lies within each bounding hypersurface at a given ABM parameter
                 end
                 out = out | reshape(temp,sz);
             end
@@ -141,6 +163,12 @@ switch opts.admission_method
                 par_ind = pars_in_combo(j);
                 accept_by_this_par = false(1,prod(sz));
                 profile = interp1(data_profile{par_ind}(par_ind,:),data_profile{par_ind}(pars_in_combo,:)',linspace(data_profile{par_ind}(par_ind,1),data_profile{par_ind}(par_ind,end),opts.nsamples))';
+                if any(size(profile)~=[numel(pars_in_combo),opts.nsamples])
+                    profile = profile';
+                    if any(size(profile)~=[numel(pars_in_combo),opts.nsamples])
+                        error("Profile came out the wrong size?")
+                    end
+                end
                 for k = 1:opts.nsamples
                     temp = true(1,prod(sz));
                     for l = 1:numel(pars_in_combo)
@@ -155,7 +183,7 @@ switch opts.admission_method
         end
 
     otherwise
-        error("""%s"" is not a method for admitting ABM parameters.\n",opts.admission_method)
+        error("""%s"" is not a method for accepting ABM parameters.\n",opts.acceptance_method)
 
 end
 
@@ -164,10 +192,10 @@ end
 
 end
 
-function default_options = defaultAdmitSampledABMParametersOptions
+function default_options = defaultAcceptSampledABMParametersOptions
 
-default_options.admission_method = "single_best"; % how to admit sampled ABM parameter vectors
-default_options.nsamples = 100; % if admission_method=="all_profiles_resampled", how many samples to use in profile
-default_options.par_combos = {}; % if admission_method=="specified_parameter_combinations", which parameters (as indices) are in combination; each cell is a combination; each index in a cell is a parameter in that combination
+default_options.acceptance_method = "single_best"; % how to accept sampled ABM parameter vectors
+default_options.nsamples = 100; % if acceptance_method=="all_profiles_resampled", how many samples to use in profile
+default_options.par_combos = {}; % if acceptance_method=="specified_parameter_combinations", which parameters (as indices) are in combination; each cell is a combination; each index in a cell is a parameter in that combination
 
 end

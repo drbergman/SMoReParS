@@ -33,7 +33,18 @@ ax(1).YLabel.FontWeight = "normal";
 f.Units = "inches";
 f.Position(3) = 2;
 f.Position(4) = 1;
-set(f.Children,"FontSize",8)
+ax = f.Children;
+ax = flip(ax);
+ax = ax';
+set(ax,"FontSize",8)
+for i = 1:numel(ax)
+    ax(i).XAxis.Label.FontWeight = "normal";
+end
+
+%% adjust margin
+margin = struct("left",.15,"right",.08,"top",.02,"bottom",.3);
+spacing = struct("horizontal",0.09,"vertical",0.1);
+uniformAxisSpacing(ax,margin,spacing);
 
 %% save the figures
 saveFigures(f,save_opts)

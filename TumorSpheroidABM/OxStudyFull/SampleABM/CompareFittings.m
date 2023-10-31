@@ -7,18 +7,19 @@ addpath("~/Documents/MATLAB/myfunctions/")
 save_fig_opts.save_figs = true;
 save_fig_opts.reprint = false;
 save_fig_opts.file_types = ["fig","png"];
+save_fig_opts.resolution = '-r1200';
 
-name_suffix = "LMS";
+name_suffix = "LMS_bounded";
 admission_method = "all_profiles_resampled";
 n_conditions = 3;
 n_time_series = 2;
 experimental_data_file = "../ODEFitting/data/ExperimentalData.mat";
 
-load("data/AdmittedParameters_" + name_suffix + "_" + admission_method + ".mat","admitted_parameters","cohort_name","files")
+load("data/AcceptedParameters_" + name_suffix + "_" + admission_method + ".mat","accepted_parameters","cohort_name","files")
 
 % %% load cohort data and experimental data
 C = load(sprintf("../../data/%s/output.mat",cohort_name),"ids","cohort_size","lattice_parameters","nsamps_per_condition");
-A = load(files.abm_data_file,"D");
+A = load(files.abm_data,"D");
 A.D = reshape(A.D,n_conditions,[]);
 E = load(experimental_data_file,"D","t","C");
 E.t(1) = [];
@@ -30,26 +31,26 @@ end
 nt = length(E.t);
 
 %% Compute RSS values
-RSS = zeros([n_time_series,n_conditions,numel(admitted_parameters)]);
+RSS = zeros([nt,n_time_series,n_conditions,numel(accepted_parameters)]);
 
-for i = 1:numel(admitted_parameters)
+for i = 1:numel(accepted_parameters)
     sim_data = arrayify(A.D(:,i),"A",1);
     sim_data = permute(sim_data,[1,3,2]);
-    RSS(:,:,i) = computeRSSBreakdown(E,sim_data);
+    RSS_all_time_points(:,:,:,i) = computeRSSBreakdown(E,sim_data);
 end
-
+RSS = squeeze(sum(RSS,1));
 experimental_sd = arrayify(E.D,"S");
 LL = -0.5*(nt*log(2*pi()) + sum(experimental_sd.^2,"all","omitnan") + squeeze(sum(RSS,1:2,"omitnan")));
 
 %% stratify LL by SMoRe ParS Admission/Rejection
-LL_admitted = LL(admitted_parameters(:));
-LL_rejected = LL(~admitted_parameters(:));
+LL_accepted = LL(accepted_parameters(:));
+LL_rejected = LL(~accepted_parameters(:));
 
 %% plot histograms of both
-f=figure("Name","LogLikeComparison_LMS"); hold on;
+f=figure("Name","LogLikeComparison_" + name_suffix); hold on;
 ax = gca;
 [~,binEdges] = histcounts(LL);
-histogram(LL_admitted,"BinEdges",binEdges,"FaceColor","green","Normalization","pdf","DisplayName","Selected Samples","EdgeColor","none")
+histogram(LL_accepted,"BinEdges",binEdges,"FaceColor","green","Normalization","pdf","DisplayName","Selected Samples","EdgeColor","none")
 histogram(LL_rejected,"BinEdges",binEdges,"FaceColor","red","Normalization","pdf","DisplayName","Rejected Samples","EdgeColor","none")
 legend(ax,"Location","northwest","FontSize",16)
 xlabel("log-likelihood","FontSize",16)
@@ -57,26 +58,26 @@ ylabel("PDF","FontSize",16)
 saveFigures(f,save_fig_opts)
 
 %% distribution relative likelihood to best setup
-N = sum(admitted_parameters,"all");
+N = sum(accepted_parameters,"all");
 divider_log = log(1e-5);
 minRelProb_log = min(LL)-max(LL);
 lbase_log = divider_log-minRelProb_log;
 fn = @logLinScaleX;
 LL_sort = sort(LL,"ascend");
-XData = {LL_sort-max(LL),sort(LL_admitted)-max(LL),sort(LL_rejected)-max(LL)};
+XData = {LL_sort-max(LL),sort(LL_accepted)-max(LL),sort(LL_rejected)-max(LL)};
 is_log_val = true;
-CDF = {linspace(0,1,numel(LL)),linspace(0,1,length(LL_admitted)),linspace(0,1,length(LL_rejected))};
-Names = ["All","Admitted","Rejected"];
+CDF = {linspace(0,1,numel(LL)),linspace(0,1,length(LL_accepted)),linspace(0,1,length(LL_rejected))};
+Names = ["All","Accepted","Rejected"];
 Colors = ["b","g","r"];
 
 %% plot cdf
-f=figure("Name","RelativeLikelihoodCDF_LMS");
+f=figure("Name","RelativeLikelihoodCDF_" + name_suffix);
 hold on;
 for i = 1:3
     plot(fn(XData{i},divider_log,lbase_log,is_log_val),CDF{i},"DisplayName",Names(i),"Color",Colors(i),"LineWidth",2)
 end
 plot(fn(LL_sort(1:end-N)-LL_sort(end),divider_log,lbase_log,is_log_val),linspace(0,1,length(LL_rejected)),"DisplayName","Least Likely","Color",0.5*[1 1 1],"LineWidth",2,"LineStyle",":")
-plot(fn(LL_sort(end-N+1:end)-LL_sort(end),divider_log,lbase_log,is_log_val),linspace(0,1,length(LL_admitted)),"DisplayName","Most Likely","Color",0*[1 1 1],"LineWidth",2,"LineStyle",":")
+plot(fn(LL_sort(end-N+1:end)-LL_sort(end),divider_log,lbase_log,is_log_val),linspace(0,1,length(LL_accepted)),"DisplayName","Most Likely","Color",0*[1 1 1],"LineWidth",2,"LineStyle",":")
 xlabel("Relative Likelihood","FontSize",16)
 ylabel("CDF","FontSize",16)
 legend(gca,"location","west","FontSize",16,"AutoUpdate","off")
@@ -121,7 +122,7 @@ ylabel("PDF","FontSize",16)
 legend(gca,"location","best","FontSize",16,"AutoUpdate","off")
 
 %% attempt #2 to plot PDF of above
-f = figure("Name","RelativeLikelihoodPDF_LMS");
+f = figure("Name","RelativeLikelihoodPDF_" + name_suffix);
 hold on;
 % x = [0,logspace(-30,0,20)];
 x = linspace(0,1,26);
@@ -140,18 +141,18 @@ ylabel("PDF","FontSize",16)
 legend(gca,"location","best","FontSize",16,"AutoUpdate","off")
 saveFigures(f,save_fig_opts)
 
-%% plotting percentage of N best LLs that were admitted
-f=figure("Name","AdmissionOfMostLikely_LMS");
+%% plotting percentage of N best LLs that were accepted
+f=figure("Name","AdmissionOfMostLikely_" + name_suffix);
 [~,LL_order_descend] = sort(LL,"descend");
-admitted_sort = admitted_parameters(LL_order_descend);
+accepted_sort = accepted_parameters(LL_order_descend);
 y = zeros(2);
-y(1,1) = sum(admitted_sort(1:N))/N; % percentage of admitted that are in the most likely category
-y(2,1) = sum(~admitted_sort(1:N))/(numel(LL)-N); % percentage of rejected that are in the most likely category
-y(1,2) = sum(admitted_sort(N+1:end))/N; % percentage of admitted that are in the most likely category
-y(2,2) = sum(~admitted_sort(N+1:end))/(numel(LL)-N); % percentage of rejected that are in the most likely category
-% y(:,1) = [sum(admitted_sort(1:N)),sum(~admitted_sort(1:N))]/N;
-% y(:,2) = [sum(admitted_sort(N+1:end)),sum(~admitted_sort(N+1:end))]/(numel(LL)-N);
-bar(categorical(["Admitted","Rejected"],["Admitted","Rejected"]),100*y,"stacked")
+y(1,1) = sum(accepted_sort(1:N))/N; % percentage of accepted that are in the most likely category
+y(2,1) = sum(~accepted_sort(1:N))/(numel(LL)-N); % percentage of rejected that are in the most likely category
+y(1,2) = sum(accepted_sort(N+1:end))/N; % percentage of accepted that are in the most likely category
+y(2,2) = sum(~accepted_sort(N+1:end))/(numel(LL)-N); % percentage of rejected that are in the most likely category
+% y(:,1) = [sum(accepted_sort(1:N)),sum(~accepted_sort(1:N))]/N;
+% y(:,2) = [sum(accepted_sort(N+1:end)),sum(~accepted_sort(N+1:end))]/(numel(LL)-N);
+bar(categorical(["Accepted","Rejected"],["Accepted","Rejected"]),100*y,"stacked")
 ylabel("Percentage")
 set(gca,"FontSize",16)
 title("SMoRe ParS Admission of Most Likely Parameters")
@@ -159,10 +160,10 @@ legend(["Most Likely","Least Likely"],"Location","northwest")
 saveFigures(f,save_fig_opts)
 
 %% reorient above to have categories be most likely and least likely and compare 
-f = figure("Name","AdmissionByLikelihoodQuantile_LMS");
+f = figure("Name","AdmissionByLikelihoodQuantile_" + name_suffix);
 ax=gca;
 [LL_sort,LL_order_ascend] = sort(LL,"ascend");
-admitted_sort = admitted_parameters(LL_order_ascend);
+accepted_sort = accepted_parameters(LL_order_ascend);
 n_quants = 20;
 % Q = quantile(LL_sort,[1-N/numel(LL),1]);
 Q = quantile(LL_sort,n_quants);
@@ -170,14 +171,14 @@ I_prev = 1;
 y = zeros(n_quants,2);
 for i = 1:n_quants
     I = find(LL_sort<=Q(i),1,"last");
-    y(i,1) = sum(admitted_sort(I_prev:I))/(I-I_prev+1);
+    y(i,1) = sum(accepted_sort(I_prev:I))/(I-I_prev+1);
     y(i,2) = 1-y(i,1);
     I_prev = I;
 end
 bar(linspace(0,100,n_quants),100*y,"stacked","BarWidth",1,"EdgeColor","none");
 xlim([0,100]+50/(n_quants-1)*[-1 1])
 ylim([0 100])
-legend(["Admitted","Rejected"],"location","northwest","AutoUpdate","off")
+legend(["Accepted","Rejected"],"location","northwest","AutoUpdate","off")
 ylabel("Probability")
 xlabel("Likelihood Percentile")
 set(ax,"FontSize",16)
@@ -239,7 +240,7 @@ for i = 1:length(LL_order_descend)
 end
 
 %% make the figure of these residuals
-f = figureOnRight("Name","TimeSeriesZScores_ByLikelihood_LMS");
+f = figureOnRight("Name","TimeSeriesZScores_ByLikelihood_" + name_suffix);
 nr = n_time_series*n_conditions - 1; % number of rows (do not do a row for G2/M in control)
 ax = gobjects(nr,nt);
 for ti = 1:nt
@@ -287,15 +288,16 @@ normalizeXLims(f)
 
 saveFigures(f,save_fig_opts)
 
-%% compare residuals by admittance-rejection
+%% compare residuals by acceptance-rejection
 
-Z_scores_admitted = Z_scores_all(:,:,:,admitted_parameters,:);
-Z_scores_rejected = Z_scores_all(:,:,:,~admitted_parameters,:);
+Z_scores_accepted = Z_scores_all(:,:,:,accepted_parameters,:);
+Z_scores_rejected = Z_scores_all(:,:,:,~accepted_parameters,:);
 
 %% make the figure of these residuals
-f = figureOnRight("Name","TimeSeriesZScores_ByAdmittance_LMS");
+f = figureOnRight("Name","TimeSeriesZScores_ByAcceptance_" + name_suffix);
 nr = n_time_series*n_conditions - 1; % number of rows (do not do a row for G2/M in control)
 ax = gobjects(nr,nt);
+colors = lines(2);
 for ti = 1:nt
     for ri = 1:nr
         ind = ri + (ri>=2); % skip what would be the second, i.e. G2/M proportion in control
@@ -303,18 +305,18 @@ for ti = 1:nt
         if isnan(E.D(ci).A(ti,tsi)) || isnan(E.D(ci).S(ti,tsi)) % if the data (or its SD) is NaN, then skip
             continue
         end
-        min_temp = min(min(Z_scores_admitted(ti,tsi,ci,:)),min(Z_scores_rejected(ti,tsi,ci,:))); % minimum z_score at time tt(ti)
-        max_temp = max(max(Z_scores_admitted(ti,tsi,ci,:)),max(Z_scores_rejected(ti,tsi,ci,:))); % maximum z_score at time tt(ti)
+        min_temp = min(min(Z_scores_accepted(ti,tsi,ci,:)),min(Z_scores_rejected(ti,tsi,ci,:))); % minimum z_score at time tt(ti)
+        max_temp = max(max(Z_scores_accepted(ti,tsi,ci,:)),max(Z_scores_rejected(ti,tsi,ci,:))); % maximum z_score at time tt(ti)
 
         ax(ri,ti) = subplot(nr,nt,r2c(nr,nt,[ri,ti])); hold on;
-        [~,binEdges] = histcounts(cat(4,Z_scores_admitted(ti,tsi,ci,:),Z_scores_rejected(ti,tsi,ci,:)));
-        histogram(ax(ri,ti),Z_scores_admitted(ti,tsi,ci,:),"BinEdges",binEdges,"FaceColor","green","Normalization","pdf","DisplayName","Admitted","EdgeColor","none")
-        histogram(ax(ri,ti),Z_scores_rejected(ti,tsi,ci,:),"BinEdges",binEdges,"FaceColor","red","Normalization","pdf","DisplayName","Rejected","EdgeColor","none")
+        [~,binEdges] = histcounts(cat(4,Z_scores_accepted(ti,tsi,ci,:),Z_scores_rejected(ti,tsi,ci,:)));
+        histogram(ax(ri,ti),Z_scores_accepted(ti,tsi,ci,:),"BinEdges",binEdges,"FaceColor",colors(1,:),"Normalization","pdf","DisplayName","Accepted","EdgeColor","none")
+        histogram(ax(ri,ti),Z_scores_rejected(ti,tsi,ci,:),"BinEdges",binEdges,"FaceColor",colors(2,:),"Normalization","pdf","DisplayName","Rejected","EdgeColor","none")
         if min_temp~=0 || max_temp~=0
             xlim(max(abs([min_temp,max_temp])) * [-1 1]) % set xlim to be big enough to get largest |residual| and center at x=0
         end
         if ri==1
-            title(ax(ri,ti),sprintf("t = %3.2f d",E.t(ti)))
+            title(ax(ri,ti),sprintf("t = %dh",round(24*E.t(ti))))
         end
         if ri==nr
             xlabel(ax(ri,ti),"Z Score")
@@ -322,23 +324,109 @@ for ti = 1:nt
         if ti==1
             switch ri
                 case 1
-                    ylabel(["Control","Total"])
+                    ylabel("Count","FontWeight","bold")
                 case 2
-                    ylabel(["Dose=0.75\muM","Total"])
+                    ylabel("Count","FontWeight","bold")
                 case 3
-                    ylabel(["Dose=0.75\muM","G2/M Prop"])
+                    ylabel(["G2/M","Fraction"],"FontWeight","bold")
                 case 4
-                    ylabel(["Dose=7.55\muM","Total"])
+                    ylabel("Count","FontWeight","bold")
                 case 5
-                    ylabel(["Dose=7.55\muM","G2/M Prop"])
+                    ylabel(["G2/M","Fraction"],"FontWeight","bold")
             end
 
         end
     end
 end
-legend(ax(1,1))
+% legend(ax(1,1))
 normalizeXLims(f)
+xticks(ax(1:end-1,:),[])
+set(ax,"FontSize",8)
 
+f.Units = "inches";
+f.Position(3) = 4.69;
+f.Position(4) = 3.75;
+yticks(ax,[])
+
+%% margins for this figure
+margin = struct("left",.07,"right",.005,"top",.04,"bottom",.08);
+spacing = struct("horizontal",0.03,"vertical",0.03);
+uniformAxisSpacing(ax,margin,spacing);
+
+%% save this figure
+saveFigures(f,save_fig_opts)
+
+%% compare RSS by acceptance-rejection
+
+RSS_accepted = Z_scores_accepted.^2;
+RSS_rejected = Z_scores_rejected.^2;
+
+%% make the figure of these residuals
+f = figureOnRight("Name","TimeSeriesRSS_ByAcceptance_" + name_suffix);
+nr = n_time_series*n_conditions - 1; % number of rows (do not do a row for G2/M in control)
+ax = gobjects(nr,nt);
+colors = lines(2);
+[~,binEdges] = histcounts(log10([RSS_accepted(:);RSS_rejected(:)]));
+% binEdges(1) = 1;
+for ti = 1:nt
+    for ri = 1:nr
+        ind = ri + (ri>=2); % skip what would be the second, i.e. G2/M proportion in control
+        [tsi,ci] = ind2sub([n_time_series,n_conditions],ind);
+        if isnan(E.D(ci).A(ti,tsi)) || isnan(E.D(ci).S(ti,tsi)) % if the data (or its SD) is NaN, then skip
+            continue
+        end
+        % min_temp = min(min(RSS_accepted(ti,tsi,ci,:)),min(RSS_rejected(ti,tsi,ci,:))); % minimum rss at time tt(ti)
+        % max_temp = max(max(RSS_accepted(ti,tsi,ci,:)),max(RSS_rejected(ti,tsi,ci,:))); % maximum rss at time tt(ti)
+
+        ax(ri,ti) = subplot(nr,nt,r2c(nr,nt,[ri,ti])); hold on;
+        % [~,binEdges] = histcounts(cat(4,RSS_accepted(ti,tsi,ci,:),RSS_rejected(ti,tsi,ci,:)));
+        histogram(ax(ri,ti),log10(RSS_accepted(ti,tsi,ci,:)),"BinEdges",binEdges,"FaceColor",colors(1,:),"Normalization","pdf","DisplayName","Accepted","EdgeColor","none")
+        histogram(ax(ri,ti),log10(RSS_rejected(ti,tsi,ci,:)),"BinEdges",binEdges,"FaceColor",colors(2,:),"Normalization","pdf","DisplayName","Rejected","EdgeColor","none")
+        % if min_temp~=0 || max_temp~=0
+        %     xlim(max(abs([min_temp,max_temp])) * [-1 1]) % set xlim to be big enough to get largest |residual| and center at x=0
+        % end
+        if ri==1
+            title(ax(ri,ti),sprintf("t = %dh",round(24*E.t(ti))))
+        end
+        if ri==nr
+            xlabel(ax(ri,ti),"log_{10}(RSS)")
+        end
+        if ti==1
+            switch ri
+                case 1
+                    ylabel("Count","FontWeight","bold")
+                case 2
+                    ylabel("Count","FontWeight","bold")
+                case 3
+                    ylabel(["G2/M","Fraction"],"FontWeight","bold")
+                case 4
+                    ylabel("Count","FontWeight","bold")
+                case 5
+                    ylabel(["G2/M","Fraction"],"FontWeight","bold")
+            end
+
+        end
+    end
+end
+% legend(ax(1,1))
+normalizeXLims(f)
+% xL = xlim(ax(1));
+% xlim(ax,[1,xL(2)])
+xticks(ax(1:end-1,:),[])
+set(ax,"FontSize",8)
+% set(ax,"XScale","log")
+
+f.Units = "inches";
+f.Position(3) = 4.69;
+f.Position(4) = 3.75;
+yticks(ax,[])
+
+%% margins for this figure
+margin = struct("left",.07,"right",.005,"top",.04,"bottom",.09);
+spacing = struct("horizontal",0.03,"vertical",0.03);
+uniformAxisSpacing(ax,margin,spacing);
+
+%% save this figure
 saveFigures(f,save_fig_opts)
 
 %% set x data into log-lin scale

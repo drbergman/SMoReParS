@@ -20,6 +20,37 @@ zlim([0 2000])
 % xlim([0 5])
 % ylim([0 10])
 hold on
+line_style_in_box = "-";
+line_style_out_box = ":";
+line_color_in_box = "";
+line_width_in_box = 2;
+for i = 1:3
+    xx{i} = ax.Children(i).XData;
+    yy{i} = ax.Children(i).YData;
+    zz{i} = ax.Children(i).ZData;
+    colors(i,:) = ax.Children(i).Color;
+    disp_names{i} = ax.Children(i).DisplayName;
+    ax.Children(i).LineWidth = 1;
+    ax.Children(i).LineStyle = line_style_out_box;
+end
+for i = 1:3
+    %% projections onto each axis
+    if i==1
+        xx_temp = xx{i};
+        yy_temp = yL(1)*ones(1,length(xx_temp));
+        zz_temp = zL(1)*ones(1,length(xx_temp));
+    elseif i==2
+        yy_temp = yy{i};
+        xx_temp = xL(2)*ones(1,length(yy_temp));
+        zz_temp = zL(1)*ones(1,length(yy_temp));
+    else
+        zz_temp = zz{i};
+        xx_temp = xL(1)*ones(1,length(zz_temp));
+        yy_temp = yL(1)*ones(1,length(zz_temp));
+    end
+    plot3(ax,xx_temp,yy_temp,zz_temp,"Color",colors(i,:),"LineWidth",3,"LineStyle",":");
+
+end
 for abm_par_ind = 1:n_abm_pars
 
     bounds = zeros(2,n_sm_pars);

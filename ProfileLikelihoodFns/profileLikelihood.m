@@ -45,6 +45,9 @@ for i = 1:npars
     end
     [~,order] = sort(profiles{i}(par_ind,:),"ascend");
     profiles{i} = profiles{i}(:,order);
+    if any(profiles{i}<0,"all")
+        error("Some negative")
+    end
 end
 
 end

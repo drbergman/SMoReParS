@@ -1,3 +1,4 @@
-data/*
+data/sims*
+Data/cohort*
 
 !data/README.txt

@@ -2,7 +2,7 @@
 .DS_Store
 
 # file forders not to save
-#TumorSpheroidABM/data (now handling this with a subfolder level .gitignore)
+TumorSpheroidABM/data (now handling this with a subfolder level .gitignore)
 KerrisABM/data
 KerrisABM/Sensitivity/data
 .vscode

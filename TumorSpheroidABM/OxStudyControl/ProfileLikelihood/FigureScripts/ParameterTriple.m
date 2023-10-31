@@ -1,7 +1,7 @@
 clearvars
 
 save_fig_opts.save_figs = true;
-save_fig_opts.reprint = true;
+save_fig_opts.reprint = false;
 save_fig_opts.file_types = ["fig","png"];
 save_fig_opts.resolution = '-r1200';
 
@@ -28,6 +28,12 @@ for i = 1:numel(ax.Children)
     ax.Children(i).MarkerSize = 4;
     ax.Children(i).Color = par_color(ax.Children(i).DisplayName);
 end
+
+ax.XAxis.Label.VerticalAlignment = "middle";
+ax.YAxis.Label.VerticalAlignment = "middle";
+ax.ZAxis.Label.VerticalAlignment = "middle";
+
+%%
 
 f.Units = "inches";
 f.Position(3) = 2;

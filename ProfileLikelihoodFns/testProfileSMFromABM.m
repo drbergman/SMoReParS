@@ -30,38 +30,67 @@ I = unique(I);
 nsamps = numel(I);
 threshold = chi2inv(0.95,npars);
 f = figure;
-ax = gobjects(nsamps,npars);
-for i = 1:nsamps
+if nsamps>1 || isempty(opts.parameter_layout)
+    ax = gobjects(nsamps,npars);
+    for i = 1:nsamps
+        for j = 1:npars
+            if size(profiles{j,I(i)},1) == 2
+                par_ind = 1;
+            else
+                par_ind = j;
+            end
+            ax(i,j) = subplot(nsamps,npars,r2c(nsamps,npars,[i,j]));
+            min_val = min(profiles{j,I(i)}(end,:));
+            x = profiles{j,I(i)}(par_ind,:);
+            y = profiles{j,I(i)}(end,:);
+            plot(ax(i,j),x,y,"LineWidth",opts.LineWidth,"Color",opts.LineColor);
+            yline(ax(i,j),min_val+threshold,"LineStyle","--","LineWidth",opts.LineWidth)
+            ax(i,j).YLim(1) = max(ax(i,j).YLim(1),.9*min_val);
+            ax(i,j).YLim(2) = min(max(ax(i,j).YLim(2),min_val+1.1*threshold),min_val+2*threshold);
+        end
+    end
+
     for j = 1:npars
-        if size(profiles{j,I(i)},1) == 2
+        switch opts.place_par_names
+            case "title"
+                title(ax(1,j),sm_par_display_names(j),"FontWeight","bold","FontSize",16)
+            case "xlabel"
+                xlabel(ax(end,j),sm_par_display_names(j),"FontWeight","bold","FontSize",16)
+        end
+    end
+
+    for i = 1:nsamps
+        ylabel(ax(i,1),sprintf("#%04d",I(i)),"FontWeight","bold")
+    end
+
+else % one sample (so likely a profile from data) and a given parameter layout
+    nr = opts.parameter_layout(1);
+    nc = opts.parameter_layout(2);
+    ax = gobjects(nr,nc);
+    for j = 1:npars
+        if size(profiles{j,I},1) == 2
             par_ind = 1;
         else
             par_ind = j;
         end
-        ax(i,j) = subplot(nsamps,npars,r2c(nsamps,npars,[i,j]));
-        min_val = min(profiles{j,I(i)}(end,:));
-        x = profiles{j,I(i)}(par_ind,:);
-        y = profiles{j,I(i)}(end,:);
-        plot(ax(i,j),x,y,"LineWidth",opts.LineWidth,"Color",opts.LineColor);
-        yline(ax(i,j),min_val+threshold,"LineStyle","--","LineWidth",opts.LineWidth)
-        ax(i,j).YLim(1) = max(ax(i,j).YLim(1),.9*min_val);
-        ax(i,j).YLim(2) = min(max(ax(i,j).YLim(2),min_val+1.1*threshold),min_val+2*threshold);
+        ax(j) = subplot(nr,nc,j);
+        min_val = min(profiles{j,I}(end,:));
+        x = profiles{j,I}(par_ind,:);
+        y = profiles{j,I}(end,:);
+        plot(ax(j),x,y,"LineWidth",opts.LineWidth,"Color",opts.LineColor);
+        yline(ax(j),min_val+threshold,"LineStyle","--","LineWidth",opts.LineWidth)
+        ax(j).YLim(1) = max(ax(j).YLim(1),.9*min_val);
+        ax(j).YLim(2) = min(max(ax(j).YLim(2),min_val+1.1*threshold),min_val+2*threshold);
+        switch opts.place_par_names
+            case "title"
+                title(ax(j),sm_par_display_names(j),"FontWeight","bold","FontSize",16)
+            case "xlabel"
+                xlabel(ax(j),sm_par_display_names(j),"FontWeight","bold","FontSize",16)
+        end
     end
-end
+    ax = ax'; % to match the layout of the subplots
 
-for j = 1:npars
-    switch opts.place_par_names
-        case "title"
-            title(ax(1,j),sm_par_display_names(j),"FontWeight","bold","FontSize",16)
-        case "xlabel"
-            xlabel(ax(end,j),sm_par_display_names(j),"FontWeight","bold","FontSize",16)
-    end
 end
-
-for i = 1:nsamps
-    ylabel(ax(i,1),sprintf("#%04d",I(i)),"FontWeight","bold")
-end
-
 end
 
 function default_options = defaultTestProfileSMFromABMOptions
@@ -70,6 +99,8 @@ default_options.abm_vec_inds = []; % sample from these ABM vecs (empty ==> sampl
 default_options.LineWidth = 2;
 default_options.place_par_names = "title";
 default_options.LineColor = lines(1);
+
+default_options.parameter_layout = []; % rows x columns of parameter layout
 
 
 end

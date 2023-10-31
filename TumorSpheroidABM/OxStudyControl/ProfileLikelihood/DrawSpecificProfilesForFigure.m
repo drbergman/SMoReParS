@@ -7,7 +7,7 @@ addpath("../ODEFitting/")
 profile_file = "data/Profiles_SMFromABM_New_clean.mat";
 
 save_opts.save_figs = true;
-save_opts.reprint = true;
+save_opts.reprint = false;
 save_opts.file_types = ["fig","png"];
 save_opts.resolution = '-r1200';
 

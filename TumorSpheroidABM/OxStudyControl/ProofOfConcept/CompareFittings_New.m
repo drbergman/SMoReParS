@@ -7,11 +7,11 @@
 clearvars;
 addpath("~/Documents/MATLAB/myfunctions/")
 cohort_name = "cohort_230124175743017";
-files.abm_profile = "../SampleABM/data/AdmittedParameters_New_all_profiles_resampled.mat";
+files.abm_profile = "../SampleABM/data/AcceptedParameters_New_all_profiles_resampled.mat";
 files.experimental_data = "../ODEFitting/data/ExperimentalData_New.mat";
 
 save_fig_opts.save_figs = true;
-save_fig_opts.reprint = true;
+save_fig_opts.reprint = false;
 save_fig_opts.file_types = ["fig","png"];
 save_fig_opts.resolution = '-r1200';
 
@@ -19,13 +19,15 @@ save_fig_opts.resolution = '-r1200';
 accept_color = [0    0.4470    0.7410];
 reject_color = [0.8500    0.3250    0.0980];
 all_color = [0 0 0];
-most_likely_color = [0 0 128]/255;
-least_likely_color = [255 215 0]/255;
+most_likely_color = [255 203 5]/255;
+least_likely_color = [0 39 76]/255;
 %%
 files.abm_cohort = sprintf("../../data/%s/output.mat",cohort_name);
 
 %% load SMoRe ParS-derived fitting
-load(files.abm_profile,"admitted_parameters")
+load(files.abm_profile,"accepted_parameters")
+abm_data_file = load(files.abm_profile,"files");
+abm_data_file = abm_data_file.files.abm_data;
 
 %% load cohort data and experimental data
 C = load(files.abm_cohort,"ids","cohort_size","nsamps_per_condition");
@@ -39,8 +41,8 @@ load("data/ResidualsOfMean_New.mat")
 LL = -0.5*(nt*log(2*pi()) + sum(E.D.S.^2) + sum((residuals_of_mean./E.D.S).^2,1));
 
 %% stratify LL by SMoRe ParS Acceptance/Rejection
-LL_accepted = LL(:,admitted_parameters);
-LL_rejected = LL(:,~admitted_parameters);
+LL_accepted = LL(:,accepted_parameters);
+LL_rejected = LL(:,~accepted_parameters);
 LL = LL(:);
 %% plot histograms of both
 figureOnRight; hold on;
@@ -53,7 +55,7 @@ xlabel("log-likelihood","FontSize",16)
 ylabel("PDF","FontSize",16)
 
 %% distribution relative likelihood to best setup
-N = sum(admitted_parameters,"all");
+N = sum(accepted_parameters,"all");
 divider = 1e-2;
 minRelProb = exp(min(LL)-max(LL));
 lbase = divider/minRelProb;
@@ -95,14 +97,15 @@ xline(divider,"LineStyle","-.","LineWidth",0.5)
 % annotation("arrow",[0.6675,0.5675],[0.15,0.15]);
 
 f.Units = "inches";
-f.Position(3) = 4/3;
+f.Position(3) = 5/3;
 f.Position(4) = 1;
 
 set(ax,"FontSize",8)
 % xtl = {'10^{-50}','10^{-26}','0.01','0.5','1'};
 % xticklabels(xtl)
 % ax.XAxis.TickLabelRotation = 0;
-margin = struct("left",[],"right",0.02,"top",[],"bottom",[]);
+
+margin = struct("left",[],"right",0.02,"top",.05,"bottom",.29);
 spacing = struct("horizontal",0.05,"vertical",0.1);
 uniformAxisSpacing(ax,margin,spacing);
 
@@ -139,7 +142,7 @@ saveFigures(f,save_fig_opts)
 %% plotting percentage of N best LLs that were accepted
 f = figureOnRight("Name","AcceptanceOfMostLikely_New");
 [~,order] = sort(LL,"descend");
-accepted_sort = admitted_parameters(order);
+accepted_sort = accepted_parameters(order);
 y = zeros(2);
 y(1,1) = sum(accepted_sort(1:N))/N; % percentage of accepted that are in the most likely category
 y(2,1) = sum(~accepted_sort(1:N))/(numel(LL)-N); % percentage of rejected that are in the most likely category
@@ -159,8 +162,8 @@ saveFigures(f,save_fig_opts)
 f = figureOnRight("Name","AcceptanceByLikelihoodQuantile_New");
 ax=gca;
 [LL_sort,order] = sort(LL,"ascend");
-accepted_sort = admitted_parameters(order);
-n_quants = 47;
+accepted_sort = accepted_parameters(order);
+n_quants = 17;
 % Q = quantile(LL_sort,[1-N/numel(LL),1]);
 Q = quantile(LL_sort,n_quants);
 I_prev = 1;
@@ -185,12 +188,12 @@ ax.XAxis.TickLength = [0 0];
 xline(100*(1-N/numel(LL)),"LineWidth",0.5)
 
 f.Units = "inches";
-f.Position(3) = 4/3;
+f.Position(3) = 5/3;
 f.Position(4) = 1;
 
 set(ax,"FontSize",8);
 
-margin = struct("left",0.255,"right",[],"top",[],"bottom",[]);
+margin = struct("left",0.215,"right",.05,"top",.04,"bottom",.29);
 spacing = struct("horizontal",0.05,"vertical",0.1);
 uniformAxisSpacing(ax,margin,spacing);
 
@@ -235,14 +238,16 @@ for j = 1:nt-1
 end
 % legend(ax(2))
 f.Units = "inches";
-f.Position(3) = 4;
+f.Position(3) = 5;
 f.Position(4) = 1;
 set(ax,"FontSize",8);
 
-margin = struct("left",0.05,"right",0,"top",.2,"bottom",0.3);
+%%
+margin = struct("left",0.02,"right",0.01,"top",.14,"bottom",0.29);
 spacing = struct("horizontal",0.05,"vertical",0.1);
 uniformAxisSpacing(ax,margin,spacing);
 
+%%
 saveFigures(f,save_fig_opts)
 
 %% Residuals of accepted pars by LL
@@ -254,13 +259,13 @@ i_rejected = 1;
 for i = 1:length(order)
     for j = 1:C.nsamps_per_condition
         load(sprintf("../../data/sims/%s/output_final.mat",C.ids(i,j)),"tracked")
-        if admitted_parameters(i)
+        if accepted_parameters(i)
             R{1}(:,i_accepted,j) = interp1(round(tracked.t*1440),tracked.NT,tt_min)-E.D.A;
         else
             R{2}(:,i_rejected,j) = interp1(round(tracked.t*1440),tracked.NT,tt_min)-E.D.A;
         end
     end
-    if admitted_parameters(i)
+    if accepted_parameters(i)
         i_accepted = i_accepted+1;
     else
         i_rejected = i_rejected+1;
@@ -288,13 +293,128 @@ for j = 1:nt-1
     xlabel("Z Score","FontSize",8)
 end
 f.Units = "inches";
-f.Position(3) = 4;
+f.Position(3) = 4.5;
 f.Position(4) = 1;
-margin = struct("left",0.05,"right",0,"top",.2,"bottom",0.3);
+
+%%
+margin = struct("left",0.03,"right",0.01,"top",.15,"bottom",0.3);
 spacing = struct("horizontal",0.05,"vertical",0.1);
 uniformAxisSpacing(ax,margin,spacing);
 set(ax,"FontSize",8)
 
+%%
+saveFigures(f,save_fig_opts)
+
+%% get abm trajectories
+A = load(abm_data_file,"D");
+accepted = A.D(:,accepted_parameters);
+accepted = arrayify(accepted,"A",1);
+accepted = sum(accepted,2);
+rejected = A.D(:,~accepted_parameters);
+rejected = arrayify(rejected,"A",1);
+rejected = sum(rejected,2);
+N = sum(accepted_parameters,"all");
+[LL_sort,order] = sort(LL,"descend");
+most_likely_inds = order(1:N);
+most_likely = A.D(:,most_likely_inds);
+most_likely = arrayify(most_likely,"A",1);
+most_likely = sum(most_likely,2);
+least_likely_inds = order(N+1:end);
+least_likely = A.D(:,least_likely_inds);
+least_likely = arrayify(least_likely,"A",1);
+least_likely = sum(least_likely,2);
+
+%% accepted vs most likely sample trajectories
+acceptance_method = "all_profiles_resampled";
+
+f = figureOnRight("Name","SamplesByAcceptedMostLikely_" + "New" + "_" + acceptance_method);
+ax = gca; hold on;
+nsamps = 40;
+
+k = min(nsamps,N);
+l_acc = plot(ax,E.t,squeeze(accepted(:,randperm(N,k))),"Color",[accept_color,nthroot(1/k,4)],"LineWidth",0.5);
+k = min(nsamps,N);
+l_mlik = plot(ax,E.t,squeeze(most_likely(:,randperm(N,k))),"Color",[most_likely_color,nthroot(1/k,4)],"LineWidth",0.5);
+l_dat = plot(ax,E.t,E.D.A,"Color","black","LineStyle","--","LineWidth",0.5,"Marker","*","MarkerSize",3);
+
+% legend(ax,[l_acc(1),l_mlik(1),l_dat],["Accepted","Rejected","Data"]);
+set(ax,"FontSize",20)
+xlabel(ax,"Time (d)")
+ylabel(ax,"Cell Count")
+set(ax,"FontSize",8)
+f.Units = "inches";
+f.Position(3) = 2.5;
+f.Position(4) = 1;
+ylim([0 1000])
+
+%%
+margin = struct("left",0.17,"right",.02,"top",.05,"bottom",0.3);
+spacing = struct("horizontal",0.05,"vertical",0.1);
+uniformAxisSpacing(ax,margin,spacing);
+
+%%
+saveFigures(f,save_fig_opts)
+
+%% rejected vs least likely sample trajectories
+acceptance_method = "all_profiles_resampled";
+
+f = figureOnRight("Name","SamplesByRejectedLeastLikely_" + "New" + "_" + acceptance_method);
+ax = gca; hold on;
+nsamps = 40;
+
+k = min(nsamps,length(least_likely_inds));
+l_rej = plot(ax,E.t,squeeze(rejected(:,randperm(N,k))),"Color",[reject_color,nthroot(1/k,2)],"LineWidth",0.5);
+k = min(nsamps,length(least_likely_inds));
+l_least = plot(ax,E.t,squeeze(least_likely(:,randperm(length(least_likely_inds),k))),"Color",[least_likely_color,nthroot(1/k,2)],"LineWidth",0.5);
+l_dat = plot(ax,E.t,E.D.A,"Color","black","LineStyle","--","LineWidth",0.5,"Marker","*","MarkerSize",3);
+
+% legend(ax,[l_least(1),l_most(1),l_dat],["Accepted","Rejected","Data"]);
+set(ax,"FontSize",20)
+xlabel(ax,"Time (d)")
+ylabel(ax,"Cell Count")
+set(ax,"FontSize",8)
+f.Units = "inches";
+f.Position(3) = 2.5;
+f.Position(4) = 1;
+ylim([0 1000])
+
+%%
+margin = struct("left",0.17,"right",.02,"top",.05,"bottom",0.3);
+spacing = struct("horizontal",0.05,"vertical",0.1);
+uniformAxisSpacing(ax,margin,spacing);
+
+%%
+saveFigures(f,save_fig_opts)
+
+%% least likely vs most likely sample trajectories
+acceptance_method = "all_profiles_resampled";
+
+f = figureOnRight("Name","SamplesByMostLeastLikely_" + "New" + "_" + acceptance_method);
+ax = gca; hold on;
+nsamps = 20;
+
+k = min(nsamps,length(least_likely_inds));
+l_least = plot(ax,E.t,squeeze(least_likely(:,randperm(length(least_likely_inds),k))),"Color",[least_likely_color,nthroot(1/k,4)],"LineWidth",0.5);
+k = min(nsamps,N);
+l_most = plot(ax,E.t,squeeze(most_likely(:,randperm(N,k))),"Color",[most_likely_color,nthroot(1/k,4)],"LineWidth",0.5);
+l_dat = plot(ax,E.t,E.D.A,"Color","black","LineStyle","--","LineWidth",0.5,"Marker","*","MarkerSize",3);
+
+% legend(ax,[l_least(1),l_most(1),l_dat],["Accepted","Rejected","Data"]);
+set(ax,"FontSize",20)
+xlabel(ax,"Time (d)")
+ylabel(ax,"Cell Count")
+set(ax,"FontSize",8)
+f.Units = "inches";
+f.Position(3) = 2;
+f.Position(4) = 1;
+ylim([0 1000])
+
+%%
+margin = struct("left",0.22,"right",.02,"top",.05,"bottom",0.3);
+spacing = struct("horizontal",0.05,"vertical",0.1);
+uniformAxisSpacing(ax,margin,spacing);
+
+%%
 saveFigures(f,save_fig_opts)
 
 %% set x data into log-lin scale

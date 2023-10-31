@@ -8,10 +8,14 @@
 
 clearvars;
 
+addpath("~/Documents/MATLAB/myfunctions/")
+
 save_fig_opts.save_figs = true;
 save_fig_opts.file_types = ["fig","png"];
 save_fig_opts.fig_names = "ABMOutput";
+
 plot_patches = false;
+most_sensitive_in_subplot = false;
 
 load("data/summary.mat","D","*par*","t")
 Last = sliceof(arrayify(D,"A",1),1,length(t));
@@ -28,8 +32,11 @@ for i = 1:4
 end
 
 %% prepare data for subplots
-[~,order] = sort(total_insensitivity,1,"descend"); % as similar as possible within a subplot; different as possible across subplot columns (I prefer this to below)
-% [~,order] = sort(total_insensitivity,1,"ascend"); % as similar as possible across subplot columns; different as possible within a subplot
+if most_sensitive_in_subplot
+    [~,order] = sort(total_insensitivity,1,"ascend"); % as similar as possible across subplot columns; different as possible within a subplot
+else
+    [~,order] = sort(total_insensitivity,1,"descend"); % as similar as possible within a subplot; different as possible across subplot columns (I prefer this to below)
+end
 D = permute(D,[1;order+1]);
 par_names = par_names(order);
 display_par_names = display_par_names(order);
@@ -63,7 +70,7 @@ for ri = 1:nr
         end
     end
 end
-for ri = 1:nr 
+for ri = 1:nr
     % set yaxis labels based on the parameter varying across rows
     ylabel(ax(ri,1),sprintf("%s = %s",display_par_names(3),par_val_str{3}(ri)),"FontWeight","bold")
 end
@@ -98,3 +105,74 @@ f.Position = [0 0 1474 875];
 %% save the figure
 saveFigures(f,save_fig_opts)
 
+%% do it again but with 3 figures, fixing the least sensitive parameter in each
+f = gobjects(1,3);
+plot_patches = true;
+
+line_width = 2;
+
+%% prepare data for subplots
+load("data/summary.mat","D","*par*","t")
+[~,order] = sort(total_insensitivity,1,"ascend"); % order from most -> least Sensitive; most sensitive will vary within subplots, least across figures: [conditions, subplots, columns, rows, figures]
+D = permute(D,[1;order+1]);
+par_names = par_names(order);
+display_par_names = display_par_names(order);
+par_val_str = par_val_str(order);
+
+%% flip dimension that will vary along rows
+D = flip(D,ndims(D)-1);
+par_val_str{end-1} = flip(par_val_str{end-1});
+
+%% plot
+nr = size(D,ndims(D)-1);
+nc = size(D,ndims(D)-2);
+nf = size(D,ndims(D));
+ax = gobjects(nr,nc,nf);
+colors = lines(size(D,2));
+
+for fi = 1:nf
+    f(fi)=figure("Name",sprintf("ABMOutput_%s_%s",display_par_names(4),par_val_str{4}(fi)));
+
+    for ri = 1:nr
+        for ci = 1:nc
+            ax(ri,ci,fi) = subplot(nr,nc,r2c(nr,nc,[ri,ci])); hold on;
+            for i = 1:size(D,2)
+                a = D(1,i,ci,ri,fi).A;
+                if plot_patches
+                    s = D(1,i,ci,ri,fi).S; %#ok<UNRCH>
+                    patch(ax(ri,ci,fi),[t,flip(t)],[a-s;flip(a+s)],colors(i,:),"EdgeColor","none","FaceAlpha",0.2)
+                end
+                plot(ax(ri,ci,fi),t,a,"Color",colors(i,:),"LineWidth",line_width)
+            end
+        end
+    end
+    for ri = 1:nr
+        % set yaxis labels based on the parameter varying across rows
+        ylabel(ax(ri,1,fi),sprintf("%s = %s",display_par_names(3),par_val_str{3}(ri)),"FontWeight","bold")
+    end
+    for ci = 1:nc
+        % set xaxis labels based on the parameter varying across columns
+        xlabel(ax(nr,ci,fi),sprintf("%s = %s",display_par_names(2),par_val_str{2}(ci)),"FontWeight","bold")
+    end
+    drawnow
+
+    % make legend
+    set(ax(:,:,fi),"XLimMode","manual","YLimMode","manual") % do not update axes for these next plots
+    color_lines = gobjects(size(D,2),1);
+    for i = 1:size(D,2)
+        color_lines(i) = line(ax(1,1,fi),[-2,-1],[0,0],"Color",colors(i,:),"LineWidth",line_width,"DisplayName",sprintf("%s = %s",display_par_names(1),par_val_str{1}(i)));
+    end
+
+    legend(ax(1,1,fi),color_lines,"location","best","FontSize",16)
+
+    % other plot stuff
+    if t(end)==75
+        set(ax(:,:,fi),"XTick",0:25:75)
+    end
+    set(ax(:,:,fi),"FontSize",16)
+    f(fi).Units = "pixels";
+    f(fi).Position = [0 0 1474 875];
+end
+
+%%
+saveFigures(f,save_fig_opts)

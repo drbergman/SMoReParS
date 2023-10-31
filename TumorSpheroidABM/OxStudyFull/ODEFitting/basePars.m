@@ -33,7 +33,7 @@ switch model_type
         alphaP = 1; alphaP_L = 0; alphaP_R = 20;
         kalpha = 1; kalpha_L = 0; kalpha_R = 10;
         a = 4; a_L = 0; a_R = 10;
-        low_dose_apop = 1; low_dose_apop_L = 0; low_dose_apop_R = 50;
+        low_dose_apop = 1; low_dose_apop_L = 0.01; low_dose_apop_R = 50;
         delta_dose_apop = 1; delta_dose_apop_L = 0; delta_dose_apop_R = 50;
         rho0 = 0; rho0_L = 0; rho0_R = 10; % in the simplified version, the base value for rho0 is 0 (so if fixed, it is fixed to 0)
 

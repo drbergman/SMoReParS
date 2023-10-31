@@ -3,7 +3,7 @@ clearvars;
 addpath("../ODEFitting/")
 
 save_fig_opts.save_figs = true;
-save_fig_opts.reprint = true;
+save_fig_opts.reprint = false;
 save_fig_opts.file_types = ["fig","png"];
 
 show_legend = true;

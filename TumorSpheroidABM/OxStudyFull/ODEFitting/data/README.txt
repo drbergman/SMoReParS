@@ -7,6 +7,18 @@ SMFitToABM_LMS.mat:
     Optimal parameters for SM on cohort_2306062212.
     rho0 is fixed at 0.
 
+SMFitToABM_LMS_bounded.mat:
+    LMS stands for LogisticModelSimplified.
+    Optimal parameters for SM on cohort_2306062212.
+    rho0 is fixed at 0.
+    The chemo-induced death rate at low dose is bounded above zero.
+
+SMFitToABM_LMS_2.mat:
+    LMS stands for LogisticModelSimplified.
+    Optimal parameters for SM on cohort_2306160948.
+    rho0 is fixed at 0.
+    The chemo-induced death rate at low dose is bounded above zero.
+
 SMFitToABM_Fit_b.mat:
     Optimal parameters for SM on cohort_2305311216.
     lambda, alpha, K, a are all fixed.
@@ -22,6 +34,11 @@ SMFitToABM.mat:
 SMFitToData_LMS.mat:
     Optimal parameters for SM using the LogisticModelSimplified on experimental data.
     rho0 is fixed at 0. 
+
+SMFitToData_LMS_bounded.mat:
+    Optimal parameters for SM using the LogisticModelSimplified on experimental data.
+    rho0 is fixed at 0. 
+    The chemo-induced death rate at low dose is bounded above zero.
 
 SMFitToData_Fit_b.mat:
     Optimal parameters for SM on experimental data.

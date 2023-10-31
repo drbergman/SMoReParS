@@ -10,9 +10,9 @@ addpath("../ODEFitting/")
 
 addpath("~/Documents/MATLAB/myfunctions/")
 
-file_name = "Profiles_SMFromData_LMS";
+file_name = "Profiles_SMFromData_LMS_bounded";
 
-files.optimal_parameters = "../ODEFitting/data/SMFitToData_LMS.mat";
+files.optimal_parameters = "../ODEFitting/data/SMFitToData_LMS_bounded.mat";
 files.data = "../ODEFitting/data/ExperimentalData.mat";
 % files.previous_profile_file = "ProfileLikelihoods.mat";
 

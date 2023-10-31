@@ -1,18 +1,20 @@
 clearvars;
 
+addpath("~/Documents/MATLAB/myfunctions/")
 addpath("../ODEFitting/")
 
 save_fig_opts.save_figs = true;
 save_fig_opts.file_types = ["fig","png"];
 save_fig_opts.reprint = true;
+% save_fig_opts.resolution = '-r1200';
 
 show_legend = true;
 
-file_base_name = "Data_LMS";
+file_base_name = "Data_LMS_bounded";
 
 load("../ODEFitting/data/SMFitTo" + file_base_name,"fixed_pars","model_type")
-load("data/Profiles_SMFrom" + file_base_name + "_clean.mat","profiles")
-sm_par_file_names = ["lambda";"alpha";"K";"alphaR";"alphaP";"kalpha";"a";"low_dose_apop";"delta_dose_apop";"rho0"];
+load("data/Profiles_SMFrom" + file_base_name + "_clean_converted.mat","profiles")
+sm_par_file_names = ["lambda";"alpha";"K";"alphaR";"alphaP";"kalpha";"a";"delta";"kdelta";"rho0"];
 
 figure_layout = "individual"; % unified or individual
 

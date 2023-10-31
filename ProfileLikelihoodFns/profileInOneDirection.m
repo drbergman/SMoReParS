@@ -90,8 +90,30 @@ last_val = first_vals(end);
 j = 0;
 max_allowable_step = Inf;
 while true
-    if x0(i)==par_extremum
-        break; % already reached end of profile previously
+    if par_exceeds_extremum(x0(i) + dir*eps(x0(i)))
+        if x0(i)==par_extremum
+            break; % already reached boundary of profile previously
+        else % make sure the final parameter value recorded is actually at this boundary
+            % the main time this will occur is when a boundary is nonzero
+            % and setting dxi to move to that results in a floating point
+            % error
+            if j==0 % one way to set this if Stage 2 not begun yet
+                if save_all_pars
+                    temp_ind = first_pars(i,:)==x0(i);
+                    first_pars(i,temp_ind) = par_extremum;
+                else
+                    temp_ind = first_pars==x0(i);
+                    first_pars(temp_ind) = par_extremum;
+                end
+            else % another way if Stage 2 is already underway
+                if save_all_pars
+                    extra_pars(i,j) = par_extremum;
+                else
+                    extra_pars(j) = par_extremum;
+                end
+            end
+        end
+        break; % already reached boundary of profile previously
     end
     if par_exceeds_extremum(x0(i) + dir*dxi)
         dxi = update_dxi(x0(i),dxi);
