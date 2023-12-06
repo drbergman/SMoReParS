@@ -1,4 +1,4 @@
-function out = moatSampleFromSM(x,par_names,BS,T,D,vals,nsamps,fn,C,fn_opts,sum_fn)
+function out = sampleFromSM(x,par_names,BS,T,D,vals,nsamps,fn,C,fn_opts,sum_fn)
 
 % runs the SM on a LHS of ODE parameter space as defined by x.
 % par_names stores the correspondence between

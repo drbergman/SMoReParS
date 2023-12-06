@@ -1,4 +1,4 @@
-function mainGS(I)
+function mainGS_MOAT(I)
 
 start_time = tic;
 

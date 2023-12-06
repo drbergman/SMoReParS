@@ -1,5 +1,7 @@
 clearvars;
-
+tic
 for i = 1:10
-    mainGS(i);
+    % mainGS_MOAT(i);
+    mainGS_eFAST(i);
 end
+toc

@@ -1,10 +1,13 @@
 # files not to save
 .DS_Store
 
-# file forders not to save
-TumorSpheroidABM/data (now handling this with a subfolder level .gitignore)
+# file folders not to save
+BernardoProfileWork
+HealthyTumorABM/data
+TumorSpheroidABM/data
 KerrisABM/data
 KerrisABM/Sensitivity/data
+test
 .vscode
 
 # file formats not to save

@@ -17,13 +17,12 @@ for i = 1:numel(f)
     I(i) = startsWith(f(i).name,"2");
 end
 %%
-id = 1;
-n = 0;
+id = 0;
 for i = 1:numel(f)
-    if mod(n,10000)==0
+    if mod(i,10000)==1
+        id = id+1;
         current_sim_folder = sprintf("./sims_%d",id);
         mkdir(current_sim_folder)
-        id = id+1;
     end
     source = sprintf("%s/%s",f(i).folder,f(i).name);
 
@@ -31,5 +30,4 @@ for i = 1:numel(f)
     if exist(source,"dir")
         movefile(source,current_sim_folder);
     end
-    n = n+1;
 end

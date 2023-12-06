@@ -1,12 +1,12 @@
-function mainGS(I)
+function mainGS_eFAST(I)
 
 start_time = tic;
 
 addpath("../MyVersion/")
 
-load("data/MOATLHSSample.mat","points")
+load("data/eFASTSample.mat","points")
 
-ri = mod(I-1,size(points,1))+1;
+ri = mod(I-1,prod(size(points,2:4)))+1;
 
 if ~exist("data","dir")
     mkdir('data')
@@ -21,7 +21,7 @@ n_loops = 300;
 exType = 'Binary'; %Gradated or binary
 RandStream.setGlobalStream(RandStream('mt19937ar','seed','shuffle')); % Make sure random is truly random
 
-simFolder = sprintf("data/sims/GS_%08d",I);
+simFolder = sprintf("data/sims/GS_eFAST_%08d",I);
 data_file = sprintf("%s/NumberofCells.txt",simFolder);
 if exist(simFolder,"dir")
     if exist(data_file,"file")
@@ -39,9 +39,9 @@ cartRandDeath=0.051;
 symchange = 0.05;
 % runnum = 2; % AB(loop);
 seedrate = 0;
-sdiv = points(ri,2);%.05;
-pdiv = points(ri,1);
-dlim =  points(ri,4); %AB(loop);
+sdiv = points(2,ri);%.05;
+pdiv = points(1,ri);
+dlim =  points(4,ri); %AB(loop);
 macronum = 0;
 fibronum = 0;% BSRI 19 set to 0
 %cartnum = 0;%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% For now at 20- infiltration later
@@ -270,7 +270,7 @@ runloop1=1;
 Tiplog1 =[];
 % p1=loop;
 prolifval = 12; %= proloop1(p1);
-migmulti= points(ri,3);%2;%migloop1(p1);
+migmulti= points(3,ri);%2;%migloop1(p1);
 %runnum = runloop1(p1);
 dist_vec={};
 dist_vec1=dist_vec;
