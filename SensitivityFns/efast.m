@@ -29,7 +29,7 @@ for fi = 1:n % factor index
     
     for ri = 1:Nr
         phi = 2*pi*rand(1,n); % random phase shifts
-        x = G(s,omega',phi');
+        x = efastG(s,omega',phi');
 
         for si = 1:Ns
             y(si,fi,ri) = f(x(:,si));
@@ -84,9 +84,4 @@ ST = 1-mean(complement_var,1)./mean(total_var,1);
 S1 = S1(order);
 
 
-end
-
-function x = G(s,omega,phi)
-% periodic functoin that gives uniform coverage on [0,1]
-x = 0.5 + 0.318309886183791 * asin(sin(omega.*s+phi));
 end

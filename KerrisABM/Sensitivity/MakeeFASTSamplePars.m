@@ -1,6 +1,8 @@
 % This script will create the MOAT sample points
 clearvars;
 
+addpath("../../SensitivityFns/")
+
 nfacs = 4; % number of ABM parameters
 Ns = 65; % number of points on each curve
 Nr = 2; % number of curves for each parameter
