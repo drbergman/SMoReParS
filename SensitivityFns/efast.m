@@ -31,7 +31,7 @@ for fi = 1:n % factor index
         phi = 2*pi*rand(1,n); % random phase shifts
         x = efastG(s,omega',phi');
 
-        for si = 1:Ns
+        parfor si = 1:Ns
             y(si,fi,ri) = f(x(:,si));
         end
 
@@ -45,13 +45,13 @@ N0 = NQ+1;
 complement_var = zeros(Nr,n);
 first_order_var = zeros(Nr,n);
 total_var = zeros(Nr,n);
-S1 = zeros(n,1);
-ST = zeros(n,1);
 for fi=1:n
     for ri=1:Nr
         complement_total = 0;
         Y_VECP = Y((N0+1):end,fi,ri)+Y((N0-1):-1:1,fi,ri); % for convenience below and using cos(-theta) = cos(theta)
         Y_VECM = Y((N0+1):end,fi,ri)-Y((N0-1):-1:1,fi,ri); % for convenience below and using sin(-theta) = -sin(theta)
+        a_j = zeros(1,floor(omega_max/2));
+        b_j = zeros(1,floor(omega_max/2));
         for j=1:floor(omega_max/2)
             theta = j*s(N0+1:end);
             cos_theta = cos(theta);
@@ -63,6 +63,8 @@ for fi=1:n
         complement_var(ri,fi) = 2*complement_total;
         % Fourier coeff. at [P*omega_max, for P=1:M].
         first_order = 0;
+        a_j = zeros(1,length(omega_max:omega_max:omega_max*M));
+        b_j = zeros(1,length(omega_max:omega_max:omega_max*M));
         for j=omega_max:omega_max:omega_max*M
             % ANGLE = j*2*(1:NQ)*pi/Ns;
             theta = j*s(N0+1:end);

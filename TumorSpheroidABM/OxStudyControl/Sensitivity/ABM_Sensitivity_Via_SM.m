@@ -6,8 +6,8 @@ clearvars;
 
 addpath("~/Documents/MATLAB/myfunctions/")
 addpath("../..")
-addpath("../../ODEFitting/OxControl/")
-addpath("../../ProfileLikelihood/OxControl/")
+addpath("../ODEFitting/")
+addpath("../ProfileLikelihood/")
 
 %
 % This algorithm is an adaptation of the method of Sensitivity Analysis
@@ -67,18 +67,18 @@ D = makeMOATDistributions(par_names);
 
 %% create bounding hypersurfaces
 cohort_name = "cohort_230124175743017";
-PL = load("../../ProfileLikelihood/OxControl/data/ProfileLikelihoods.mat");
+PL = load("../ProfileLikelihood/data/ProfileLikelihoods.mat");
 C = load(sprintf("../../data/%s/output.mat",cohort_name),"cohort_size","lattice_parameters");
 pars = {C.lattice_parameters.values};
 
-npoints = size(PL.out,2);
-npars_ode = size(PL.out,1);
+npoints = size(PL.profiles,2);
+npars_ode = size(PL.profiles,1);
 
 BS = zeros(npars_ode,npoints,2);
 threshold = chi2inv(0.95,3);
 for i = 1:npoints
     for j = 1:npars_ode
-        [BS(j,i,1),BS(j,i,2)] = getProfileBounds(PL.out{j,i},threshold);
+        [BS(j,i,1),BS(j,i,2)] = getProfileBounds(PL.profiles{j,i},threshold);
     end
 end
 BS = reshape(BS,[npars_ode,C.cohort_size,2]);

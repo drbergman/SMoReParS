@@ -17,7 +17,7 @@ fn_opts.model_type = "logistic";
 % fn_opts.model_type = "von_bertalanffy";
 
 
-fn = @computeSMEndpoint;
+sm_functional = @computeSMEndpoint;
 switch fn_opts.model_type
     case "logistic"
         sum_fn = @mean; % use this for logistic growth
@@ -48,12 +48,13 @@ end
 BS = reshape(BS,[n_sm_pars,cohort_size,2]);
 
 %% run MOAT
-studied_function = @(x) sampleFromSM(x,display_par_names_original,BS,T,D,vals,nsamps,fn,{[]},fn_opts,sum_fn);
+% studied_function = @(x) sampleFromSM(x,display_par_names_original,BS,T,D,vals,nsamps,sm_functional,{[]},fn_opts,sum_fn);
+studied_function = @(x) sampleFromSM(x,BS,vals,sm_functional,D=D,T=T,fn_opts=fn_opts,nsamps=nsamps,par_names=display_par_names,sum_fn=sum_fn);
 [S1,ST,order] = efast(studied_function,n_abm_pars,Nr,omega_max,M,Ns);
 display_par_names = display_par_names_original(order);
 
 %% save result
-save(sprintf("data/GlobalSensitivityeFASTIndirect_%s_big_sample.mat",fn_opts.model_type),"S1","ST","display_par_names","Nr","nsamps","Ns","M","omega_max")
+% save(sprintf("data/GlobalSensitivityeFASTIndirect_%s_big_sample.mat",fn_opts.model_type),"S1","ST","display_par_names","Nr","nsamps","Ns","M","omega_max")
 
 %% clean path
 rmpath("../ODEFitting/")

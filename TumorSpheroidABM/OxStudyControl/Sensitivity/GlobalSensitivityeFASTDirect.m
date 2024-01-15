@@ -3,8 +3,6 @@
 clearvars;
 
 addpath("~/Documents/MATLAB/myfunctions/")
-% addpath("../ODEFitting/")
-% addpath("../../ProfileLikelihoodFns/")
 addpath("../../../SensitivityFns/")
 addpath("../..")
 
@@ -65,15 +63,15 @@ n_abm_pars = length(par_names);
 
 %% run eFAST
 studied_function = @(x) moatSample(x,Model,par_names,D,nsamps,alpha,ci_relative_spread);
-[S1,ST,order] = efast(studied_function,n_abm_pars,Nr,omega_max,M,Ns);
-% display_par_names = display_par_names_original(order);
+[S1,ST,ST_desc_order] = efast(studied_function,n_abm_pars,Nr,omega_max,M,Ns);
+[~,S1_desc_order] = sort(S1,"descend");
+par_names_desc_S1_order = par_names(S1_desc_order);
+par_names_desc_ST_order = par_names(ST_desc_order);
 
 %% save result
-% save(sprintf("data/GlobalSensitivityeFASTIndirect_%s_big_sample.mat",fn_opts.model_type),"S1","ST","display_par_names","Nr","nsamps","Ns","M","omega_max")
+save("data/GlobalSensitivityeFASTDirect.mat")
 
 %% clean path
-rmpath("../ODEFitting/")
-rmpath("../../ProfileLikelihoodFns/")
-rmpath("../../SensitivityFns/")
+rmpath("../../../SensitivityFns/")
 
 

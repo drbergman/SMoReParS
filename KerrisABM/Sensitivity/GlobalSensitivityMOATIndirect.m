@@ -14,7 +14,7 @@ fn_opts.model_type = "logistic";
 % fn_opts.model_type = "von_bertalanffy";
 
 
-fn = @computeSMEndpoint;
+sm_functional = @computeSMEndpoint;
 switch fn_opts.model_type
     case "logistic"
         sum_fn = @mean; % use this for logistic growth
@@ -44,12 +44,13 @@ end
 BS = reshape(BS,[n_sm_pars,cohort_size,2]);
 
 %% run MOAT
-studied_function = @(x) sampleFromSM(x,display_par_names,BS,T,D,vals,nsamps,fn,{[]},fn_opts,sum_fn);
+% studied_function = @(x) sampleFromSM(x,display_par_names,BS,T,D,vals,nsamps,sm_functional,{[]},fn_opts,sum_fn);
+studied_function = @(x) sampleFromSM(x,BS,vals,sm_functional,D=D,T=T,fn_opts=fn_opts,nsamps=nsamps,par_names=display_par_names,sum_fn=sum_fn);
 [mu_star,sigma,order] = morris_simple(studied_function,n_abm_pars,npoints);
 display_par_names = display_par_names(order);
 
 %% save result
-save(sprintf("data/GlobalSensitivityIndirect_%s_very_large.mat",fn_opts.model_type),"mu_star","sigma","display_par_names","npoints")
+% save(sprintf("data/GlobalSensitivityIndirect_%s_very_large.mat",fn_opts.model_type),"mu_star","sigma","display_par_names","npoints")
 
 %% clean path
 rmpath("../ODEFitting/")

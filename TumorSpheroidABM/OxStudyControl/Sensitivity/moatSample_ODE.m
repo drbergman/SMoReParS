@@ -22,9 +22,6 @@ for i = 1:numel(x)
     end
 end
 
-M.save_pars.make_save = false; % make sure I'm not creating save files for any of this
-M.plot_pars.plot_fig = false; % make sure I'm not plotting anything either
-
-out = sum(computeTimeSeries(p,3));
+out = sum(computeTimeSeries(p,[0,3]));
 
 
