@@ -50,7 +50,7 @@ end
 out = 0;
 
 for i = 1:nsamps
-    out = out + sum(computeTimeSeries(points(i,:)',[0,3]));
+    out = out + sum(computeTimeSeries(points(i,:)',3));
 end
 
 out = out / nsamps;

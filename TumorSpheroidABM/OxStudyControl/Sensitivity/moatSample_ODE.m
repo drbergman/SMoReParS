@@ -22,6 +22,6 @@ for i = 1:numel(x)
     end
 end
 
-out = sum(computeTimeSeries(p,[0,3]));
+out = sum(computeTimeSeries(p,3));
 
 

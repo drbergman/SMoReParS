@@ -25,7 +25,15 @@ if fn_opts.condition_on_previous
         out(i,:) = deval(sol,tt(i));
     end
 else
-    [~,out] = ode45(@(t,x) odefn(x,p),tt,[90;10]); % do not put data here for [90;10] or else unexpected behavior could occur if data is supplied like I expect it is for some calls
+    if length(tt) == 1
+        tspan = [0 tt];
+    else
+        tspan = tt;
+    end
+    [~,out] = ode45(@(t,x) odefn(x,p),tspan,[90;10]); % do not put data here for [90;10] or else unexpected behavior could occur if data is supplied like I expect it is for some calls
+    if length(tt) == 1
+        out = out(end,:);
+    end
 end
 if size(data,2)==1
     out = sum(out,2);

@@ -55,7 +55,7 @@ par_names_desc_ST_order = par_names(ST_desc_order);
 
 %% clean path
 rmpath("../ODEFitting/")
-rmpath("../../ProfileLikelihoodFns/")
-rmpath("../../SensitivityFns/")
+rmpath("../../../ProfileLikelihoodFns/")
+rmpath("../../../SensitivityFns/")
 
 

@@ -16,7 +16,7 @@ opts.save_every_sec = 2*60; % wait at least this many seconds between saves
 % opts.raw_error_opts.assume_independent_time_series = true; % assume that the two time series have diagonal covariance matrices at each time point
 
 cohort_name = "cohort_2306062212";
-files.data_file = sprintf("../../data/%s/summary.mat",cohort_name);
+files.data = sprintf("../../data/%s/summary.mat",cohort_name);
 % files.previous_optim_file = "data/temp_optimal.mat";
 
 load("data/SMFitToData_LMS_bounded.mat","fixed_pars","fn","lb","ub","fn_opts","model_type","optim_opts")

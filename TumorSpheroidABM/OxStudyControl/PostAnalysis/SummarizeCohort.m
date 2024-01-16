@@ -11,11 +11,17 @@ nsamps_per_parameter_vector = nsamps_per_condition;
 n_conditions = 1;
 C = {[]};
 vals = {lattice_parameters.values};
+par_names = strings(1,numel(lattice_parameters));
+for i = 1:numel(lattice_parameters)
+    par_names(i) = lattice_parameters(i).path(end);
+end
 %%
 for i = numel(ids):-1:1
     S = load(sprintf("../../data/sims/%s/output_final.mat",ids(i)));
     if size(S.tracked.phases,2)>4
-        error("Not sure how we will count the arrested compartment in this.")
+        S.tracked.phases = reshape(S.tracked.phases,[],4,2);
+        S.tracked.phases = sum(S.tracked.phases,3);
+        % error("Not sure how we will count the arrested compartment in this.")
     end
     phase_count(:,:,:,i) = reshape(S.tracked.phases,[],2,2);
 end
@@ -136,7 +142,7 @@ end
 D = reshape(D,[1,cohort_size]);
 
 n_time_series = size(D(1).A,2);
-save(sprintf("../../data/%s/summary_short.mat",cohort_name),"D","t","C","cohort_size","nsamps_per_parameter_vector","n_conditions","vals","n_time_series","-v7.3")
+save(sprintf("../../data/%s/summary.mat",cohort_name),"D","t","C","cohort_size","nsamps_per_parameter_vector","n_conditions","vals","n_time_series","-v7.3")
 
 
 %% old version

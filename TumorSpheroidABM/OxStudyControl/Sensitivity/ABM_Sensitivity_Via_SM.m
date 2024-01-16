@@ -5,9 +5,10 @@ clearvars;
 %% Program to run
 
 addpath("~/Documents/MATLAB/myfunctions/")
-addpath("../..")
 addpath("../ODEFitting/")
 addpath("../ProfileLikelihood/")
+addpath("../../../SensitivityFns/")
+addpath("../../../ProfileLikelihoodFns/")
 
 %
 % This algorithm is an adaptation of the method of Sensitivity Analysis
@@ -71,14 +72,19 @@ PL = load("../ProfileLikelihood/data/ProfileLikelihoods.mat");
 C = load(sprintf("../../data/%s/output.mat",cohort_name),"cohort_size","lattice_parameters");
 pars = {C.lattice_parameters.values};
 
-npoints = size(PL.profiles,2);
 npars_ode = size(PL.profiles,1);
+PL.profiles = reshape(PL.profiles,npars_ode,[]);
+npoints = size(PL.profiles,2);
 
 BS = zeros(npars_ode,npoints,2);
 threshold = chi2inv(0.95,3);
 for i = 1:npoints
     for j = 1:npars_ode
-        [BS(j,i,1),BS(j,i,2)] = getProfileBounds(PL.profiles{j,i},threshold);
+        if size(PL.profiles{j,i},1)==2
+            [BS(j,i,1),BS(j,i,2)] = getProfileBounds(PL.profiles{j,i},threshold);
+        else
+            [BS(j,i,1),BS(j,i,2)] = getProfileBounds(PL.profiles{j,i}([j,end],:),threshold);
+        end
     end
 end
 BS = reshape(BS,[npars_ode,C.cohort_size,2]);
@@ -181,6 +187,6 @@ xlabel('Factors ordered by ascending maximum','FontSize',12)
 ylabel('Elementary effects','FontSize',12)
 
 
-rmpath("../..")
-rmpath("../../ODEFitting/OxControl/")
-rmpath("../../ProfileLikelihood/OxControl/")
+% rmpath("../..")
+rmpath("../ODEFitting/")
+rmpath("../ProfileLikelihood/")

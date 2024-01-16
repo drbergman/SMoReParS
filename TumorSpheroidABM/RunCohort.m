@@ -35,7 +35,8 @@ M.setup.censor_date = 3;
 M.setup.N0 = 1e2;
 M.setup.agent_initialization_location = "uniform";
 % M.setup.carrying_capacity = [500;1000;1500];
-M.setup.carrying_capacity = 1500;
+% M.setup.carrying_capacity = 1500;
+M.setup.carrying_capacity = 1167.7;
 M.setup.use_rates_for_intitial_proportions = false;
 
 M.save_pars.make_save = true;
@@ -51,7 +52,8 @@ M.pars.occmax_3d = 20;
 M.pars.occmax_2d = 5;
 M.pars.apop_rate = 0;
 % M.pars.move_rate_microns = 10 * [0;1;2];
-M.pars.move_rate_microns = 10;
+% M.pars.move_rate_microns = 10;
+M.pars.move_rate_microns = 8.791732909379968;
 
 M.flags.arrest_is_death = false;
 
@@ -70,10 +72,15 @@ M.chemo_pars.apop_ec50 = [0.5;3.5;6.5];
 % M.cycle_pars.g2_to_m = 24/4 * transition_factors;
 % M.cycle_pars.m_to_g1 = 24/1 * transition_factors;
 
-M.cycle_pars.g1_to_s = 1.745454545454545;
-M.cycle_pars.s_to_g2 = 3;
-M.cycle_pars.g2_to_m = 7.2;
-M.cycle_pars.m_to_g1 = 28.8;
+% M.cycle_pars.g1_to_s = 1.745454545454545;
+% M.cycle_pars.s_to_g2 = 3;
+% M.cycle_pars.g2_to_m = 7.2;
+% M.cycle_pars.m_to_g1 = 28.8;
+
+M.cycle_pars.g1_to_s = 2.102731608613965;
+M.cycle_pars.s_to_g2 = 2.939904610492845;
+M.cycle_pars.g2_to_m = 5.965659777424487;
+M.cycle_pars.m_to_g1 = 24.038155802861748;
 
 recovery_rate = 0; % [0.03;0.06;0.09];
 M.cycle_pars.g1a_to_g1 = recovery_rate;

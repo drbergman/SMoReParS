@@ -3,7 +3,7 @@
 %% Program to run
 
 addpath("~/Documents/MATLAB/myfunctions/")
-addpath("..")
+addpath("../..")
 
 %
 % This algorithm is an adaptation of the method of Sensitivity Analysis
@@ -199,4 +199,4 @@ xlabel('Factors ordered by ascending maximum','FontSize',12)
 ylabel('Elementary effects','FontSize',12)
 
 
-rmpath("..")
+rmpath("../..")
