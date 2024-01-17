@@ -29,7 +29,11 @@ if isempty(opts)
 end
 
 %% run the SM
-sm_data = solveSM(sm,p,tt,C,D,opts.condition_on_previous,opts.resample_t);
+if isfield(sm,"custom_solve_sm")
+    sm_data = sm.custom_solve_sm(sm,p,tt,C,D,opts.condition_on_previous,opts.resample_t);
+else
+    sm_data = solveSM(sm,p,tt,C,D,opts.condition_on_previous,opts.resample_t);
+end
 
 %% resample data if needed
 if ~isempty(opts.resample_t)

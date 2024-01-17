@@ -25,14 +25,14 @@ if isempty(sm_solver)
             else
                 sm_solver = @solveODE;
             end
-            if ~isfield(sm,"processor")
+            if ~isfield(sm,"post_processor")
                 if resample
                     sm_post_processor = @(raw_sm_output) deval(resample_t,raw_sm_output)';
                 else
                     sm_post_processor = @(raw_sm_output) deval(tt,raw_sm_output)';
                 end
             else
-                sm_post_processor = sm.processor;
+                sm_post_processor = sm.post_processor;
             end
     end
 

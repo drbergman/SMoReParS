@@ -80,7 +80,11 @@ else
 end
 num_to_run = numel(ind_to_run);
 
-rE_fn = @(p,d,c) rawError(sm,p,t,d,c,raw_error_opts);
+if isfield(sm,"custom_raw_error_fn")
+    rE_fn = @(p,d,c) sm.custom_raw_error_fn(sm,p,t,d,c,raw_error_opts);
+else
+    rE_fn = @(p,d,c) rawError(sm,p,t,d,c,raw_error_opts);
+end
 
 last_save_time = tic;
 
