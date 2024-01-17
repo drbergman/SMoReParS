@@ -2,15 +2,15 @@
 % vector. 
 
 clearvars;
-opts.force_serial = true;
-opts.raw_error_opts.resample = true;
-opts.raw_error_opts.t = 15:15:75;
+force_serial = true;
+raw_error_opts.resample = true;
+raw_error_opts.t = 15:15:75;
 
 addpath("../../ODEFittingFns/")
 
 
-fn = @computeTimeSeries;
-fn_opts.model_type = "logistic";
+sm.fn = @computeTimeSeries;
+sm.opts.model_type = "logistic";
 
 optim_opts = optimset('Display','off','TolFun',1e-12,'TolX',1e-12);
 
@@ -29,9 +29,10 @@ npars = numel(p);
 
 
 %% load ABM data
-data_file = "../PostAnalysis/data/summary.mat";
+files.data = "../PostAnalysis/data/summary.mat";
 
-P = optimizeSMParsFromABM(data_file,p,fn,fn_opts,lb,ub,optim_opts,1,opts);
+P = optimizeSMParsFromABM(files,sm,p,lb,ub,optim_opts,1,force_serial=force_serial,...
+    raw_error_opts=raw_error_opts);
 
 save(sprintf("data/OptimalParameters_%s.mat",fn_opts.model_type),"P")
 

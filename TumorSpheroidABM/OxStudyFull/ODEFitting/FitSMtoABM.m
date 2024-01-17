@@ -8,25 +8,32 @@ make_save = true;
 addpath("../../../ODEFittingFns/")
 addpath("~/Documents/MATLAB/myfunctions/")
 
-opts.force_serial = false;
-opts.n_starts = 10;
-opts.temp_profile_name = "data/temp_optimal";
-opts.save_every_iter = 20; % wait at least this many iterations between saves
-opts.save_every_sec = 2*60; % wait at least this many seconds between saves
-% opts.raw_error_opts.assume_independent_time_series = true; % assume that the two time series have diagonal covariance matrices at each time point
+force_serial = false;
+n_starts = 10;
+checkpoint_filename = "data/temp_optimal";
+save_every_iter = 20; % wait at least this many iterations between saves
+save_every_sec = 2*60; % wait at least this many seconds between saves
+% raw_error_opts.assume_independent_time_series = true; % assume that the two time series have diagonal covariance matrices at each time point
 
 cohort_name = "cohort_2306062212";
 files.data = sprintf("../../data/%s/summary.mat",cohort_name);
 % files.previous_optim_file = "data/temp_optimal.mat";
 
-load("data/SMFitToData_LMS_bounded.mat","fixed_pars","fn","lb","ub","fn_opts","model_type","optim_opts")
+load("data/SMFitToData_LMS_bounded.mat","fixed_pars","lb","ub","model_type","optim_opts")
+load("data/SMFitToData_LMS_bounded.mat","fn","fn_opts","sm")
+if ~exists("sm","var")
+    sm.fn = fn;
+    sm.opts = fn_opts;
+end
 optim_opts.Display = "off";
 [p,~,~,~] = fixParameters(model_type,fixed_pars);
 
 weights = [1;1;1];
 
 %% optimize sm pars
-P = optimizeSMParsFromABM(files,p,fn,fn_opts,lb,ub,optim_opts,weights,opts);
+P = optimizeSMParsFromABM(files,sm,p,lb,ub,optim_opts,weights,...
+    force_serial=force_serial,n_starts=n_starts,checkpoint_filename=checkpoint_filename,...
+    save_every_iter=save_every_iter,save_every_sec=save_every_sec,raw_error_opts=raw_error_opts);
 
 if make_save
     save("data/" + file_name,"P","cohort_name") 

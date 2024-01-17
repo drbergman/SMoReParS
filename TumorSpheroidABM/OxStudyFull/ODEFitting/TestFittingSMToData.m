@@ -10,7 +10,12 @@ save_fig_opts.file_types = ["fig","png"];
 save_fig_opts.fig_names = file_name;
 save_fig_opts.resolution = '-r1200';
 
-load("data/" + file_name + ".mat","P","fn_opts","fn");
+load("data/" + file_name + ".mat","P");
+load("data/" + file_name + ".mat","fn","fn_opts","sm")
+if ~exists("sm","var")
+    sm.fn = fn;
+    sm.opts = fn_opts;
+end
 load("data/ExperimentalData.mat","t","D","C");
 
 %% color

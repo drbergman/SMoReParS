@@ -43,11 +43,11 @@ objfn_constants.weights = [1;1;1];
 objfn_constants.p_setup_fn = @(p) [p(1:5);fixed_hill_coefficient;p(6)];
 
 m = 3;
-
+sm = struct("fn",objfn_constants.fn,"opts",objfn_constants.fn_opts);
 for i = 1:n_sm_pars
     for j = 1:size(out,2)
-        F = @(p) arrayfun(@(k) rawError(objfn_constants.p_setup_fn(p),t,...
-            D(k,j),objfn_constants.fn,C{k},objfn_constants.fn_opts),1:m)*objfn_constants.weights;
+        F = @(p) arrayfun(@(k) getRawError(sm,objfn_constants.p_setup_fn(p),t,...
+            D(k,j),C{k}),1:m)*objfn_constants.weights;
         if out{i,j}(i,1) < para_ranges(i,1) + smallest_par_step(i)
             x0 = out{i,j}(1:end-1,1);
             x0(i) = para_ranges(i,1);

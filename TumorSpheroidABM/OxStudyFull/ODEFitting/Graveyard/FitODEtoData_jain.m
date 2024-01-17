@@ -59,7 +59,8 @@ D = load("data/ExperimentalData.mat");
 
 %%
 P = zeros(npars,1);
-F = @(p) arrayfun(@(i) rawError(p,D.tt,[D.count(:,i),D.state2_prop(:,i)],[D.sigma_count(:,i),D.sigma_state2_prop(:,i)],fn,D.doses(i),fn_opts),1:3)*weights;
+sm = struct("fn",fn,"opts",fn_opts);
+F = @(p) arrayfun(@(i) getRawError(sm,p,D.tt,[D.count(:,i),D.state2_prop(:,i)],[D.sigma_count(:,i),D.sigma_state2_prop(:,i)],D.doses(i)),1:3)*weights;
 
 [pstar,fstar] = fmincon(F,p,[],[],[],[],lb,ub,[],opts);
 

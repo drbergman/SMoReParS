@@ -1,10 +1,52 @@
+% This script will summarize my ABM output in a manner that will allow it
+% to be used in the SMoRe-verse. This will serve as a first draft of a
+% template for others to use to plug in their ABM to the SMoRe-verse.
+
+% The output of this script is a new file called summary.mat with the
+% following variables:
+%   * t: vector of time values of data
+%   * cohort_size: size of the cohort run. Expected use: grid sampling of ABM
+%       parameters creates a [n1, n2, n3, ...] array of ABM parameter
+%       vectors where each element corresponds to a node on the grid
+%   * par_names: 1-D string vector of names of ABM parameters corresponding
+%       to the dimensions in cohort_size
+%   * vals: 1-D cell array of parameter values that correspond to each
+%       dimension of the grid sample of ABM parameter space used for the 
+%       cohort. vals{i} = [p_i_1, p_i_2, ..., p_i_ni] the ni values of ABM
+%       parameter p_i that are varied along the first dimension of the
+%       cohort
+%   * nsamps_per_parameter_vector: number of ABM simulations run for each
+%       cohort entry
+%   * C: a 1-D cell array of containing data for the conditions under which ABM
+%       simulations were run. Typical use case: running an ABM under
+%       different dose concentrations of a therapeutic drug to match
+%       experimentally-observed dose-response curves.
+%   * n_conditions: number of conditions = numel(C) = length(C)
+%   * n_time_series: number of features that are tracked over time in D below
+%   * D: a struct array of the (D)ata. Each element corresponds to one
+%       element of the cohort. For 1-D fields, the rows (first dimension)
+%       corresponds to the time. For 2-D fields, the pages (third 
+%       dimension) correspond to the time. The remaining dimensions
+%       correspond to the feature. Of the following fields that the SMoRe-
+%       verse recognizes, A must be included and either S or C must also be
+%       included. D and Q are currently unused in the SMoRe-verse.
+%       * A: average values of features, 1 feature per column
+%       * S: standard deviation of features, 1 feature per column
+%       * C: covariance matrix of features, D.C(:,:,i) is the covariance of
+%          the features at time t(i)
+%       * D: determinant of covariant matrix, D.D(i) is the determinant of
+%          the D.C(:,:,i)
+%       * Q: the inverse of the covariant matrix, D.Q(:,:,i) is the inverse
+%           of D.C(:,:,i)
+
 % a script to summarize cohort data. not sure why I originally created this
 % as a function...but it seems more convenient to have this as a script.
 % saves mean cell counts, phase counts, ode state variable counts, and all their
 % SDs.
 
+
 clearvars;
-cohort_name = "cohort_230124175743017";
+cohort_name = "cohort_2401151523";
 addpath("~/Documents/MATLAB/myfunctions/")
 load(sprintf("../../data/%s/output.mat",cohort_name),"ids","nsamps_per_condition","cohort_size","lattice_parameters");
 nsamps_per_parameter_vector = nsamps_per_condition;
@@ -12,8 +54,8 @@ n_conditions = 1;
 C = {[]};
 vals = {lattice_parameters.values};
 par_names = strings(1,numel(lattice_parameters));
-for i = 1:numel(lattice_parameters)
-    par_names(i) = lattice_parameters(i).path(end);
+for i = 1:length(par_names)
+    par_names(i) = lattice_parameters(i).path{end};
 end
 %%
 for i = numel(ids):-1:1
@@ -39,8 +81,14 @@ phase_count = reshape(phase_count,[nt_abm,2,2,size(ids)]);
 phase_count_sampled = interp1(t_abm,phase_count,t);
 state_vars = sum(phase_count_sampled,2);
 state_vars = reshape(state_vars,nt,2,[],nsamps_per_parameter_vector);
-temp_avg = mean(state_vars,ndims(state_vars));
-temp_std = std(state_vars,[],ndims(state_vars));
+
+if nsamps_per_parameter_vector==1
+    temp_avg = state_vars;
+    temp_std = zeros(size(state_vars));
+else
+    temp_avg = mean(state_vars,ndims(state_vars));
+    temp_std = std(state_vars,[],ndims(state_vars));
+end
 
 temp_avg = reshape(temp_avg,nt,2,[]);
 temp_std = reshape(temp_std,nt,2,[]);
@@ -108,10 +156,10 @@ for i = size(temp_avg,3):-1:1
     end
 
     dets = zeros(nt,1);
-    invs = zeros(nt,2,2);
+    invs = zeros(2,2,nt);
     parfor ti = 1:nt
         dets(ti) = det(covs(:,:,ti));
-        invs(ti,:,:) = inv(covs(:,:,ti));
+        invs(:,:,ti) = inv(covs(:,:,ti));
     end
     D(i).C = covs;
     D(i).D = dets;
@@ -140,6 +188,7 @@ for i = size(temp_avg,3):-1:1
     D(i).S = temp_std(:,:,i);
 end
 D = reshape(D,[1,cohort_size]);
+
 
 n_time_series = size(D(1).A,2);
 save(sprintf("../../data/%s/summary.mat",cohort_name),"D","t","C","cohort_size","nsamps_per_parameter_vector","n_conditions","vals","n_time_series","-v7.3")

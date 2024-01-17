@@ -20,7 +20,8 @@ experimental_data = "data/ExperimentalData_New.mat";
 [p,lb,ub] = basePars();
 npars = length(p);
 load(experimental_data,"t","D");
-F = @(p) rawError(p,t,D,fn,[],fn_opts);
+sm = struct("fn",fn,"opts",fn_opts);
+F = @(p) getRawError(sm,p,t,D,[]);
 
 %% optimize
 [P,fstar] = fmincon(F,p,[],[],[],[],lb,ub,[],optim_opts);

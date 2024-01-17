@@ -3,9 +3,9 @@
 
 clearvars;
 
-fn = @computeTimeSeries;
+sm.fn = @computeTimeSeries;
 % fn_opts.model_type = "von_bertalanffy";
-fn_opts.model_type = "logistic";
+sm.opts.model_type = "logistic";
 
 save_fig_opts.save_figs = true;
 save_fig_opts.file_types = ["fig","png"];
@@ -30,6 +30,6 @@ par_file = sprintf("data/OptimalParameters_%s.mat",fn_opts.model_type);
 data_file = "../PostAnalysis/data/summary.mat";
 
 
-f = testSMFitToABM(par_file,data_file,nsamps,fn,fn_opts,par_names);
+f = testSMFitToABM(par_file,data_file,nsamps,sm,par_names);
 
 saveFigures(f,save_fig_opts)

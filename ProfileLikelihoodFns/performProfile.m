@@ -1,4 +1,6 @@
-function profiles = performProfile(files,objfn_constants,profile_params,input_opts)
+function profiles = performProfile(files,objfn_constants,profile_params,opts,profile_likelihood_opts,raw_error_opts)
+
+% THIS IS A USER-FACING FUNCTION
 
 % profiles each SM parameter for each "column" of the data array, Data 
 % array being reshaped to a 2D array. 
@@ -36,9 +38,28 @@ function profiles = performProfile(files,objfn_constants,profile_params,input_op
 %       save_all_pars=true: logical to control whether to save all parameter values (true) or only the current profile parameter and goodness-of-fit value (false)
 %       raw_error_opts=[]: if not empty, then a struct of options to be used in rawError.m
 
-opts = defaultPerformProfileOptions;
-if nargin==4 && ~isempty(input_opts)
-    opts = overrideDefaultOptions(opts,input_opts);
+arguments
+    files struct
+    objfn_constants struct
+    profile_params struct
+
+    opts.force_serial logical = true
+    opts.save_every_iter {mustBeInteger} = Inf; % how often (based on iterations) to save profile throughout (protects against errors and workers crashing)
+    opts.save_every_sec double = Inf; % how often (based on seconds passed) to save profile throughout (protects against errors and workers crashing)
+    opts.temp_profile_name string = sprintf("data/temp_profile_%02d",next_version_number("data/temp_profile_%02d"));
+
+    % profileLikelihood opts
+    % WARNING: These should be updated in tandem with the logical flow of
+    %           profileLikelihood to ensure consistency between the two.
+    profile_likelihood_opts.save_all_pars logical = true;
+
+    % rawError opts
+    % WARNING: These should be updated in tandem with the logical flow of
+    %           rawError to ensure consistency between the two.
+    raw_error_opts.assume_independent_time_series logical = true; % assume that the time series produced by the SM are independent (crazy, right? but it's what I had initially assumed, so this is the default value)
+    raw_error_opts.only_use_z_scores logical = true; % whether to use the constant and SD terms from the LL for normal distributions, or (if false) just use the sum of z-scores
+    raw_error_opts.report_as_error logical = true; % whether to report the value as an error for optimization purposes
+    raw_error_opts.resample_t double = []; % time points to resample at and compare with data, leave empty to not resample but to use time points from D
 end
 
 if ~isfield(profile_params,"A")
@@ -82,6 +103,8 @@ end
 
 last_save_time = tic;
 
+pL_fn = @(p,d) profileLikelihood(p,t,d,C,objfn_constants,profile_params,profile_likelihood_opts,raw_error_opts);
+
 if ~opts.force_serial 
     %% run in parallel
     FF(1:num_to_run) = parallel.FevalFuture;
@@ -95,7 +118,7 @@ if ~opts.force_serial
         current_ind = ind_to_run(i);
         d = D(:,current_ind);
         p = P(:,current_ind);
-        FF(i) = parfeval(ppool,@() profileLikelihood(p,t,d,C,objfn_constants,profile_params,opts.profile_likelihood_options),1);
+        FF(i) = parfeval(ppool,@() pL_fn(p,d),1);
     end
     fprintf("FevalQueue finished.\n")
     %% fetch profiles performed in parallel
@@ -120,7 +143,7 @@ else
         current_ind = ind_to_run(i);
         d = D(:,current_ind);
         p = P(:,current_ind);
-        profiles(:,current_ind) = profileLikelihood(p,t,d,C,objfn_constants,profile_params,opts.profile_likelihood_options);
+        profiles(:,current_ind) = pL_fn(p,d);
         if mod(i,ceil(0.001*num_to_run))==0
             temp = toc(t_start);    
             fprintf("Finished %d of %d after %s. ETR: %s\n",i,num_to_run,duration(0,0,temp),duration(0,0,temp/i * (num_to_run-i)))
@@ -133,19 +156,5 @@ else
     end
 end
 profiles = reshape(profiles,[npars,cohort_size]);
-
-end
-
-function default_options = defaultPerformProfileOptions
-
-default_options.force_serial = true;
-default_options.save_every_iter = Inf; % how often (based on iterations) to save profile throughout (protects against errors and workers crashing)
-default_options.save_every_sec = Inf; % how often (based on seconds passed) to save profile throughout (protects against errors and workers crashing)
-
-temp_profile_name_format_spec = "data/temp_profile_%02d";
-num = next_version_number(temp_profile_name_format_spec);
-default_options.temp_profile_name = sprintf(temp_profile_name_format_spec,num); % how often to save profile throughout (protects against errors and workers crashing)
-
-default_options.profile_likelihood_options.save_all_pars = true;
 
 end

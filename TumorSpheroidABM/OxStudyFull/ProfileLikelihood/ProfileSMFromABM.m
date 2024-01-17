@@ -29,7 +29,12 @@ options.temp_profile_name = "data/temp_profile";
 options.save_every_iter = 10; % wait at least this many iterations between saves
 options.save_every_sec = 5*60; % wait at least this many seconds between saves
 
-load("../ODEFitting/data/SMFitToData_LMS_bounded.mat","fixed_pars","fn","lb","ub","fn_opts","model_type","optim_opts")
+load("../ODEFitting/data/SMFitToData_LMS_bounded.mat","fixed_pars","lb","ub","model_type","optim_opts")
+load("../ODEFitting/data/SMFitToData_LMS_bounded.mat","fn","fn_opts","sm")
+if ~exists("sm","var")
+    sm.fn = fn;
+    sm.opts = fn_opts;
+end
 optim_opts.Display = "off";
 [p,~,~,~] = fixParameters(model_type,fixed_pars);
 

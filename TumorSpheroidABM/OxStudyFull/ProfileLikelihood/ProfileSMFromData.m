@@ -16,7 +16,12 @@ files.optimal_parameters = "../ODEFitting/data/SMFitToData_LMS_bounded.mat";
 files.data = "../ODEFitting/data/ExperimentalData.mat";
 % files.previous_profile_file = "ProfileLikelihoods.mat";
 
-load(files.optimal_parameters,"fixed_pars","fn","lb","ub","fn_opts","model_type","optim_opts")
+load(files.optimal_parameters,"fixed_pars","lb","ub","model_type","optim_opts")
+load(files.optimal_parameters,"fn","fn_opts")
+if ~exists("sm","var")
+    sm.fn = fn;
+    sm.opts = fn_opts;
+end
 
 options.profile_likelihood_options.save_all_pars = true;
 options.force_serial = true; % no benefit to running this in parallel (only for doing this across multiple ABM parameter vectors)

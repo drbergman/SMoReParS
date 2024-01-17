@@ -6,11 +6,11 @@ function [S1,ST,order] = efast(f,n,Nr,omega_max,M,Ns)
 
 arguments
     f
-    n
-    Nr = 1
-    omega_max = 8
-    M = 4;
-    Ns = 2*M*omega_max + 1
+    n double {mustBeInteger}
+    Nr double {mustBeInteger} = 1
+    omega_max double {mustBeInteger} = 8
+    M double {mustBeInteger} = 4;
+    Ns double {mustBeInteger} = 2*M*omega_max + 1
 end
 
 % equally-spaced points on (-pi,pi) but only include left endpoint

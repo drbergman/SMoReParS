@@ -1,4 +1,4 @@
-function profiles = profileLikelihood(pbest,t,D,C,objfn_constants,profile_params,input_opts)
+function profiles = profileLikelihood(pbest,t,D,C,objfn_constants,profile_params,opts,raw_error_opts)
 
 % profiles each parameter in pbest. pbest is the best fit at the point. the
 % time series to compare against is given in tt, data, and data_std.
@@ -16,15 +16,22 @@ function profiles = profileLikelihood(pbest,t,D,C,objfn_constants,profile_params
 % will not assume that the pbest came from the same objective function as
 % we are using here
 
-opts = defaultProfileLikelihoodOptions;
-if nargin > 6 && ~isempty(input_opts)
-    opts = overrideDefaultOptions(opts,input_opts);
-end
+% arguments
+%     pbest (:,1) double
+%     t (:,1) double
+%     D struct
+%     C cell
+%     objfn_constants struct
+%     profile_params struct
+%     input_opts struct
+% end
+
+opts = overrideDefaultOptions(defaultProfileLikelihoodOptions(),opts);
 
 m = numel(D); % number of conditions used
 
-F = @(p) arrayfun(@(j) rawError(p,t,D(j),objfn_constants.fn,C{j},...
-    objfn_constants.fn_opts,opts.raw_error_opts),1:m)*objfn_constants.weights;
+sm = struct("fn",objfn_constants.fn,"opts",objfn_constants.fn_opts);
+F = @(p) arrayfun(@(j) rawError(sm,p,t,D(j),C{j},raw_error_opts),1:m)*objfn_constants.weights;
 
 %% make sure pbest is best
 [pbest,val_at_center] = fmincon(F,pbest,profile_params.A,profile_params.b,[],[],profile_params.lb,profile_params.ub,[],profile_params.opts);
@@ -55,6 +62,5 @@ end
 function default_options = defaultProfileLikelihoodOptions
 
 default_options.save_all_pars = true;
-default_options.raw_error_opts = [];
 
 end

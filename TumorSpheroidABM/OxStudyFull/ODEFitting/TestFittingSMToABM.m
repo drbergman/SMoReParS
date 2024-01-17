@@ -45,7 +45,11 @@ opts.rss_on_log_scale = true;
 opts.rss_normalization = "count";
 opts.show_rss_smoothing = true;
 
-load("data/SMFitToData_LMS_bounded.mat","fn","fn_opts")
+load("data/SMFitToData_LMS_bounded.mat","fn","fn_opts","sm")
+if ~exists("sm","var")
+    sm.fn = fn;
+    sm.opts = fn_opts;
+end
 
 %% set up parameter names
 [~,I] = setdiff(sm_par_display_names,fixed_pars);
@@ -56,7 +60,7 @@ end
 opts.par_names = sm_par_display_names;
 
 %% Test the fitting
-[f,I] = testSMFitToABM(files,nsamps,fn,fn_opts,opts);
+[f,I] = testSMFitToABM(files,nsamps,sm,opts);
 
 %% set up fit figure
 f(1).Units = "inches";

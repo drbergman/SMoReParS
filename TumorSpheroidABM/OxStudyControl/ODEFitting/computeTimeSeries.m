@@ -4,11 +4,11 @@ function out = computeTimeSeries(p,tt,~,fn_opts,data)
 % uses initial conditions of [90;10];
 
 arguments
-    p
-    tt
+    p (:,1) double
+    tt (:,1) double
     ~
     fn_opts = struct("condition_on_previous",false)
-    data = [90;10] % as of writing this (24/01/15), I expect this value to be overwritten every time. the check for size(data,2)==1 below could cause issues if calls to this do not supply data
+    data double = [90;10] % as of writing this (24/01/15), I expect this value to be overwritten every time. the check for size(data,2)==1 below could cause issues if calls to this do not supply data
 end
 
 if fn_opts.condition_on_previous

@@ -18,8 +18,8 @@ model_type = "LogisticModelSimplified";
 % p = [lambda,alpha,K,alphaR,alphaP,kalpha,a,delta0,kdelta,b,rho0]
 fixed_pars = "rho0";
 % fixed_pars = [];
-fn = @computeTimeSeries;
-[p,lb,ub,fn_opts.p_setup_fn,fixed_vals] = fixParameters(model_type,fixed_pars);
+sm.fn = @computeTimeSeries;
+[p,lb,ub,sm.opts.p_setup_fn,fixed_vals] = fixParameters(model_type,fixed_pars);
 
 p = p.*exp(0.5*randn(size(p)));
 
@@ -56,13 +56,13 @@ end
 load("data/ExperimentalData.mat","t","D","C");
 
 %%
-F = @(p) arrayfun(@(i) rawError(p,t,D(i),fn,C{i},fn_opts),1:3)*weights;
+F = @(p) arrayfun(@(i) getRawError(sm,p,t,D(i),C{i}),1:3)*weights;
 
 [P,fstar] = fmincon(F,p,[],[],[],[],lb,ub,[],optim_opts);
 
 %% save output
 if make_save
-    save("data/" + file_name,"P","fstar","weights","fn_opts","lb","ub","fixed_pars","fn","fn_opts","optim_opts","model_type","fixed_vals") %#ok<*UNRCH>
+    save("data/" + file_name,"P","fstar","weights","sm","lb","ub","fixed_pars","optim_opts","model_type","fixed_vals") %#ok<*UNRCH>
 end
 % %%
 % f=figure;
@@ -74,7 +74,7 @@ end
 %     end
 % end
 % for i = 1:3
-%     sim_data = fn(P,tfull,C{i},fn_opts);
+%     sim_data = sm.fn(P,tfull,C{i},sm.opts);
 %     plot(ax(1,i),tfull,sim_data(:,1),"--","LineWidth",2,"DisplayName","Fit");
 %     plot(ax(2,i),tfull,sim_data(:,2),"--","LineWidth",2,"DisplayName","Fit");
 %     patch(ax(1,i),[t;flip(t)],[D(i).A(:,1)-D(i).S(:,1);flip(D(i).A(:,1)+D(i).S(:,1))],"black","FaceAlpha",0.2,"EdgeColor","none","DisplayName","+/- SD");

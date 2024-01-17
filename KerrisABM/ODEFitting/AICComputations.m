@@ -13,10 +13,10 @@ model_types = ["von_bertalanffy","logistic"];
 
 data_file = "../PostAnalysis/data/summary.mat";
 
-fn = @computeTimeSeries;
+sm.fn = @computeTimeSeries;
 
-raw_error_opts.resample = true;
-raw_error_opts.t = 15:15:75;
+resample = true;
+resample_t = 15:15:75;
 
 
 n_models = numel(model_types);
@@ -26,9 +26,9 @@ AIC = zeros([n_models,prod(cohort_size)]);
 for i = 1:n_models
     load(sprintf("data/OptimalParameters_%s.mat",model_types(i)),"P");
     P = reshape(P,size(P,1),[]);
-    fn_opts.model_type = model_types(i);
+    sm.opts.model_type = model_types(i);
     for j = 1:size(P,2)
-        AIC(i,j) = rawError(P(:,j),t,D(j),fn,C{1},fn_opts,raw_error_opts) + 2*size(P,1);
+        AIC(i,j) = getRawError(sm,P(:,j),t,D(j),C{1},resample = resample, resample_t = resample_t) + 2*size(P,1);
     end
 
 end

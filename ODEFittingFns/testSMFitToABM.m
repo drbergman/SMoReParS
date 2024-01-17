@@ -1,4 +1,4 @@
-function [f,I] = testSMFitToABM(files,nsamps,fn,fn_opts,input_opts)
+function [f,I] = testSMFitToABM(files,nsamps,sm,input_opts)
 
 
 opts = defaultTestSMFitToABMOptions;
@@ -61,7 +61,7 @@ if n_time_series == 1 && n_conditions == 1 % just plot in a rough square
         ax(i) = subplot(nr,nc,i,"NextPlot","add");
         patch(ax(i),[t(:);flip(t(:))],[D(I(i)).A-D(I(i)).S;flipud(D(I(i)).A+D(I(i)).S)],opts.data_color,"FaceAlpha",0.2,"EdgeColor","none")
         plot(ax(i),t,D(I(i)).A,opts.data_color,"LineStyle","--")
-        out = fn(P(:,I(i)),t,C{1},fn_opts);
+        out = sm.fn(P(:,I(i)),t,C{1},sm.opts);
         plot(ax(i),t,out,"-","LineWidth",2,"Color",opts.fit_color)
         title(ax(i),sprintf("#%04d",I(i)),"FontWeight","bold")
     end
@@ -77,7 +77,7 @@ elseif n_time_series > 1 && n_conditions == 1
     nc = n_time_series;
     ax = gobjects(nsamps,n_time_series);
     for ri = 1:nsamps
-        out = fn(P(:,I(ri)),t,C{1},fn_opts,D(I(ri)).A);
+        out = sm.fn(P(:,I(ri)),t,C{1},sm.opts,D(I(ri)).A);
         for ci = 1:n_time_series
             ax(ri,ci) = subplot(nr,nc,r2c(nr,nc,[ri,ci]),"NextPlot","add");
             patch(ax(ri,ci),[t(:);flip(t(:))],[D(I(ri)).A(:,ci)-D(I(ri)).S(:,ci);flipud(D(I(ri)).A(:,ci)+D(I(ri)).S(:,ci))],opts.data_color,"FaceAlpha",0.2,"EdgeColor","none")
@@ -106,7 +106,7 @@ elseif n_time_series==2 && n_conditions > 1
 
     for ri = 1:nsamps
         for ci = 1:n_conditions
-            out = fn(P(:,I(ri)),t,C{ci},fn_opts);
+            out = sm.fn(P(:,I(ri)),t,C{ci},sm.opts);
             for tsi = 1:n_time_series
                 ax(ri,ci,tsi) = subplot(nr,nc,r2c(nr,nc,[ri,(ci-1)*n_time_series+tsi]),"NextPlot","add");
                 patch(ax(ri,ci,tsi),[t(:);flip(t(:))],[D(ci,I(ri)).A(:,tsi)-D(ci,I(ri)).S(:,tsi);flipud(D(ci,I(ri)).A(:,tsi)+D(ci,I(ri)).S(:,tsi))],opts.data_color,"FaceAlpha",0.2,"EdgeColor","none")
@@ -148,18 +148,19 @@ end
 %% histograms of RSS values
 if isfield(files,"sm_fit_file")
     warning("off",'MATLAB:load:variableNotFound')
-    load(files.sm_fit_file,"raw_error_options","weights")
+    load(files.sm_fit_file,"raw_error_opts","weights")
     warning("on",'MATLAB:load:variableNotFound')
-    if ~exist("raw_error_options","var")
-        raw_error_options = [];
+    if ~exist("raw_error_opts","var")
+        raw_error_opts = struct();
     end
+
     if ~exist("weights","var")
         weights = ones(n_conditions,1);
     end
     f(3) = figure;
     RSS = zeros(1,size(P,2));
     for i = 1:size(P,2)
-        RSS(i) = arrayfun(@(j) rawError(P(:,i),t,D(j,i),fn,C{j},fn_opts,raw_error_options),1:n_conditions)*weights;
+        RSS(i) = arrayfun(@(j) rawError(sm,P(:,i),t,D(j,i),C{j},raw_error_opts),1:n_conditions)*weights;
     end
     if opts.rss_on_log_scale
         RSS = log(RSS);

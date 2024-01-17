@@ -1,4 +1,4 @@
-
+%%%%%%%%%%%%%%%%%%%% DEPRECATED %%%%%%%%%%%%%%%%%%%%%%%%
 % This script sets up and calls the profile likelihood method for
 % identifiability for the ODE pars from the data. it then plots the
 % combinations

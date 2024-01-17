@@ -61,7 +61,8 @@ end
 load("data/ExperimentalData.mat","t","D","C");
 
 %%
-F = @(p) arrayfun(@(i) rawError(p,t,D(i),fn,C{i},fn_opts),1:3)*weights;
+sm = struct("fn",fn,"opts",fn_opts);
+F = @(p) arrayfun(@(i) getRawError(sm,p,t,D(i),C{i}),1:3)*weights;
 tic
 [P,fstar] = fmincon(F,p,[],[],[],[],lb,ub,[],opts);
 toc

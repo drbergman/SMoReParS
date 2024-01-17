@@ -8,16 +8,15 @@ function out = sampleFromSM(x, BS, vals, sm_functional, options)
 % to an integer.
 
 arguments
-    x
-    BS
-    vals
-    sm_functional
+    x (:,1) double
+    BS double % at some point, change this so the user passes in the file that contains this info and build the BS from there
+    vals cell % at some point, change this so the user passes in the file that contains this info and build the vals from there
+    sm_functional function_handle
     options.par_names {mustBeText} = strings(1,numel(x))
-    % options.T = dictionary()
-    options.T = configureDictionary("string","function_handle")
-    options.D = configureDictionary("string","prob.ProbabilityDistribution")
-    options.nsamps {mustBeInteger} = 100
-    options.sum_fn = @mean
+    options.T dictionary = configureDictionary("string","function_handle")
+    options.D dictionary = configureDictionary("string","prob.ProbabilityDistribution")
+    options.nsamps double {mustBeInteger} = 100
+    options.sum_fn function_handle = @mean
 end
 
 n_abm_pars = length(options.par_names);

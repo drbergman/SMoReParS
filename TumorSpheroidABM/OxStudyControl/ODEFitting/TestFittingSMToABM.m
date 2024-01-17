@@ -24,8 +24,8 @@ rss_color = [102, 51, 153]/255;
 nsamps = 4;
 files.data = sprintf("../../data/%s/summary_short.mat",cohort_name);
 
-fn = @computeTimeSeries;
-fn_opts.condition_on_previous = false;
+sm.fn = @computeTimeSeries;
+sm.opts.condition_on_previous = false;
 
 opts.column_names = column_names;
 opts.par_names = par_names;
@@ -43,7 +43,7 @@ fit_color = lines(2);
 fit_color = sqrt(prod(fit_color,1));
 opts.fit_color = fit_color;
 
-[f,I] = testSMFitToABM(files,nsamps,fn,fn_opts,opts);
+[f,I] = testSMFitToABM(files,nsamps,sm,opts);
 f(1).Children = flip(f(1).Children);
 f(1).Children = reshape(reshape(f(1).Children,2,4)',[],1);
 %% add total cell count to final column of sample fits
