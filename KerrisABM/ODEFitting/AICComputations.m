@@ -7,7 +7,7 @@ save_fig_opts.file_types = ["fig","png"];
 % save_fig_opts.reprint_warning = false;
 save_fig_opts.fig_names = ["AICComparisonBySM","ModelLikelihood"];
 
-addpath("../../ODEFittingFns/")
+addpath("../../SurrogateModelFns/")
 
 model_types = ["von_bertalanffy","logistic"];
 
@@ -62,7 +62,7 @@ set(ax,"FontSize",16)
 saveFigures(f,save_fig_opts);
 
 %% reset path
-rmpath("../../ODEFittingFns/")
+rmpath("../../SurrogateModelFns/")
 
 
 function out = this__title_fn(s)

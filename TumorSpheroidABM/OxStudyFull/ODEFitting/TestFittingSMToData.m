@@ -1,6 +1,6 @@
 clearvars;
 
-addpath("../../../ODEFittingFns/")
+addpath("../../../SurrogateModelFns/")
 addpath("~/Documents/MATLAB/myfunctions/")
 
 file_name = "SMFitToData_LMS_bounded";
@@ -76,4 +76,4 @@ ax(2,1).YAxis.Label.Color = "black";
 saveFigures(f,save_fig_opts)
 
 %% remove paths
-rmpath("../../../ODEFittingFns/")
+rmpath("../../../SurrogateModelFns/")

@@ -1,4 +1,4 @@
-function dx = odefn(x,p)
+function dx = odefn(~,x,p,~)
 
 % the ODE function defining the SM
 

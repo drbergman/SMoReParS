@@ -4,7 +4,7 @@
 clearvars;
 
 addpath("~/Documents/MATLAB/myfunctions/")
-addpath("../../../ODEFittingFns/")
+addpath("../../../SurrogateModelFns/")
 
 save_fig_opts.save_figs = true;
 save_fig_opts.reprint = false;
@@ -143,6 +143,6 @@ uniformAxisSpacing(ax',margin,spacing);
 saveFigures(f,save_fig_opts)
 
 %% reset path
-rmpath("../../../ODEFittingFns/")
+rmpath("../../../SurrogateModelFns/")
 
 

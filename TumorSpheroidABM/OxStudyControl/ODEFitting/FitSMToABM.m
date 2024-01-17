@@ -7,7 +7,7 @@ raw_error_opts.assume_independent_time_series = false;
 
 cohort_name = "cohort_230124175743017";
 
-addpath("../../../ODEFittingFns/")
+addpath("../../../SurrogateModelFns/")
 
 p = basePars();
 npars = numel(p);
@@ -29,4 +29,4 @@ P = optimizeSMParsFromABM(files,sm,p,lb,ub,optim_opts,weights,...
 
 save("data/OptimalParameters_Using_DependentStatesAndTimeSeries.mat","P")
 
-rmpath("../../../ODEFittingFns/")
+rmpath("../../../SurrogateModelFns/")

@@ -7,7 +7,7 @@ clearvars;
 
 addpath("~/Documents/MATLAB/myfunctions/")
 addpath("../../../ProfileLikelihoodFns/")
-addpath("../../../ODEFittingFns/")
+addpath("../../../SurrogateModelFns/")
 addpath("../ODEFitting/")
 
 files.optimal_parameters = "../ODEFitting/data/SMFittoData_New.mat";
@@ -87,5 +87,5 @@ end
 
 %%
 rmpath("../../../ProfileLikelihoodFns/")
-rmpath("../../../ODEFittingFns/")
+rmpath("../../../SurrogateModelFns/")
 rmpath("../ODEFitting/")

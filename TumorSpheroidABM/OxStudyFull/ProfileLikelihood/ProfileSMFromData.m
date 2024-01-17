@@ -4,7 +4,7 @@
 % combinations
 
 clearvars;
-addpath("../../../ODEFittingFns/")
+addpath("../../../SurrogateModelFns/")
 addpath("../../../ProfileLikelihoodFns/")
 addpath("../ODEFitting/")
 
@@ -65,7 +65,7 @@ profiles = performProfile(files,objfn_constants,profile_params,options);
 save("data/" + file_name,"profiles")
 
 rmpath("../../../ProfileLikelihoodFns/")
-rmpath("../../../ODEFittingFns/")
+rmpath("../../../SurrogateModelFns/")
 rmpath("../ODEFitting/")
 
 

@@ -3,7 +3,7 @@
 
 clearvars;
 
-addpath("../../../ODEFittingFns/")
+addpath("../../../SurrogateModelFns/")
 cohort_name = "cohort_2303301105";
 
 % data_file = "../ODEFitting/data/ExperimentalData.mat";
@@ -75,4 +75,4 @@ end
 save(profile_file + "_extended","out")
 
 %% reset path
-rmpath("../../../ODEFittingFns/")
+rmpath("../../../SurrogateModelFns/")

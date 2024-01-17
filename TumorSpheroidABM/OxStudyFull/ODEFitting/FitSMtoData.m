@@ -9,7 +9,7 @@ save_fig_opts.reprint = false;
 save_fig_opts.file_types = ["fig","png"];
 save_fig_opts.fig_names = file_name;
 
-addpath("../../../ODEFittingFns/")
+addpath("../../../SurrogateModelFns/")
 
 addpath("~/Documents/MATLAB/myfunctions/")
 
@@ -95,4 +95,4 @@ end
 % saveFigures(f,save_fig_opts)
 
 %% remove paths
-rmpath("../../../ODEFittingFns/")
+rmpath("../../../SurrogateModelFns/")

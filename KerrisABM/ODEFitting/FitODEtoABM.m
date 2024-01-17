@@ -6,7 +6,7 @@ force_serial = true;
 raw_error_opts.resample = true;
 raw_error_opts.t = 15:15:75;
 
-addpath("../../ODEFittingFns/")
+addpath("../../SurrogateModelFns/")
 
 
 sm.fn = @computeTimeSeries;
@@ -36,4 +36,4 @@ P = optimizeSMParsFromABM(files,sm,p,lb,ub,optim_opts,1,force_serial=force_seria
 
 save(sprintf("data/OptimalParameters_%s.mat",fn_opts.model_type),"P")
 
-rmpath("../../ODEFittingFns/")
+rmpath("../../SurrogateModelFns/")

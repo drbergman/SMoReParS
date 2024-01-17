@@ -16,7 +16,7 @@ for i = numel(fig_names_spec):-1:1
 end
 
 addpath("~/Documents/MATLAB/myfunctions/")
-addpath("../../ODEFittingFns/")
+addpath("../../SurrogateModelFns/")
 
 switch fn_opts.model_type
     case "logistic"

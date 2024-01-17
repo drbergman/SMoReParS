@@ -5,7 +5,7 @@ clearvars;
 
 file_name = "SMFitToABM_LMS_bounded";
 make_save = true;
-addpath("../../../ODEFittingFns/")
+addpath("../../../SurrogateModelFns/")
 addpath("~/Documents/MATLAB/myfunctions/")
 
 force_serial = false;
@@ -39,4 +39,4 @@ if make_save
     save("data/" + file_name,"P","cohort_name") 
 end
 
-rmpath("../../../ODEFittingFns/")
+rmpath("../../../SurrogateModelFns/")

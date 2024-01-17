@@ -6,7 +6,7 @@
 % of all ODE model parameters at a given ABM parameter vector.
 
 clearvars;
-addpath("../../../ODEFittingFns/")
+addpath("../../../SurrogateModelFns/")
 addpath("../../../ProfileLikelihoodFns/")
 addpath("../ODEFitting/")
 
@@ -65,7 +65,7 @@ save("data/" + file_name,"profiles")
 
 %% reset path
 rmpath("../ODEFitting/")
-rmpath("../../../ODEFittingFns/")
+rmpath("../../../SurrogateModelFns/")
 rmpath("../../../ProfileLikelihoodFns/")
 
 

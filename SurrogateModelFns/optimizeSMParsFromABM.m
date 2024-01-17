@@ -35,7 +35,7 @@ arguments
     weights (:,1) double
     opts.force_serial logical = false
     opts.n_starts {mustBeInteger} = 1
-    opts.save_every_iter {mustBeInteger} = Inf
+    opts.save_every_iter {mustBeInteger} = 1e300
     opts.save_every_sec double = Inf
     opts.checkpoint_filename string = sprintf("data/temp_profile_%02d",next_version_number("data/temp_profile_%02d"))
 

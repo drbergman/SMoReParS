@@ -6,7 +6,7 @@
 % of all ODE model parameters at a given ABM parameter vector.
 
 clearvars;
-addpath("../../ODEFittingFns/")
+addpath("../../SurrogateModelFns/")
 addpath("../../ProfileLikelihoodFns/")
 addpath("~/Documents/MATLAB/myfunctions/")
 addpath("../ODEFitting/")
@@ -85,7 +85,7 @@ save(sprintf("data/ProfileLikelihoods_%s.mat",objfn_constants.fn_opts.model_type
 
 %% reset path
 rmpath("../ODEFitting/")
-rmpath("../../ODEFittingFns/")
+rmpath("../../SurrogateModelFns/")
 rmpath("../../ProfileLikelihoodFns/")
 
 

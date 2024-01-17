@@ -6,7 +6,7 @@
 % of all ODE model parameters at a given ABM parameter vector.
 
 clearvars;
-addpath("../../../ODEFittingFns/")
+addpath("../../../SurrogateModelFns/")
 addpath("../../../ProfileLikelihoodFns/")
 addpath("../ODEFitting/")
 
@@ -39,7 +39,7 @@ MDProfile = performMultiDimProfile(files,objfn_constants,par_vals,opts);
 % save("data/MultiDimProfileLikelihoods.mat","MDProfile","par_vals","par_names","cohort_size","profile_size","-v7.3")
 
 rmpath("../ODEFitting/")
-rmpath("../../../ODEFittingFns/")
+rmpath("../../../SurrogateModelFns/")
 rmpath("../../../ProfileLikelihoodFns/")
 
 

@@ -6,7 +6,7 @@
 % of all ODE model parameters at a given ABM parameter vector.
 
 clearvars;
-addpath("../../../ODEFittingFns/")
+addpath("../../../SurrogateModelFns/")
 addpath("../../../ProfileLikelihoodFns/")
 addpath("../ODEFitting/")
 
@@ -53,7 +53,7 @@ out = performProfile(files,objfn_constants,profile_params,save_all_pars,force_se
 save("data/ProfileLikelihoods.mat","out")
 
 rmpath("../ODEFitting/")
-rmpath("../../../ODEFittingFns/")
+rmpath("../../../SurrogateModelFns/")
 rmpath("../../../ProfileLikelihoodFns/")
 
 
