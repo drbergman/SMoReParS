@@ -17,14 +17,14 @@ files.data = "../ODEFitting/data/ExperimentalData.mat";
 % files.previous_profile_file = "ProfileLikelihoods.mat";
 
 load(files.optimal_parameters,"fixed_pars","lb","ub","model_type","optim_opts")
-load(files.optimal_parameters,"fn","fn_opts")
-if ~exists("sm","var")
+load(files.optimal_parameters,"fn","fn_opts","sm")
+if ~exist("sm","var")
     sm.fn = fn;
     sm.opts = fn_opts;
 end
 
-options.profile_likelihood_options.save_all_pars = true;
-options.force_serial = true; % no benefit to running this in parallel (only for doing this across multiple ABM parameter vectors)
+save_all_pars = true;
+force_serial = true; % no benefit to running this in parallel (only for doing this across multiple ABM parameter vectors)
 % options.temp_profile_name = "data/temp_profile";
 % options.save_every_iter = 100; % wait at least this many iterations between saves
 % options.save_every_sec = 10*60; % wait at least this many seconds between saves
@@ -52,14 +52,10 @@ profile_params.ub = ub;
 profile_params.para_ranges = [profile_params.lb,profile_params.ub];
 
 profile_params.opts = optim_opts;
-
-%% objfn_constants
-objfn_constants.fn = fn;
-objfn_constants.fn_opts = fn_opts;
-objfn_constants.weights = [1;1;1];
+profile_params.weights = [1;1;1];
 
 %% perform profile
-profiles = performProfile(files,objfn_constants,profile_params,options);
+profiles = performProfile(files,sm,profile_params,save_all_pars = save_all_pars, force_serial=force_serial);
 
 %% save the output
 save("data/" + file_name,"profiles")

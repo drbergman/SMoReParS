@@ -3,7 +3,7 @@
 
 clearvars;
 file_name = "SMFitToData_LMS_bounded";
-make_save = false;
+make_save = true;
 save_fig_opts.save_figs = false;
 save_fig_opts.reprint = false;
 save_fig_opts.file_types = ["fig","png"];

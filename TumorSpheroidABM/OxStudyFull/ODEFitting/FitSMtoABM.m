@@ -25,7 +25,6 @@ if ~exist("sm","var")
     sm.custom_solve_sm_fn = @(sm,p,t,c,d,~,~) computeTimeSeries(p,t,c,sm.opts,[]);
     sm.opts = fn_opts;
     % sm.fn = fn;
-    % sm.opts = fn_opts;
 end
 optim_opts.Display = "off";
 [p,~,~,~] = fixParameters(model_type,fixed_pars);
