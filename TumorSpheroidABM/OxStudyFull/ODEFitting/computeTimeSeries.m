@@ -29,7 +29,25 @@ else
     end
 end
 
-sol = ode45(@(t,x) odefn(x,p,dose_arrest_factor,dose_apoptosis_factor,recovery_rate),[0 tt(end)],[90;10;0;0]);
-temp = deval(sol,tt)';
-total = sum(temp,2);
-out = [total,(temp(:,2)+temp(:,4))./total];
+tvals = unique([0;tt(:)]);
+[~,out] = ode45(@(t,x) odefn(x,p,dose_arrest_factor,dose_apoptosis_factor,recovery_rate),tvals,[90;10;0;0]);
+switch length(tt)
+    case 1
+        out = out(end,:);
+    case 2
+        if tt(1)==0
+            out = out([1,end],:);
+        else
+            out = out(2:3,:);
+        end
+    otherwise
+        if tt(1)~=0
+            out = out(2:end,:);
+        end
+end
+total = sum(out,2);
+out = [total,(out(:,2)+out(:,4))./total];
+
+% temp = deval(sol,tt)';
+% total = sum(temp,2);
+% out = [total,(temp(:,2)+temp(:,4))./total];

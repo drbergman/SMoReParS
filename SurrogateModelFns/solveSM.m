@@ -55,7 +55,7 @@ switch length(tt)
         if tt(1)==0
             sm_data = sm_data([1,end],:);
         else
-            sm_data = sm_data(2:end,:);
+            sm_data = sm_data(2:3,:);
         end
     otherwise
         if tt(1)~=0

@@ -31,7 +31,7 @@ optim_opts = optimset('Display','off','TolFun',1e-12,'TolX',1e-12);
 % sm.post_processor = @(x) sum(x,2);
 
 % Using custom solve sm method
-% sm.custom_solve_sm = @customSolveSM;
+% sm.custom_solve_sm_fn = @customSolveSM;
 
 % Using custom raw error method (fastest)
 sm.custom_raw_error_fn = @customRawError;

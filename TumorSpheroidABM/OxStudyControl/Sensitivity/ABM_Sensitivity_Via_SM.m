@@ -67,10 +67,10 @@ par_names = ["carrying_capacity";"g1_to_s";"s_to_g2";"g2_to_m";"m_to_g1";"move_r
 D = makeMOATDistributions(par_names);
 
 %% create bounding hypersurfaces
-cohort_name = "cohort_230124175743017";
-PL = load("../ProfileLikelihood/data/ProfileLikelihoods.mat");
+cohort_name = "cohort_2401151523";
+PL = load("../ProfileLikelihood/data/Profiles_SMFromABM_New2_clean.mat");
 C = load(sprintf("../../data/%s/output.mat",cohort_name),"cohort_size","lattice_parameters");
-pars = {C.lattice_parameters.values};
+vals = {C.lattice_parameters.values};
 
 npars_ode = size(PL.profiles,1);
 PL.profiles = reshape(PL.profiles,npars_ode,[]);
@@ -94,7 +94,11 @@ nfac=numel(par_names);
 
 assert(nfac==numel(par_names)) % make sure that there is a value for each of the parameters to be varied
 assert(D.numEntries==numel(par_names)) % make sure each parameter has an associated distribution
-studied_function = @(x) moatSample_SM(x,par_names,D,BS,pars,nsamps);
+par_names = ["carrying_capacity","occmax_2d","move_rate_microns","g1_to_s","s_to_g2","g2_to_m","m_to_g1"];
+% studied_function = @(x) moatSample_SM(x,par_names,D,BS,vals,nsamps);
+T = dictionary("occmax_2d", @(x) min(7,floor(x)));
+sm_functional = @(p) sum(computeTimeSeries(p,[],[],false,3));
+studied_function = @(x) sampleFromSM(x,BS,vals, sm_functional,par_names=par_names, T = T,D=D,nsamps=nsamps);
 [mu_star,sigma,order] = morris_simple(studied_function,nfac,15);
 
 %% 3) Initialization of the variables

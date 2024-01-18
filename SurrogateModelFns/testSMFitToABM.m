@@ -2,7 +2,7 @@ function [f,I] = testSMFitToABM(files,nsamps,sm,input_opts)
 
 
 opts = defaultTestSMFitToABMOptions;
-if nargin > 4 && ~isempty(input_opts)
+if nargin >= 4 && ~isempty(input_opts)
     opts = overrideDefaultOptions(opts,input_opts);
 end
 
@@ -159,8 +159,13 @@ if isfield(files,"sm_fit_file")
     end
     f(3) = figure;
     RSS = zeros(1,size(P,2));
+    if isfield(sm,"custom_raw_error_fn")
+        rE_fn = sm.custom_raw_error_fn;
+    else
+        rE_fn = @rawError;
+    end
     for i = 1:size(P,2)
-        RSS(i) = arrayfun(@(j) rawError(sm,P(:,i),t,D(j,i),C{j},raw_error_opts),1:n_conditions)*weights;
+        RSS(i) = arrayfun(@(j) rE_fn(sm,P(:,i),t,D(j,i),C{j},raw_error_opts),1:n_conditions)*weights;
     end
     if opts.rss_on_log_scale
         RSS = log(RSS);

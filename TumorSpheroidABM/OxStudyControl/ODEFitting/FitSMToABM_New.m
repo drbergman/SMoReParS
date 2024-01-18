@@ -29,7 +29,7 @@ sm.fn = @odefn;
 sm.y0 = [90;10];
 
 % Using custom solve sm method
-% sm.custom_solve_sm = @customSolveSM;
+% sm.custom_solve_sm_fn = @customSolveSM;
 
 % Using custom raw error method
 % sm.custom_raw_error_fn = @customRawError;

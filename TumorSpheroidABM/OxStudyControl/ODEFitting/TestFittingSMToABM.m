@@ -6,7 +6,7 @@ clearvars;
 addpath("~/Documents/MATLAB/myfunctions/")
 addpath("../../../SurrogateModelFns/")
 
-save_fig_opts.save_figs = true;
+save_fig_opts.save_figs = false;
 save_fig_opts.reprint = false;
 save_fig_opts.file_types = ["fig","png"];
 save_fig_opts.fig_names = ["SampleFitsOfSMToABM_New","BestSMParameterDistributions_New","RSSOfSMFitsToABM_New"];
@@ -22,10 +22,11 @@ par_names = ["\lambda","\alpha","K"];
 
 rss_color = [102, 51, 153]/255;
 nsamps = 4;
-files.data = sprintf("../../data/%s/summary_short.mat",cohort_name);
+files.data = sprintf("../../data/%s/summary.mat",cohort_name);
 
-sm.fn = @computeTimeSeries;
+sm.fn = @(p,t,c,opts,data) computeTimeSeries(p,t,data,opts.condition_on_previous,[]);
 sm.opts.condition_on_previous = false;
+sm.custom_raw_error_fn = @customRawError;
 
 opts.column_names = column_names;
 opts.par_names = par_names;
@@ -58,16 +59,19 @@ for i = 9:12
     ax(i) = subplot(4,3,r2c(4,3,i));
     hold on;
 end
-load(sprintf("../../data/%s/output.mat",cohort_name),"ids")
-ids = reshape(ids,[],6);
+load(sprintf("../../data/%s/output.mat",cohort_name),"ids","nsamps_per_condition")
+ids = reshape(ids,[],nsamps_per_condition);
 xx = ax(1).Children(1).XData;
 for ri = 1:4
     yy = ax(ri,1).Children(2).YData + ax(ri,2).Children(2).YData;
     copyobj(ax(ri,1).Children(2),ax(ri,3))
     ax(ri,3).Children(1).YData = yy;
-    totals = zeros(6,6);
-    for si = 1:6
+    totals = zeros(6,nsamps_per_condition);
+    for si = 1:nsamps_per_condition
         temp = load(sprintf("../../data/sims/%s/output_final.mat",ids(I(ri),si)),"tracked");
+        if ~isfield(temp.tracked,"NT")
+            temp.tracked.NT = sum(temp.tracked.phases,2);
+        end
         totals(:,si) = interp1(round(temp.tracked.t*1440)/1440,temp.tracked.NT,xx);
     end
     y_mean = mean(totals,2);

@@ -3,8 +3,8 @@
 
 clearvars;
 file_name = "SMFitToData_LMS_bounded";
-make_save = true;
-save_fig_opts.save_figs = true;
+make_save = false;
+save_fig_opts.save_figs = false;
 save_fig_opts.reprint = false;
 save_fig_opts.file_types = ["fig","png"];
 save_fig_opts.fig_names = file_name;
@@ -18,7 +18,7 @@ model_type = "LogisticModelSimplified";
 % p = [lambda,alpha,K,alphaR,alphaP,kalpha,a,delta0,kdelta,b,rho0]
 fixed_pars = "rho0";
 % fixed_pars = [];
-sm.fn = @computeTimeSeries;
+sm.custom_solve_sm_fn = @(sm,p,t,c,d,~,~) computeTimeSeries(p,t,c,sm.opts,[]);
 [p,lb,ub,sm.opts.p_setup_fn,fixed_vals] = fixParameters(model_type,fixed_pars);
 
 p = p.*exp(0.5*randn(size(p)));
