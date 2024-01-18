@@ -32,9 +32,13 @@ if condition_on_previous
 else
     if isempty(resample_t)
         [~,out] = ode45(@(t,x) odefn(tt,x,p,{[]}),tt,[90;10]); % do not put data here for [90;10] or else unexpected behavior could occur if data is supplied like I expect it is for some calls
-    elseif length(resample_t)==1
+    else
         [~,out] = ode45(@(t,x) odefn(tt,x,p,{[]}),[0,resample_t],[90;10]); % do not put data here for [90;10] or else unexpected behavior could occur if data is supplied like I expect it is for some calls
-        out = out(end,:);
+        if length(resample_t)==1
+            out = out(end,:);
+        else
+            out = out(2:end,:);
+        end
     end
 end
 if size(data,2)==1

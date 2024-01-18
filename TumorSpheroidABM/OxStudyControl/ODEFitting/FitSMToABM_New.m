@@ -26,7 +26,6 @@ npars = numel(p);
 sm.type = "ode";
 sm.solver = @ode45;
 sm.fn = @odefn;
-sm.t0 = 0;
 sm.y0 = [90;10];
 
 % Using custom solve sm method

@@ -19,7 +19,7 @@ experimental_data = "data/ExperimentalData_New.mat";
 npars = length(p);
 load(experimental_data,"t","D");
 
-make_save = true;
+make_save = false;
 
 optim_opts = optimset('Display','off','TolFun',1e-12,'TolX',1e-12);
 
@@ -27,9 +27,8 @@ optim_opts = optimset('Display','off','TolFun',1e-12,'TolX',1e-12);
 % sm.type = "ode";
 % sm.solver = @ode45;
 % sm.fn = @odefn;
-% sm.t0 = 0;
 % sm.y0 = [90;10];
-% sm.post_processor = @(x) sum(deval(t,x),1)';
+% sm.post_processor = @(x) sum(x,2);
 
 % Using custom solve sm method
 % sm.custom_solve_sm = @customSolveSM;
