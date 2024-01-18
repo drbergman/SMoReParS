@@ -191,7 +191,7 @@ D = reshape(D,[1,cohort_size]);
 
 
 n_time_series = size(D(1).A,2);
-save(sprintf("../../data/%s/summary.mat",cohort_name),"D","t","C","cohort_size","nsamps_per_parameter_vector","n_conditions","vals","n_time_series","-v7.3")
+save(sprintf("../../data/%s/summary.mat",cohort_name),"D","t","C","cohort_size","nsamps_per_parameter_vector","n_conditions","vals","n_time_series","par_names","-v7.3")
 
 
 %% old version

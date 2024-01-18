@@ -1,4 +1,4 @@
-function D = makeMOATDistributions_ODE(par_names)
+function D = makeSMParameterDistributionsDictionary(par_names)
 
 % the bounds here come from the [10%,90%] quantiles of the parameter
 % distributions found in fitting the ODE to the ABM on the lattice

@@ -7,8 +7,6 @@ addpath("../ODEFitting/")
 addpath("../../../ProfileLikelihoodFns/")
 addpath("../../../SensitivityFns/")
 
-% par_names = ["lambda";"alpha";"K"];
-% D = makeMOATDistributions_ODE(par_names);
 
 Nr = 15; % number of resamples per factor in ABM space
 nsamps = 200; % number of points to sample in LHS for ODE pars
@@ -17,17 +15,17 @@ M = 4;
 Ns = 65;
 % Ns = 249;
 
-cohort_name = "cohort_230124175743017";
+cohort_name = "cohort_2401151523";
 
 PL = load("../ProfileLikelihood/data/Profiles_SMFromABM_New_clean.mat","profiles");
 load(sprintf("../../data/%s/summary.mat",cohort_name),"vals","cohort_size","par_names")
 
 n_abm_pars = length(par_names);
-D = makeMOATDistributions(par_names);
+D = makeABMParameterDistributionsDictionary(par_names);
 T = dictionary("occmax_2d",@(x) min(7,floor(x)));
 
-end_fn = @(v) v(end);
-sm_functional = @(x) end_fn(computeTimeSeries(x, [0 3]));
+% end_fn = @(v) v(end);
+sm_functional = @(x) sum(computeTimeSeries(x, [], [], false, 3));
 %% create bounding surfaces
 n_sm_pars = size(PL.profiles,1);
 PL.profiles = reshape(PL.profiles,n_sm_pars,[]);

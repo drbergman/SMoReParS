@@ -1,4 +1,4 @@
-function D = makeMOATDistributions(par_names)
+function D = makeABMParameterDistributionsDictionary(par_names)
 
 % defines distributions on each of the varied abm parameters
 

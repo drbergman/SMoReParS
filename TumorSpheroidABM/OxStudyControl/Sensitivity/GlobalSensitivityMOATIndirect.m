@@ -1,10 +1,14 @@
-% script that calls the MOAT routines for sensitivity of the ODE parameters
+clearvars;
+
+% this script will test out how to do sensitivity on the ABM using the SM
 
 %% Program to run
 
 addpath("~/Documents/MATLAB/myfunctions/")
-addpath("..")
 addpath("../ODEFitting/")
+addpath("../ProfileLikelihood/")
+addpath("../../../SensitivityFns/")
+addpath("../../../ProfileLikelihoodFns/")
 
 %
 % This algorithm is an adaptation of the method of Sensitivity Analysis
@@ -39,9 +43,6 @@ addpath("../ODEFitting/")
 % This program outputs a figure as well as a short summary in the console.
 % Consider fixing the factors which appear as negligible on the left of the
 % figure (not necessary all the factors under the limit).
-%% 1) Clearing the memory
-clearvars; % Clears the memory
-
 %% 2) Parameters : Please fill in
 % Maximum number of simulation runs :
 % Large number = better estimation of the influence of the factors
@@ -49,7 +50,8 @@ clearvars; % Clears the memory
 % The algorithm will maybe exceed this value if it is considered necessary
 options.limit_factor = 0.5; % how to set the limit for separating low and high impact factors
 options.initialization_factor = 0.8; % how to determine when it has been sufficiently initialized
-nsim_max = 210;
+nsim_max = 1e4;
+nsamps = 100; % number of points to sample in LHS for ODE pars
 % Function studied :
 % Replace test_function by the name of your function. It must be a 
 % function with one multidimensional input x. x must represent the values 
@@ -61,15 +63,40 @@ nsim_max = 210;
 % function to each coordinate of x; Matlab includes such inverses: 
 % mathworks.com/help/stats/icdf.html ).
 
-par_names = ["lambda";"alpha";"K"];
-D = makeSMParameterDistributionsDictionary(par_names);
+par_names = ["carrying_capacity";"occmax_2d";"move_rate_microns";"g1_to_s";"s_to_g2";"g2_to_m";"m_to_g1"];
+D = makeABMParameterDistributionsDictionary(par_names);
+
+%% create bounding hypersurfaces
+cohort_name = "cohort_2401151523";
+PL = load("../ProfileLikelihood/data/Profiles_SMFromABM_New2_clean.mat");
+C = load(sprintf("../../data/%s/output.mat",cohort_name),"cohort_size","lattice_parameters");
+vals = {C.lattice_parameters.values};
+
+npars_ode = size(PL.profiles,1);
+PL.profiles = reshape(PL.profiles,npars_ode,[]);
+npoints = size(PL.profiles,2);
+
+BS = zeros(npars_ode,npoints,2);
+threshold = chi2inv(0.95,3);
+for i = 1:npoints
+    for j = 1:npars_ode
+        if size(PL.profiles{j,i},1)==2
+            [BS(j,i,1),BS(j,i,2)] = getProfileBounds(PL.profiles{j,i},threshold);
+        else
+            [BS(j,i,1),BS(j,i,2)] = getProfileBounds(PL.profiles{j,i}([j,end],:),threshold);
+        end
+    end
+end
+BS = reshape(BS,[npars_ode,C.cohort_size,2]);
 
 % Number of factors of uncertainty of the function studied :
 nfac=numel(par_names); 
 
 assert(nfac==numel(par_names)) % make sure that there is a value for each of the parameters to be varied
 assert(D.numEntries==numel(par_names)) % make sure each parameter has an associated distribution
-studied_function = @(x) moatSample_ODE(x,par_names,D);
+T = dictionary("occmax_2d", @(x) min(7,floor(x)));
+sm_functional = @(p) sum(computeTimeSeries(p,[],[],false,3));
+studied_function = @(x) sampleFromSM(x,BS,vals, sm_functional,par_names=par_names, T = T,D=D,nsamps=nsamps);
 [mu_star,sigma,order] = morris_simple(studied_function,nfac,15);
 
 %% 3) Initialization of the variables
@@ -162,5 +189,6 @@ xlabel('Factors ordered by ascending maximum','FontSize',12)
 ylabel('Elementary effects','FontSize',12)
 
 
-rmpath("..")
+% rmpath("../..")
 rmpath("../ODEFitting/")
+rmpath("../ProfileLikelihood/")

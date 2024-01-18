@@ -46,9 +46,9 @@ Model.plot_pars.plot_fig = false;
 Model.plot_pars.plot_location = false;
 
 nsamps = 10;
-par_names = ["carrying_capacity";"g1_to_s";"s_to_g2";"g2_to_m";"m_to_g1";"move_rate_microns";"occmax_2d"];
+par_names = ["carrying_capacity";"occmax_2d";"move_rate_microns";"g1_to_s";"s_to_g2";"g2_to_m";"m_to_g1"];
 % par_names = ["carrying_capacity";"g1_to_s"];
-D = makeMOATDistributions(par_names);
+D = makeABMParameterDistributionsDictionary(par_names);
 
 %%
 
