@@ -60,7 +60,7 @@ profiles = performProfile(files,sm,profile_params,...
     save_every_iter = save_every_iter, save_every_sec = save_every_sec );
 
 %% save
-save("data/" + file_name + "2","profiles")
+% save("data/" + file_name + "2","profiles")
 
 %% reset path
 rmpath("../ODEFitting/")

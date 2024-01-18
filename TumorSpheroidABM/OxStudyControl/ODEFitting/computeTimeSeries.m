@@ -30,16 +30,11 @@ if condition_on_previous
         out = deval(sol,resample_t*(1-eps()))';
     end
 else
-    if length(tt) == 1
-        tspan = [0 tt];
-    else
-        tspan = tt;
-    end
-    sol = ode45(@(t,x) odefn(tt,x,p,{[]}),tspan,[90;10]); % do not put data here for [90;10] or else unexpected behavior could occur if data is supplied like I expect it is for some calls
     if isempty(resample_t)
-        out = deval(sol,tt)';
-    else
-        out = deval(sol,resample_t)';
+        [~,out] = ode45(@(t,x) odefn(tt,x,p,{[]}),tt,[90;10]); % do not put data here for [90;10] or else unexpected behavior could occur if data is supplied like I expect it is for some calls
+    elseif length(resample_t)==1
+        [~,out] = ode45(@(t,x) odefn(tt,x,p,{[]}),[0,resample_t],[90;10]); % do not put data here for [90;10] or else unexpected behavior could occur if data is supplied like I expect it is for some calls
+        out = out(end,:);
     end
 end
 if size(data,2)==1
