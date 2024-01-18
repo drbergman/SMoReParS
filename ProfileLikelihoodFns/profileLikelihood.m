@@ -1,4 +1,4 @@
-function profiles = profileLikelihood(pbest,t,D,C,objfn_constants,profile_params,opts,raw_error_opts)
+function profiles = profileLikelihood(pbest,t,D,C,sm,profile_params,opts,raw_error_opts)
 
 % profiles each parameter in pbest. pbest is the best fit at the point. the
 % time series to compare against is given in tt, data, and data_std.
@@ -30,8 +30,12 @@ opts = overrideDefaultOptions(defaultProfileLikelihoodOptions(),opts);
 
 m = numel(D); % number of conditions used
 
-sm = struct("fn",objfn_constants.fn,"opts",objfn_constants.fn_opts);
-F = @(p) arrayfun(@(j) rawError(sm,p,t,D(j),C{j},raw_error_opts),1:m)*objfn_constants.weights;
+if isfield(sm,"custom_raw_error_fn")
+    rE_fn = sm.custom_raw_error_fn;
+else
+    rE_fn = @rawError;
+end
+F = @(p) arrayfun(@(j) rE_fn(sm,p,t,D(j),C{j},raw_error_opts),1:m)*profile_params.weights;
 
 %% make sure pbest is best
 [pbest,val_at_center] = fmincon(F,pbest,profile_params.A,profile_params.b,[],[],profile_params.lb,profile_params.ub,[],profile_params.opts);

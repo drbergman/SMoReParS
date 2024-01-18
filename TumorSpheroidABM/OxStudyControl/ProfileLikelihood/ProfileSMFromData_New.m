@@ -10,15 +10,19 @@ addpath("../../../ProfileLikelihoodFns/")
 addpath("../../../SurrogateModelFns/")
 addpath("../ODEFitting/")
 
+%% clear persistent variables
+clear rawError solveSM customRawError
+
 files.optimal_parameters = "../ODEFitting/data/SMFittoData_New.mat";
 files.data = "../ODEFitting/data/ExperimentalData_New.mat";
 % files.previous_profile_file = "ProfileLikelihoods.mat";
 
-options.profile_likelihood_options.save_all_pars = true;
-options.force_serial = true; % no benefit to running this in parallel (only for doing this across multiple ABM parameter vectors)
+save_all_pars = true;
+force_serial = true;
 
 %% load data
-load(files.optimal_parameters,"fn","lb","ub","fn_opts","optim_opts")
+load(files.optimal_parameters,"sm","lb","ub","optim_opts")
+load(files.data,"t")
 [p,~,~] = basePars();
 n_sm_pars = numel(p);
 
@@ -40,17 +44,16 @@ profile_params.para_ranges = [profile_params.lb,profile_params.ub];
 
 profile_params.opts = optim_opts;
 
-%% objfn_constants
-objfn_constants.fn = fn;
-objfn_constants.fn_opts = fn_opts;
-objfn_constants.weights = 1;
+profile_params.weights = 1;
 
 %%
 % specify parameter names
 para_names = {'\lambda', '\alpha', 'K'};
 
 %% compute profile likelihoods
-profiles = performProfile(files,objfn_constants,profile_params,options);
+
+profiles = performProfile(files,sm,profile_params,...
+    save_all_pars = save_all_pars, force_serial = force_serial);
 
 %% save the output
 save("data/Profiles_SMFromData_New.mat","profiles");

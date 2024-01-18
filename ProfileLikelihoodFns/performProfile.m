@@ -1,4 +1,4 @@
-function profiles = performProfile(files,objfn_constants,profile_params,opts,profile_likelihood_opts,raw_error_opts)
+function profiles = performProfile(files,sm,profile_params,opts,profile_likelihood_opts,raw_error_opts)
 
 % THIS IS A USER-FACING FUNCTION
 
@@ -28,7 +28,7 @@ function profiles = performProfile(files,objfn_constants,profile_params,opts,pro
 %   threshold: chi2inv value for profile
 %   secondary_step_factor: factor to increase an SM parameter step size when beginning Stage 2
 %   step_growth_factor: factor to increase step size in Stage 2 after successfully extending profile
-% input_opts (optional): struct with (all optional) fields 
+% opts (optional): struct with (all optional) fields 
 %   force_serial=true: logical to force serial computation of profiles
 %   save_all_pars=true: logical to control whether to save all parameter values (true) or only the current profile parameter and goodness-of-fit value (false)
 %   save_every_iter=Inf: how often (based on iterations) to save profile throughout (protects against errors and workers crashing)
@@ -40,11 +40,11 @@ function profiles = performProfile(files,objfn_constants,profile_params,opts,pro
 
 arguments
     files struct
-    objfn_constants struct
+    sm struct
     profile_params struct
 
     opts.force_serial logical = true
-    opts.save_every_iter {mustBeInteger} = Inf; % how often (based on iterations) to save profile throughout (protects against errors and workers crashing)
+    opts.save_every_iter {mustBeInteger} = 1e300; % how often (based on iterations) to save profile throughout (protects against errors and workers crashing)
     opts.save_every_sec double = Inf; % how often (based on seconds passed) to save profile throughout (protects against errors and workers crashing)
     opts.temp_profile_name string = sprintf("data/temp_profile_%02d",next_version_number("data/temp_profile_%02d"));
 
@@ -103,7 +103,7 @@ end
 
 last_save_time = tic;
 
-pL_fn = @(p,d) profileLikelihood(p,t,d,C,objfn_constants,profile_params,profile_likelihood_opts,raw_error_opts);
+% pL_fn = @(p,d) profileLikelihood(p,t,d,C,sm,profile_params,profile_likelihood_opts,raw_error_opts);
 
 if ~opts.force_serial 
     %% run in parallel
@@ -118,7 +118,7 @@ if ~opts.force_serial
         current_ind = ind_to_run(i);
         d = D(:,current_ind);
         p = P(:,current_ind);
-        FF(i) = parfeval(ppool,@() pL_fn(p,d),1);
+        FF(i) = parfeval(ppool,@() profileLikelihood(p,t,d,C,sm,profile_params,profile_likelihood_opts,raw_error_opts),1);
     end
     fprintf("FevalQueue finished.\n")
     %% fetch profiles performed in parallel
@@ -129,7 +129,7 @@ if ~opts.force_serial
 
         if mod(i,ceil(0.001*num_to_run))==0
             temp = toc(t_start);
-            fprintf("Finished %d of %d after %s. ETR: %s\n",i,num_to_run,duration(0,0,temp),duration(0,0,temp/i * (num_to_run-i)))
+            fprintf("Finished %d of %d after %s. ETR: %s. ETT: %s\n",i,num_to_run,duration(0,0,temp),duration(0,0,temp/i * (num_to_run-i)),duration(0,0,temp+temp/i * (num_to_run-i)))
         end
         if mod(i,opts.save_every_iter)==0 && toc(last_save_time) > opts.save_every_sec
             save(opts.temp_profile_name,"profiles")
@@ -143,10 +143,10 @@ else
         current_ind = ind_to_run(i);
         d = D(:,current_ind);
         p = P(:,current_ind);
-        profiles(:,current_ind) = pL_fn(p,d);
+        profiles(:,current_ind) = profileLikelihood(p,t,d,C,sm,profile_params,profile_likelihood_opts,raw_error_opts);
         if mod(i,ceil(0.001*num_to_run))==0
-            temp = toc(t_start);    
-            fprintf("Finished %d of %d after %s. ETR: %s\n",i,num_to_run,duration(0,0,temp),duration(0,0,temp/i * (num_to_run-i)))
+            temp = toc(t_start); 
+            fprintf("Finished %d of %d after %s. ETR: %s. ETT: %s\n",i,num_to_run,duration(0,0,temp),duration(0,0,temp/i * (num_to_run-i)),duration(0,0,temp+temp/i * (num_to_run-i)))
         end
         if mod(i,opts.save_every_iter)==0 && toc(last_save_time) > opts.save_every_sec
             save(opts.temp_profile_name,"profiles")

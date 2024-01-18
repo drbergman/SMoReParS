@@ -4,9 +4,9 @@ addpath("~/Documents/MATLAB/myfunctions/")
 addpath("../../../ProfileLikelihoodFns/")
 addpath("../ODEFitting/")
 
-profile_file = "data/Profiles_SMFromABM_New_clean.mat";
+profile_file = "data/Profiles_SMFromABM_New2_clean.mat";
 
-save_opts.save_figs = true;
+save_opts.save_figs = false;
 save_opts.reprint = false;
 save_opts.file_types = ["fig","png"];
 save_opts.fig_names = "SampleProfilesOfSMFromABM_New";

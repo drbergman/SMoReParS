@@ -2,13 +2,13 @@
 % initial cell count is 100
 
 % This is a new version that is being fit into the new workflow
-clear all
+
 clearvars;
 addpath("~/Documents/MATLAB/myfunctions/")
 addpath("../../../SurrogateModelFns/")
 
 %% reset persistent variables first
-clear rawError solveSM
+clear rawError solveSM customRawError
 
 %% continue...
 file_name = "SMFitToData_New";
@@ -19,11 +19,11 @@ experimental_data = "data/ExperimentalData_New.mat";
 npars = length(p);
 load(experimental_data,"t","D");
 
-make_save = false;
+make_save = true;
 
 optim_opts = optimset('Display','off','TolFun',1e-12,'TolX',1e-12);
 
-% Using base method
+% Using base method (slowest)
 % sm.type = "ode";
 % sm.solver = @ode45;
 % sm.fn = @odefn;
@@ -34,7 +34,7 @@ optim_opts = optimset('Display','off','TolFun',1e-12,'TolX',1e-12);
 % Using custom solve sm method
 % sm.custom_solve_sm = @customSolveSM;
 
-% Using custom raw error method
+% Using custom raw error method (fastest)
 sm.custom_raw_error_fn = @customRawError;
 
 if isfield(sm,"custom_raw_error_fn")
@@ -48,7 +48,7 @@ end
 
 %% save output
 if make_save
-    save("data/" + file_name,"P","fstar","fn_opts","lb","ub","fn","fn_opts","optim_opts") %#ok<*UNRCH>
+    save("data/" + file_name,"P","fstar","sm","lb","ub","optim_opts") %#ok<*UNRCH>
 end
 
 %% reset path

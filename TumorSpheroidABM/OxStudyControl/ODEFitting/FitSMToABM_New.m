@@ -6,7 +6,7 @@ addpath("~/Documents/MATLAB/myfunctions/")
 addpath("../../../SurrogateModelFns/")
 
 %% reset persistent variables first
-clear rawError solveSM
+clear rawError solveSM customRawError
 
 %% continue...
 make_save = false;
