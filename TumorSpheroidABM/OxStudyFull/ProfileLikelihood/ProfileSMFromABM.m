@@ -23,15 +23,15 @@ files.data = sprintf("../../data/%s/summary.mat",cohort_name);
 % files.previous_profile_file = "data/temp_profile.mat";
 % files.previous_profile_file = "ProfileLikelihoods.mat";
 
-options.profile_likelihood_options.save_all_pars = true;
-options.force_serial = false;
-options.temp_profile_name = "data/temp_profile";
-options.save_every_iter = 10; % wait at least this many iterations between saves
-options.save_every_sec = 5*60; % wait at least this many seconds between saves
+save_all_pars = true;
+force_serial = false;
+temp_profile_name = "data/temp_profile";
+save_every_iter = 10; % wait at least this many iterations between saves
+save_every_sec = 5*60; % wait at least this many seconds between saves
 
 load("../ODEFitting/data/SMFitToData_LMS_bounded.mat","fixed_pars","lb","ub","model_type","optim_opts")
 load("../ODEFitting/data/SMFitToData_LMS_bounded.mat","fn","fn_opts","sm")
-if ~exists("sm","var")
+if ~exist("sm","var")
     sm.fn = fn;
     sm.opts = fn_opts;
 end
@@ -59,14 +59,12 @@ profile_params.ub = ub;
 profile_params.para_ranges = [profile_params.lb,profile_params.ub];
 
 profile_params.opts = optim_opts;
-
-%% objfn_constants
-objfn_constants.fn = fn;
-objfn_constants.fn_opts = fn_opts;
-objfn_constants.weights = [1;1;1];
+profile_params.weights = [1;1;1];
 
 %% perform profile
-profiles = performProfile(files,objfn_constants,profile_params,options);
+profiles = performProfile(files,sm,profile_params,save_all_pars=save_all_pars,...
+    force_serial=force_serial,temp_profile_name=temp_profile_name,...
+    save_every_iter=save_every_iter,save_every_sec=save_every_sec);
 
 %% save
 save("data/" + file_name,"profiles")
