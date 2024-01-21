@@ -17,6 +17,7 @@ arguments
     options.D dictionary = configureDictionary("string","prob.ProbabilityDistribution")
     options.nsamps double {mustBeInteger} = 100
     options.sum_fn function_handle = @mean
+    options.use_profiles logical = true
 end
 
 n_abm_pars = length(options.par_names);
@@ -32,20 +33,24 @@ for i = 1:n_abm_pars
     end
 end
 
-colons = repmat({':'},n_abm_pars,1);
-Vq = zeros(n_sm_pars,2);
-for pi = 1:n_sm_pars
-    Vq(pi,1) = interpn(vals{:},squeeze(BS(pi,colons{:},1)),abm_pars{:});
-    Vq(pi,2) = interpn(vals{:},squeeze(BS(pi,colons{:},2)),abm_pars{:});
+if options.use_profiles
+    colons = repmat({':'},n_abm_pars,1);
+    Vq = zeros(n_sm_pars,2);
+    for pi = 1:n_sm_pars
+        Vq(pi,1) = interpn(vals{:},squeeze(BS(pi,colons{:},1)),abm_pars{:});
+        Vq(pi,2) = interpn(vals{:},squeeze(BS(pi,colons{:},2)),abm_pars{:});
+    end
+
+    X = lhsdesign(options.nsamps,n_sm_pars,"Smooth","off"); % LHS on [0,1]
+    points = (1-X).*Vq(:,1)' + X.*Vq(:,2)'; % use these as weights to interpolate between the boundaries
+
+    out = zeros(options.nsamps,1);
+
+    for i = 1:options.nsamps
+        out(i) = sm_functional(points(i,:)');
+    end
+
+    out = options.sum_fn(out);
+else
+    
 end
-
-X = lhsdesign(options.nsamps,n_sm_pars,"Smooth","off"); % LHS on [0,1]
-points = (1-X).*Vq(:,1)' + X.*Vq(:,2)'; % use these as weights to interpolate between the boundaries
-
-out = zeros(options.nsamps,1);
-
-for i = 1:options.nsamps
-    out(i) = sm_functional(points(i,:)');
-end
-
-out = options.sum_fn(out);

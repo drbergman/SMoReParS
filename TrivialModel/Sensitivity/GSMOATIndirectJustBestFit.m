@@ -1,6 +1,6 @@
 clearvars;
 
-% this script will test out how to do sensitivity on the CM using the SM
+% this script will test out how to do sensitivity on the ABM using the SM
 
 %% Program to run
 

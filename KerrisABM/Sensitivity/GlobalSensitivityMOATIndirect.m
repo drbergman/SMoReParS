@@ -49,7 +49,6 @@ end
 BS = reshape(BS,[n_sm_pars,cohort_size,2]);
 
 %% run MOAT
-% studied_function = @(x) sampleFromSM(x,display_par_names,BS,T,D,vals,nsamps,sm_functional,{[]},fn_opts,sum_fn);
 studied_function = @(x) sampleFromSM(x,BS,vals,sm_functional,D=D,T=T,nsamps=nsamps,par_names=display_par_names,sum_fn=sum_fn);
 [mu_star,sigma,order] = morris_simple(studied_function,n_abm_pars,npoints);
 display_par_names = display_par_names(order);
