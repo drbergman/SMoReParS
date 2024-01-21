@@ -13,6 +13,7 @@ options.limit_factor = 0.5; % how to set the limit for separating low and high i
 options.initialization_factor = 0.8; % how to determine when it has been sufficiently initialized
 nsim_max = 1e4;
 nsamps = 100; % number of points to sample in LHS for ODE pars
+use_profiles = false;
 
 par_names = ["a";"b"];
 D = makeCMParameterDistributionsDictionary(par_names,distribution="Normal");
@@ -45,7 +46,7 @@ BS = reshape(BS,[npars_ode,C.cohort_size,2]);
 nfac=numel(par_names); 
 
 sm_functional = @complexModel;
-studied_function = @(x) sampleFromSM(x,files,vals, sm_functional,par_names=par_names,D=D,nsamps=nsamps);
+studied_function = @(x) sampleFromSM(x,files,vals, sm_functional,par_names=par_names,D=D,nsamps=nsamps,use_profiles=use_profiles);
 [mu_star,sigma,order] = morris_simple(studied_function,nfac,1500);
 
 rmpath("..")

@@ -20,18 +20,21 @@ arguments
     options.sum_fn function_handle = @mean
     options.use_profiles logical = true
 end
-
+persistent BS;
+persistent OP;
 if options.use_profiles
-    persistent BS;
     if isempty(BS)
         BS = loadBoundingSurfaces(files.profiles);
     end
-
+    n_sm_pars = size(BS,1);
 else
+    if isempty(OP)
+        OP = loadOptimalParameters(files);
+    end
+    n_sm_pars = size(OP,1);
 end
 
-n_abm_pars = length(options.par_names);
-n_sm_pars = size(BS,1);
+n_abm_pars = length(x);
 abm_pars = cell(n_abm_pars,1);
 for i = 1:n_abm_pars
     if ~any(options.par_names(i) == options.D.keys)
@@ -43,8 +46,8 @@ for i = 1:n_abm_pars
     end
 end
 
+colons = repmat({':'},n_abm_pars,1);
 if options.use_profiles
-    colons = repmat({':'},n_abm_pars,1);
     Vq = zeros(n_sm_pars,2);
     for pi = 1:n_sm_pars
         Vq(pi,1) = interpn(vals{:},squeeze(BS(pi,colons{:},1)),abm_pars{:});
@@ -62,8 +65,22 @@ if options.use_profiles
 
     out = options.sum_fn(out);
 else
+    p_interp = zeros(n_sm_pars,1);
+    for pi = 1:n_sm_pars
+        p_interp(pi) = interpn(vals{:},squeeze(OP(pi,colons{:})),abm_pars{:});
+    end
+    out = sm_functional(p_interp);
 
 end
+
+end
+
+function P = loadOptimalParameters(files)
+
+if ~isfield(files,"optimal_parameters")
+    load(files.profiles,"files")
+end
+load(files.optimal_parameters,"P")
 
 end
 
