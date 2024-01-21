@@ -19,6 +19,7 @@ D = makeCMParameterDistributionsDictionary(par_names,distribution="Normal");
 
 %% create bounding hypersurfaces
 cohort_name = "cohort_1";
+files.profiles = "../ProfileLikelihood/data/Profiles_clean.mat";
 PL = load("../ProfileLikelihood/data/Profiles_clean.mat");
 C = load(sprintf("../data/%s/summary.mat",cohort_name),"cohort_size","vals");
 vals = C.vals;
@@ -44,7 +45,7 @@ BS = reshape(BS,[npars_ode,C.cohort_size,2]);
 nfac=numel(par_names); 
 
 sm_functional = @complexModel;
-studied_function = @(x) sampleFromSM(x,BS,vals, sm_functional,par_names=par_names,D=D,nsamps=nsamps);
+studied_function = @(x) sampleFromSM(x,files,vals, sm_functional,par_names=par_names,D=D,nsamps=nsamps);
 [mu_star,sigma,order] = morris_simple(studied_function,nfac,1500);
 
 rmpath("..")

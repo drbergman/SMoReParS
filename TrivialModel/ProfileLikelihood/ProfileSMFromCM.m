@@ -26,9 +26,15 @@ profiles = performProfile(files,struct(),profile_params,force_serial=force_seria
     save_all_pars=save_all_pars);
 
 mkdir data
-save("data/Profiles.mat","profiles")
-
-
+save("data/Profiles.mat","profiles") % save this before trying to settle files stuff in case that throws an error.
+OP = load(files.optimal_parameters,"files");
+for name = string(fieldnames(OP.files))
+    if isfield(files,name) && OP.files.(name)~=files.(name)
+        error("%s already a field name here, but different from what is expected.",name)
+    end
+    files.(name) = OP.files.(name);
+end
+save("data/Profiles.mat","files","-append")
 
 rmpath("../../ProfileLikelihoodFns/")
 rmpath("../../SurrogateModelFns/")
