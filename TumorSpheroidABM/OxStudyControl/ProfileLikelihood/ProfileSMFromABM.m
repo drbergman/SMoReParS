@@ -14,7 +14,7 @@ addpath("~/Documents/MATLAB/myfunctions/")
 
 cohort_name = "cohort_230124175743017";
 
-files.par_file = "../ODEFitting/data/OptimalParameters_Using_optimizeSMParsFromABM.mat";
+files.optimal_parameters = "../ODEFitting/data/OptimalParameters_Using_optimizeSMParsFromABM.mat";
 files.data_file = sprintf("../../data/%s/summary.mat",cohort_name);
 % files.previous_profile_file = "temp_profile.mat";
 

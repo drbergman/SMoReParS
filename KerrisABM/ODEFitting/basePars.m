@@ -2,6 +2,9 @@ function p = basePars(model_type)
 
 
 switch model_type
+    case "exponential"
+        p = 0.05; % lambda
+
     case "logistic"
         % This load the base logistic parameters for x' = r * x * (1-x/K)
         p = zeros(2,1);

@@ -4,9 +4,17 @@ save_figure = false;
 
 addpath("../../ProfileLikelihoodFns/")
 
+model_type = "exponential";
 
-sm_par_display_names = ["\alpha","\nu","\beta"];
-profile_file = "data/ProfileLikelihoods.mat";
+switch model_type
+    case "exponential"
+        sm_par_display_names = "\lambda";
+    case "logistic"
+        sm_par_display_names = ["r","K"];
+    case "von_bertalanffy"
+        sm_par_display_names = ["\alpha","\nu","\beta"];
+end
+profile_file = sprintf("data/ProfileLikelihoods_%s.mat",model_type);
 n_per_fig = 10;
 f = testAllProfileSMFromABM(profile_file,n_per_fig,sm_par_display_names);
 

@@ -67,8 +67,8 @@ par_names = ["carrying_capacity";"occmax_2d";"move_rate_microns";"g1_to_s";"s_to
 D = makeABMParameterDistributionsDictionary(par_names);
 
 %% create bounding hypersurfaces
-cohort_name = "cohort_2401151523";
-PL = load("../ProfileLikelihood/data/Profiles_SMFromABM_New2_clean.mat");
+cohort_name = "cohort_230124175743017";
+PL = load("../ProfileLikelihood/data/Profiles_SMFromABM_New_clean.mat");
 C = load(sprintf("../../data/%s/output.mat",cohort_name),"cohort_size","lattice_parameters");
 vals = {C.lattice_parameters.values};
 
@@ -189,6 +189,7 @@ xlabel('Factors ordered by ascending maximum','FontSize',12)
 ylabel('Elementary effects','FontSize',12)
 
 
-% rmpath("../..")
 rmpath("../ODEFitting/")
 rmpath("../ProfileLikelihood/")
+rmpath("../../../SensitivityFns/")
+rmpath("../../../ProfileLikelihoodFns/")

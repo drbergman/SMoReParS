@@ -49,7 +49,7 @@ sigma = std(abs(ee),[],2);
 sigma = sigma(order);
 ordered_par_names = display_par_names(order);
 
-% save("data/GlobalSensitivityDirect","mu_star","sigma","ordered_par_names","npoints");
+% save("data/GlobalSensitivityMOATDirect","mu_star","sigma","ordered_par_names","npoints");
 
 
 

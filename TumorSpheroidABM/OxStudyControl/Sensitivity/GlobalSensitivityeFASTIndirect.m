@@ -15,7 +15,7 @@ M = 4;
 Ns = 65;
 % Ns = 249;
 
-cohort_name = "cohort_2401151523";
+cohort_name = "cohort_230124175743017";
 
 PL = load("../ProfileLikelihood/data/Profiles_SMFromABM_New_clean.mat","profiles");
 load(sprintf("../../data/%s/summary.mat",cohort_name),"vals","cohort_size","par_names")
@@ -49,7 +49,8 @@ par_names_desc_S1_order = par_names(S1_desc_order);
 par_names_desc_ST_order = par_names(ST_desc_order);
 
 %% save result
-% save(sprintf("data/GlobalSensitivityeFASTIndirect_%s_big_sample.mat",fn_opts.model_type),"S1","ST","display_par_names","Nr","nsamps","Ns","M","omega_max")
+save("data/GlobalSensitivityeFASTIndirect.mat","S1","ST","S1_desc_order",...
+    "ST_desc_order","par_names","par_names_desc_S1_order","par_names_desc_ST_order","Nr","nsamps","Ns","M","omega_max")
 
 %% clean path
 rmpath("../ODEFitting/")

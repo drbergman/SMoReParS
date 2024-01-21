@@ -11,39 +11,45 @@ addpath("../../ProfileLikelihoodFns/")
 addpath("~/Documents/MATLAB/myfunctions/")
 addpath("../ODEFitting/")
 
-opts.force_serial = true;
-opts.profile_likelihood_options.save_all_pars = true;
-opts.profile_likelihood_options.raw_error_opts.resample = true;
-opts.profile_likelihood_options.raw_error_opts.t = 15:15:75;
+force_serial = true;
+save_all_pars = true;
 
-%% objfn_constants
-objfn_constants.fn = @computeTimeSeries;
-objfn_constants.fn_opts.model_type = "logistic";
-objfn_constants.weights = 1;
+resample_t = 15:15:75;
+
+model_type = "exponential";
+
 
 %% files
-files.par_file = sprintf("../ODEFitting/data/OptimalParameters_%s.mat",objfn_constants.fn_opts.model_type);
-files.data_file = "../PostAnalysis/data/summary.mat";
+files.optimal_parameters = sprintf("../ODEFitting/data/OptimalParameters_%s.mat",model_type);
+files.data = "../PostAnalysis/data/summary.mat";
 % files.previous_profile_file = "temp_profile.mat";
+
+load(files.optimal_parameters,"sm")
 
 %% optimization opts
 profile_params.opts = optimset('Display','off','TolFun',1e-12,'TolX',1e-12);
+profile_params.weights = 1;
 
 %% setup SM parameters, bounds, etc
-p = basePars(objfn_constants.fn_opts.model_type);
+p = basePars(model_type);
 n_sm_pars = numel(p);
 
 %% setup profile params
-switch objfn_constants.fn_opts.model_type
-    case "logistic"
-        profile_params.initial_step_prop = .01*ones(n_sm_pars,1);
-        profile_params.min_num_steps = 10*ones(n_sm_pars,1);
-        profile_params.smallest_par_step = [1e-1;50]; % do not let the step size go below this as it steps towards the boundary/threshold
-        profile_params.shrinking_factor = 0.9; % factor by which to shrink dx as it gets close to lower boundary
-        profile_params.threshold = chi2inv(0.95,n_sm_pars); % compute threshold value for the parameter confidence intervals
+profile_params.initial_step_prop = .01*ones(n_sm_pars,1);
+profile_params.min_num_steps = 10*ones(n_sm_pars,1);
+profile_params.shrinking_factor = 0.9; % factor by which to shrink dx as it gets close to lower boundary
+profile_params.threshold = chi2inv(0.95,n_sm_pars); % compute threshold value for the parameter confidence intervals
+profile_params.secondary_step_factor = 2*ones(n_sm_pars,1); % factor by which to increase the step size after the initial search
+profile_params.step_growth_factor = 2*ones(n_sm_pars,1); % factor by which to increase the step size after successfully extending the profile
+switch model_type
+    case "exponential"
+        profile_params.smallest_par_step = 0.01; % do not let the step size go below this as it steps towards the boundary/threshold
+        profile_params.lb = 0;
+        profile_params.ub = 0.2;
+        profile_params.para_ranges = [0,1];     % lambda
 
-        profile_params.secondary_step_factor = 2*ones(n_sm_pars,1); % factor by which to increase the step size after the initial search
-        profile_params.step_growth_factor = 2*ones(n_sm_pars,1); % factor by which to increase the step size after successfully extending the profile
+    case "logistic"
+        profile_params.smallest_par_step = [1e-1;50]; % do not let the step size go below this as it steps towards the boundary/threshold
 
         % set bounds for optimizing when profiling the other parameters
         profile_params.lb = [0;0];
@@ -54,14 +60,7 @@ switch objfn_constants.fn_opts.model_type
             0,1e6];  % K
 
     case "von_bertalanffy"
-        profile_params.initial_step_prop = .01*ones(n_sm_pars,1);
-        profile_params.min_num_steps = 10*ones(n_sm_pars,1);
         profile_params.smallest_par_step = [1e-1;1e-1;1e-1]; % do not let the step size go below this as it steps towards the boundary/threshold
-        profile_params.shrinking_factor = 0.9; % factor by which to shrink dx as it gets close to lower boundary
-        profile_params.threshold = chi2inv(0.95,n_sm_pars); % compute threshold value for the parameter confidence intervals
-
-        profile_params.secondary_step_factor = 2*ones(n_sm_pars,1); % factor by which to increase the step size after the initial search
-        profile_params.step_growth_factor = 2*ones(n_sm_pars,1); % factor by which to increase the step size after successfully extending the profile
 
         % set bounds for optimizing when profiling the other parameters
         profile_params.lb = [0;1;0];
@@ -79,9 +78,10 @@ switch objfn_constants.fn_opts.model_type
 end
 
 %% perform profile
-out = performProfile(files,objfn_constants,profile_params,opts);
+profiles = performProfile(files,sm,profile_params,force_serial=force_serial,...
+    save_all_pars=save_all_pars,resample_t=resample_t);
 
-save(sprintf("data/ProfileLikelihoods_%s.mat",objfn_constants.fn_opts.model_type),"out")
+save(sprintf("data/ProfileLikelihoods_%s.mat",model_type),"profiles")
 
 %% reset path
 rmpath("../ODEFitting/")

@@ -6,8 +6,8 @@ function profiles = performProfile(files,sm,profile_params,opts,profile_likeliho
 % array being reshaped to a 2D array. 
 % 
 % files: struct with fields 
-%   par_file: best fit SM parameters for each column of Data
-%   data_file: the data in size [nconditions,cohort_size]
+%   optimal_parameters: best fit SM parameters for each column of Data
+%   data: the data in size [nconditions,cohort_size]
 %   previous_profile_file (optional): partially completed profile
 % objfn_constants: struct with fields that do vary by condition
 %   fn: function used by rawError to generate SM output to compare against data
@@ -69,13 +69,34 @@ end
 
 if isfield(files,"optimal_parameters")
     load(files.optimal_parameters,"P")
+    if isequal(sm,struct())
+        load(files.optimal_parameters,"sm")
+    end
+    if ~isfield(files,"data")
+        temp = load(files.optimal_parameters,"files");
+        if isfield(temp,"files") && isfield(temp.files,"data")
+            load(temp.files.data,"t","D","C","cohort_size");
+        end
+    end
+    if ~isfield(profile_params,"lb")
+        temp = load(files.optimal_parameters,"lb","ub");
+        profile_params.lb = temp.lb;
+        profile_params.ub = temp.ub;
+    end
+    if ~isfield(profile_params,"opts")
+        temp = load(files.optimal_parameters,"optim_opts");
+        profile_params.opts = temp.optim_opts;
+    end
+    if ~isfield(profile_params,"weights")
+        temp = load(files.optimal_parameters,"weights");
+        profile_params.weights = temp.weights;
 else
-    warning("Rename this field in files from par_file --> optimal_parameters")
-    load(files.par_file,"P")
+    error("Rename this field in files from par_file --> optimal_parameters")
 end
+
 if isfield(files,"data")
     load(files.data,"t","D","C","cohort_size");
-else
+elseif isfield(files,"data_file")
     warning("Rename this field in files from data_file --> data")
     load(files.data_file,"t","D","C","cohort_size");
 end

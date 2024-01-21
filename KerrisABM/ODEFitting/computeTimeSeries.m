@@ -2,6 +2,11 @@ function out = computeTimeSeries(p,tt,~,fn_opts,~)
 
 % y0 = 100;
 switch fn_opts.model_type
+    case "exponential"
+        % lambda = p(1);
+        % y' = lambda*y
+        out = 100 * exp(p * tt');
+
     case "logistic"
         % r = p(1);
         % K = p(2);

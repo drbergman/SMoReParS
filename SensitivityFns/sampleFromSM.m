@@ -26,12 +26,10 @@ for i = 1:n_abm_pars
     if ~any(options.par_names(i) == options.D.keys)
         continue;
     end
+    abm_pars{i} = icdf(options.D(options.par_names(i)),x(i));
     if any(options.par_names(i) == options.T.keys)
-        transform_map = options.T(options.par_names(i));
-    else
-        transform_map = @(x) x;
+        abm_pars{i} = feval(options.T(options.par_names(i)),abm_pars{i});
     end
-    abm_pars{i} = transform_map(icdf(options.D(options.par_names(i)),x(i)));
 end
 
 colons = repmat({':'},n_abm_pars,1);

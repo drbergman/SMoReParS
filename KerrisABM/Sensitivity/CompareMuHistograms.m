@@ -4,8 +4,8 @@ clearvars;
 
 save_fig_opts.file_types = ["fig","png"];
 
-ABM = load("data/GlobalSensitivityDirect.mat");
-ABM_SM = load("data/GlobalSensitivityIndirect_logistic.mat");
+ABM = load("data/GlobalSensitivityMOATDirect.mat");
+ABM_SM = load("data/GlobalSensitivityMOATIndirect_logistic.mat");
 
 C = categorical(ABM.ordered_par_names,ABM.ordered_par_names);
 line_width = 1;

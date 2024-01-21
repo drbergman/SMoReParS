@@ -1,17 +1,16 @@
 clearvars;
 
-save_figure = false;
-is_cleaned = false;
-
 addpath("../../ProfileLikelihoodFns/")
 
-model_type = "logistic";
+model_type = "exponential";
 
-save_fig_opts.save_figs = true;
+save_fig_opts.save_figs = false;
 save_fig_opts.file_types = ["fig","png"];
 save_fig_opts.fig_names = "SampleProfilesOfSMFromABM_" + model_type;
 
 switch model_type
+    case "exponential"
+        sm_par_display_names = "\lambda";
     case "logistic"
         sm_par_display_names = ["r","K"];
     case "von_bertalanffy"

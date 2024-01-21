@@ -56,7 +56,7 @@ profiles = performProfile(files,sm,profile_params,...
     save_all_pars = save_all_pars, force_serial = force_serial);
 
 %% save the output
-save("data/Profiles_SMFromData_New.mat","profiles");
+% save("data/Profiles_SMFromData_New.mat","profiles");
 % ProfileLikelihoods_DataRestricted.mat used better bounds for the
 % parameters in fitting. Use that.
 
