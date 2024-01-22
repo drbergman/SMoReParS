@@ -9,7 +9,7 @@ raw_error_opts.t = 15:15:75;
 addpath("~/Documents/MATLAB/myfunctions/")
 addpath("../../SurrogateModelFns/")
 
-sm.opts.model_type = "exponential";
+sm.opts.model_type = "von_bertalanffy";
 sm.custom_solve_sm_fn = @customSolveSM;
 
 optim_opts = optimset('Display','off','TolFun',1e-12,'TolX',1e-12);
@@ -34,9 +34,9 @@ npars = numel(p);
 %% load ABM data
 files.data = "../PostAnalysis/data/summary.mat";
 
-P = optimizeSMParsFromABM(files,sm,p,lb,ub,optim_opts,1,force_serial=force_serial,...
+[P,fstar] = optimizeSMParsFromABM(files,sm,p,lb,ub,optim_opts,1,force_serial=force_serial,...
     resample_t=15:15:75);
 
-save(sprintf("data/OptimalParameters_%s.mat",sm.opts.model_type),"P","sm")
+save(sprintf("data/OptimalParameters_%s.mat",sm.opts.model_type),"P","fstar","sm")
 
 rmpath("../../SurrogateModelFns/")
