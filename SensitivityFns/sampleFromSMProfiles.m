@@ -10,7 +10,7 @@ n_sm_pars = size(BS,1);
 
 n_abm_pars = length(x);
 
-cm_pars = drawCMParameters(x,options.par_names,options.D,options.T);
+cm_pars = drawCMParameters(x,options.par_names,options.D,options.T,options.I);
 
 colons = repmat({':'},n_abm_pars,1);
 Vq = zeros(n_sm_pars,2);

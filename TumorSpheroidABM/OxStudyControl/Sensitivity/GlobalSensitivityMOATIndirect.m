@@ -10,7 +10,7 @@ addpath("../ProfileLikelihood/")
 addpath("../../../SensitivityFns/")
 addpath("../../../ProfileLikelihoodFns/")
 
-use_profiles = false;
+use_profiles = true;
 %
 % This algorithm is an adaptation of the method of Sensitivity Analysis
 % called the Morris method.
@@ -64,43 +64,23 @@ nsamps = 100; % number of points to sample in LHS for ODE pars
 % function to each coordinate of x; Matlab includes such inverses: 
 % mathworks.com/help/stats/icdf.html ).
 
-par_names = ["carrying_capacity";"occmax_2d";"move_rate_microns";"g1_to_s";"s_to_g2";"g2_to_m";"m_to_g1"];
-D = makeABMParameterDistributionsDictionary(par_names);
+% par_names = ["carrying_capacity";"occmax_2d";"move_rate_microns";"g1_to_s";"s_to_g2";"g2_to_m";"m_to_g1"];
+files.profiles = "../ProfileLikelihood/data/Profiles_SMFromABM_New_clean.mat";
+D = makeABMParameterDistributionsDictionary();
 
 %% create bounding hypersurfaces
-cohort_name = "cohort_230124175743017";
-files.profiles = "../ProfileLikelihood/data/Profiles_SMFromABM_New_clean.mat";
-% PL = load(files.profiles);
-% C = load(sprintf("../../data/%s/output.mat",cohort_name),"cohort_size","lattice_parameters");
-% vals = {C.lattice_parameters.values};
 
-% npars_ode = size(PL.profiles,1);
-% PL.profiles = reshape(PL.profiles,npars_ode,[]);
-% npoints = size(PL.profiles,2);
-
-% BS = zeros(npars_ode,npoints,2);
-% threshold = chi2inv(0.95,3);
-% for i = 1:npoints
-%     for j = 1:npars_ode
-%         if size(PL.profiles{j,i},1)==2
-%             [BS(j,i,1),BS(j,i,2)] = getProfileBounds(PL.profiles{j,i},threshold);
-%         else
-%             [BS(j,i,1),BS(j,i,2)] = getProfileBounds(PL.profiles{j,i}([j,end],:),threshold);
-%         end
-%     end
-% end
-% BS = reshape(BS,[npars_ode,C.cohort_size,2]);
 
 % Number of factors of uncertainty of the function studied :
-nfac=numel(par_names); 
+% num_factors=numel(par_names); 
 
-assert(nfac==numel(par_names)) % make sure that there is a value for each of the parameters to be varied
-assert(D.numEntries==numel(par_names)) % make sure each parameter has an associated distribution
+% assert(num_factors==numel(par_names)) % make sure that there is a value for each of the parameters to be varied
+% assert(D.numEntries==numel(par_names)) % make sure each parameter has an associated distribution
 T = dictionary("occmax_2d", @(x) min(7,floor(x)));
 sm_functional = @(p) sum(computeTimeSeries(p,[],[],false,3));
-studied_function = setupSampleFromSMFunction(files,sm_functional,par_names=par_names, T = T,D=D,nsamps=nsamps,use_profiles=use_profiles);
-% studied_function = @(x) sampleFromSM(x,BS,vals, sm_functional,par_names=par_names, T = T,D=D,nsamps=nsamps);
-[mu_star,sigma,order] = morris_simple(studied_function,nfac,15);
+% studied_function = setupSampleFromSMFunction(files,sm_functional,par_names=par_names, T = T,D=D,nsamps=nsamps,use_profiles=use_profiles);
+[studied_function,num_factors] = setupSampleFromSMFunction(files,sm_functional,T=T,D=D,nsamps=nsamps,use_profiles=use_profiles);
+[mu_star,sigma,~] = morris_simple(studied_function,num_factors,15,sort_output=false);
 
 %% 3) Initialization of the variables
 % table_outputs = []; % All the outputs of the simulations runs. One line = results around one point of the factors hyperspace. First column = output at a sampled point, second column = output after varying the first factor, etc...
@@ -109,7 +89,7 @@ studied_function = setupSampleFromSMFunction(files,sm_functional,par_names=par_n
 % table_factors_over = []; % Factors over the limit at the different steps. n-th line = factors with no elementary effect at the n-th step = factors over the limit at the (n-1)-th step.
 % points=[]; % Sampled points of the factors hyperspace where the elementary effects are calculated.
 % n=1; % Current step.
-% nsim = nfac+1; % Number of simulation runs after the next step.
+% nsim = num_factors+1; % Number of simulation runs after the next step.
 % initialization = 0; % Boolean, the calculations will foccus on the factors under the limit when it will equal 1.
 % convergence = 0; % Boolean, equals 1 when the factors over the limit have not changed over the last steps.
 % %% 4) Loop
@@ -119,7 +99,7 @@ studied_function = setupSampleFromSMFunction(files,sm_functional,par_names=par_n
 % % Condition 2 : The calculations can continue if the algorithm returned to a previous step and did not finish to complete the table of elementary effects
 % % Condition 3 : The calculations can continue if the set of factors over the limit has changed over the last steps
 %     % Application of the algorithm at the current step:
-%     [ table_outputs, table_ee, factors_over, n, points, initialization ] = moat_loop_function( nfac, studied_function, table_outputs, table_ee, factors_over, n, points, initialization );
+%     [ table_outputs, table_ee, factors_over, n, points, initialization ] = moat_loop_function( num_factors, studied_function, table_outputs, table_ee, factors_over, n, points, initialization );
 %     % Updating values
 %     nsim = sum(table_ee(:)~=-1)+size(table_ee,1)+length(factors_over)+1;
 %     table_factors_over(n,1:length(factors_over)) = factors_over;
@@ -151,16 +131,16 @@ studied_function = setupSampleFromSMFunction(files,sm_functional,par_names=par_n
 % disp('*******************************');
 % disp('* SUMMARY OF THE CALCULATIONS *');
 % disp('*******************************');
-% disp(['Number of factors : ' num2str(nfac)]);
+% disp(['Number of factors : ' num2str(num_factors)]);
 % disp(['Chosen number of simulation runs : ' num2str(nsim_max)]);
 % disp(['Actual number of simulation runs : ' num2str(sum(table_ee(:)~=-1)+size(table_ee,1))]);
 % disp(['Number of points tested in the hyperspace : ' num2str(size(table_ee,1))]);
-% disp(['Number of points normally tested with the same number of simulation runs  : ' num2str(floor((sum(table_ee(:)~=-1)+size(table_ee,1))/nfac))]);
+% disp(['Number of points normally tested with the same number of simulation runs  : ' num2str(floor((sum(table_ee(:)~=-1)+size(table_ee,1))/num_factors))]);
 % disp('*******************************');
 % %% 6) Figure
 % max_ee = max(table_ee,[],1); % Maxima of the elementary effects of the factors.
 % [sort_A, sort_B] = sort(max_ee,'ascend'); % Ordering the maxima.
-% sort_Ab = [sort_A(1) sort_A(1:nfac-1)]; % New table where the first elementary effect is repeted twice.
+% sort_Ab = [sort_A(1) sort_A(1:num_factors-1)]; % New table where the first elementary effect is repeted twice.
 % difference = sort_A-sort_Ab; % Variation between the successive maxima.
 % dmax = max(difference); % Largest variation.
 % sep = dmax*options.limit_factor; % Amplitude of the variation which can be considered as the limit.
@@ -168,7 +148,7 @@ studied_function = setupSampleFromSMFunction(files,sm_functional,par_names=par_n
 % % Opening the figure
 % hfig = figure;
 % hold on;
-% for j=1:nfac % For each factor
+% for j=1:num_factors % For each factor
 %    index_fac = sort_B(j);
 %    plot(j,table_ee(table_ee(:,index_fac)~=-1,index_fac),'*','LineWidth',2);
 % %    for k=1:size(table_ee,1) % For each elementary effect
@@ -181,12 +161,12 @@ studied_function = setupSampleFromSMFunction(files,sm_functional,par_names=par_n
 % plot([sep_indic-0.5 sep_indic-0.5], [0 1.1*max(table_ee(:))], 'k', 'linewidth', 2); % Limit.
 % hold off;
 % % Factors indexes on the x-axis
-% labels = cell(nfac,1);
-% for l=1:nfac
+% labels = cell(num_factors,1);
+% for l=1:num_factors
 %    labels{l} = num2str(sort_B(l));
 % end
-% set(gca, 'XTick',1:nfac, 'XTickLabel', labels, 'FontSize',12)
-% axis([0 nfac+1 0 1.1*max(table_ee(:))]) % Limits of the axes.
+% set(gca, 'XTick',1:num_factors, 'XTickLabel', labels, 'FontSize',12)
+% axis([0 num_factors+1 0 1.1*max(table_ee(:))]) % Limits of the axes.
 % % Labels
 % xlabel('Factors ordered by ascending maximum','FontSize',12)
 % ylabel('Elementary effects','FontSize',12)

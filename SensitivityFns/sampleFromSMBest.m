@@ -8,7 +8,7 @@ function out = sampleFromSMBest(x, OP, vals, sm_functional, options)
 
 n_sm_pars = size(OP,1);
 n_abm_pars = length(x);
-cm_pars = drawCMParameters(x,options.par_names,options.D,options.T);
+cm_pars = drawCMParameters(x,options.par_names,options.D,options.T,options.I);
 
 colons = repmat({':'},n_abm_pars,1);
 p_interp = zeros(n_sm_pars,1);

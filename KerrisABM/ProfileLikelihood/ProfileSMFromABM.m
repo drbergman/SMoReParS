@@ -16,13 +16,13 @@ save_all_pars = true;
 
 resample_t = 15:15:75;
 
-model_type = "exponential";
+model_type = "logistic";
 
 
 %% files
 files.optimal_parameters = sprintf("../ODEFitting/data/OptimalParameters_%s.mat",model_type);
 files.data = "../PostAnalysis/data/summary.mat";
-% files.previous_profile_file = "temp_profile.mat";
+files.previous_profile_file = "data/ProfileLikelihoods_logistic.mat";
 
 load(files.optimal_parameters,"sm")
 
@@ -81,7 +81,10 @@ end
 profiles = performProfile(files,sm,profile_params,force_serial=force_serial,...
     save_all_pars=save_all_pars,resample_t=resample_t);
 
-save(sprintf("data/ProfileLikelihoods_%s.mat",model_type),"profiles")
+if isfield(files,"previous_profile_file")
+    files = rmfield(files,"previous_profile_file");
+end
+save(sprintf("data/ProfileLikelihoods_%s.mat",model_type),"profiles","files")
 
 %% reset path
 rmpath("../ODEFitting/")

@@ -27,7 +27,9 @@ switch model_type
         sum_fn = @summarizeSMLHS; % use this for the VB model when the parameters make it likely that simulations blow up
 end
 
-PL = load(sprintf("../ProfileLikelihood/data/ProfileLikelihoods_%s.mat",model_type),"profiles");
+files.profiles = sprintf("../ProfileLikelihood/data/ProfileLikelihoods_%s.mat",model_type);
+
+% PL = load(sprintf("../ProfileLikelihood/data/ProfileLikelihoods_%s.mat",model_type),"profiles");
 load("../PostAnalysis/data/summary.mat","vals","cohort_size","display_par_names")
 
 n_abm_pars = length(display_par_names);
@@ -35,26 +37,28 @@ D = makeMOATDistributions(display_par_names);
 T = makeParameterTransformations(display_par_names);
 
 %% create bounding surfaces
-n_sm_pars = size(PL.profiles,1);
-PL.profiles = reshape(PL.profiles,n_sm_pars,[]);
-n_abm_vecs = size(PL.profiles,2);
-
-BS = zeros(n_sm_pars,n_abm_vecs,2);
-threshold = chi2inv(0.95,n_sm_pars);
-for i = 1:n_abm_vecs
-    for j = 1:n_sm_pars
-        [BS(j,i,1),BS(j,i,2)] = getProfileBounds(PL.profiles{j,i}([j,end],:),threshold);
-    end
-end
-BS = reshape(BS,[n_sm_pars,cohort_size,2]);
+% n_sm_pars = size(PL.profiles,1);
+% PL.profiles = reshape(PL.profiles,n_sm_pars,[]);
+% n_abm_vecs = size(PL.profiles,2);
+% 
+% BS = zeros(n_sm_pars,n_abm_vecs,2);
+% threshold = chi2inv(0.95,n_sm_pars);
+% for i = 1:n_abm_vecs
+%     for j = 1:n_sm_pars
+%         [BS(j,i,1),BS(j,i,2)] = getProfileBounds(PL.profiles{j,i}([j,end],:),threshold);
+%     end
+% end
+% BS = reshape(BS,[n_sm_pars,cohort_size,2]);
 
 %% run MOAT
-studied_function = @(x) sampleFromSM(x,BS,vals,sm_functional,D=D,T=T,nsamps=nsamps,par_names=display_par_names,sum_fn=sum_fn);
+% studied_function = @(x) sampleFromSM(x,BS,vals,sm_functional,D=D,T=T,nsamps=nsamps,par_names=display_par_names,sum_fn=sum_fn);
+% studied_function = @(x) sampleFromSM(x,files,sm_functional,D=D,T=T,nsamps=nsamps,sum_fn=sum_fn);
+studied_function = setupSampleFromSMFunction(files,sm_functional,D=D,T=T,nsamps=nsamps,sum_fn=sum_fn);
 [mu_star,sigma,order] = morris_simple(studied_function,n_abm_pars,npoints);
 display_par_names = display_par_names(order);
 
 %% save result
-save(sprintf("data/GlobalSensitivityMOATIndirect_%s%s.mat",model_type,suffix(npoints)),"mu_star","sigma","display_par_names","npoints","nsamps")
+% save(sprintf("data/GlobalSensitivityMOATIndirect_%s%s.mat",model_type,suffix(npoints)),"mu_star","sigma","display_par_names","npoints","nsamps")
 
 %% clean path
 rmpath("../ODEFitting/")

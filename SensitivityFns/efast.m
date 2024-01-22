@@ -1,4 +1,4 @@
-function [S1,ST,order] = efast(f,n,Nr,omega_max,M,Ns)
+function [S1,ST,order] = efast(f,n,Nr,omega_max,M,Ns,options)
 
 % f = studied function
 % n = number of factors
@@ -11,11 +11,12 @@ arguments
     omega_max double {mustBeInteger} = 8
     M double {mustBeInteger} = 4;
     Ns double {mustBeInteger} = 2*M*omega_max + 1
+    options.sort_output logical = true
 end
 
 % equally-spaced points on (-pi,pi) but only include left endpoint
 s = linspace(-pi,pi,Ns+1);
-s(end) = []; 
+s(end) = [];
 
 
 %% compute values along s for each factor and each resample
@@ -25,8 +26,8 @@ for fi = 1:n % factor index
     omega(fi) = omega_max;
 
     % set the complementary frequencies to the values between 1 and floor(omega/2)
-    omega(setdiff(1:n,fi)) = mod(0:n-2,floor(omega_max/2)) + 1; 
-    
+    omega(setdiff(1:n,fi)) = mod(0:n-2,floor(omega_max/2)) + 1;
+
     for ri = 1:Nr
         phi = 2*pi*rand(1,n); % random phase shifts
         x = efastG(s,omega',phi');
@@ -82,8 +83,12 @@ end
 S1 = mean(first_order_var,1)./mean(total_var,1);
 ST = 1-mean(complement_var,1)./mean(total_var,1);
 
-[ST,order] = sort(ST,"descend");
-S1 = S1(order);
+if options.sort_output
+    [ST,order] = sort(ST,"descend");
+    S1 = S1(order);
+else
+    order = 1:length(S1);
+end
 
 
 end

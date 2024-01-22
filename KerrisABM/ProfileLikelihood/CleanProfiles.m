@@ -13,12 +13,12 @@ switch model_type
         npars = 3;
 end
 
-load(file_name,"profiles")
+P = load(file_name);
 threshold = chi2inv(0.95,npars);
 
-profiles = cleanProfiles(profiles,threshold);
+P.profiles = cleanProfiles(P.profiles,threshold);
 
-save(file_name,"profiles")
+save(file_name,"-struct","P")
 
 rmpath("../../ProfileLikelihoodFns/")
 

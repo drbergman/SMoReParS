@@ -1,17 +1,45 @@
-function out = setupSampleFromSMFunction(files, sm_functional, options)
+function [out,par_names] = setupSampleFromSMFunction(files, sm_functional, options)
 
 arguments
     files struct % structure containing the files with the necessary info for this
     sm_functional function_handle
-    options.par_names {mustBeText} = strings(1,numel(x))
-    options.T dictionary = configureDictionary("string","function_handle")
+    options.warnings = true;
+    options.par_names {mustBeText} = strings(0,1)
     options.D dictionary = configureDictionary("string","prob.ProbabilityDistribution")
+    options.T dictionary = configureDictionary("string","function_handle")
+    options.I dictionary = configureDictionary("string","double") % index of parameters
     options.nsamps double {mustBeInteger} = 100
     options.sum_fn function_handle = @mean
     options.use_profiles logical = true
 end
 
 vals = loadABMValues(files);
+nfacs = numel(vals);
+if isempty(options.par_names) && options.D.numEntries~=0
+    % then expect that parameter names are needed, not explicitly provided, and go find them
+    if isfield(files,"data")
+        temp = load(files.data,"par_names");
+    else
+        temp = load(files.profiles,"files");
+        temp = load(temp.files.data,"par_names");
+    end
+    options.par_names = temp.par_names;
+elseif options.warnings
+    warning_message = sprintf("User supplied parameter names.\n" + ...
+            "\tMake sure they are in the same order as they are varied in the CM cohort.\n" + ...
+            "\tDisable this warning by setting setupSampleFromSMFunction(..., warnings=false)");
+    warning(warning_message) % warning doesn't do `\n` and `\t` correctly though...
+end
+
+par_names = options.par_names;
+if ~isempty(options.par_names) && options.I.numEntries<numel(options.par_names)
+    % set up index dictionary
+    for i = 1:length(options.par_names)
+        options.I(options.par_names(i)) = i; % the parameters in par_names are expected to be in the order that they vary in the cohort dimensions
+    end
+end
+    
+
 if options.use_profiles
     BS = loadBoundingSurfaces(files.profiles);
     out = @(x) sampleFromSMProfiles(x, BS, vals, sm_functional, options);
