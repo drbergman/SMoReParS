@@ -25,8 +25,8 @@ switch sm.opts.model_type
         lb = [0;0];
         ub = [1;1e6];
     case "von_bertalanffy"
-        lb = [0;1;0];
-        ub = [100;Inf;100];
+        lb = [0;0;0];
+        ub = [Inf;Inf;Inf];
 end
 npars = numel(p);
 
@@ -37,6 +37,6 @@ files.data = "../PostAnalysis/data/summary.mat";
 [P,fstar] = optimizeSMParsFromABM(files,sm,p,lb,ub,optim_opts,1,force_serial=force_serial,...
     resample_t=15:15:75);
 
-save(sprintf("data/OptimalParameters_%s.mat",sm.opts.model_type),"P","fstar","sm")
+save(sprintf("data/OptimalParameters_%s_new.mat",sm.opts.model_type),"P","fstar","sm")
 
 rmpath("../../SurrogateModelFns/")

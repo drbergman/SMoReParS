@@ -5,9 +5,11 @@ clearvars;
 
 sm.fn = @computeTimeSeries;
 % fn_opts.model_type = "von_bertalanffy";
+fn_opts.model_type = "logistic";
 sm.opts.model_type = "logistic";
 
-save_fig_opts.save_figs = true;
+sm.opts.model_type = fn_opts.model_type;
+save_fig_opts.save_figs = false;
 save_fig_opts.file_types = ["fig","png"];
 
 fig_names_spec = ["SampleFitsOfSMToABM_%s","BestSMParameterDistributions_%s"];
@@ -26,10 +28,10 @@ switch fn_opts.model_type
 end
 
 nsamps = 36;
-par_file = sprintf("data/OptimalParameters_%s.mat",fn_opts.model_type);
-data_file = "../PostAnalysis/data/summary.mat";
+files.optimal_parameters = sprintf("data/OptimalParameters_%s.mat",fn_opts.model_type);
+files.data = "../PostAnalysis/data/summary.mat";
 
+opts.par_names = par_names;
+f = testSMFitToABM(files,nsamps,sm,opts);
 
-f = testSMFitToABM(par_file,data_file,nsamps,sm,par_names);
-
-saveFigures(f,save_fig_opts)
+% saveFigures(f,save_fig_opts)
