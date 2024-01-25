@@ -2,14 +2,14 @@
 
 clearvars;
 
-save_fig_opts.save_figs = true;
+save_fig_opts.save_figs = false;
 save_fig_opts.file_types = ["fig","png"];
 % save_fig_opts.reprint_warning = false;
 save_fig_opts.fig_names = ["AICComparisonBySM","ModelLikelihood"];
 
 addpath("../../SurrogateModelFns/")
 
-model_types = ["von_bertalanffy","logistic"];
+model_types = ["exponential","logistic","von_bertalanffy"];
 
 data_file = "../PostAnalysis/data/summary.mat";
 
@@ -24,12 +24,13 @@ load(data_file,"t","D","C","cohort_size")
 D = reshape(D,1,[]);
 AIC = zeros([n_models,prod(cohort_size)]);
 for i = 1:n_models
-    load(sprintf("data/OptimalParameters_%s.mat",model_types(i)),"P");
-    P = reshape(P,size(P,1),[]);
-    sm.opts.model_type = model_types(i);
-    for j = 1:size(P,2)
-        AIC(i,j) = getRawError(sm,P(:,j),t,D(j),C{1},resample = resample, resample_t = resample_t) + 2*size(P,1);
-    end
+    load(sprintf("data/OptimalParameters_%s.mat",model_types(i)),"fstar");
+    AIC(i,:) = fstar(:);
+    % P = reshape(P,size(P,1),[]);
+    % sm.opts.model_type = model_types(i);
+    % for j = 1:size(P,2)
+    %     AIC(i,j) = getRawError(sm,P(:,j),t,D(j),C{1},resample = resample, resample_t = resample_t) + 2*size(P,1);
+    % end
 
 end
 

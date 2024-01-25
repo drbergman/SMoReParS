@@ -4,9 +4,20 @@
 clearvars;
 
 %% identify the data
-f = dir("data/sims/*/Number*.txt");
+f = dir("data/sims/GS_*/Number*.txt");
 load("data/MOATLHSSample.mat","points"); % points at which the MOAT samples were taken
 load("../PostAnalysis/data/summary.mat","display_par_names")
+
+%% what is the endpoint?
+endpoint = "AUC";
+t = 0:0.25:75;
+
+%% make sure only MOAT samples
+keepers = false(size(f));
+for i = 1:numel(f)
+    keepers(i) = ~contains(f(i).folder,"eFAST");
+end
+f = f(keepers);
 
 %% process points
 nfacs = size(points,2);
@@ -26,7 +37,12 @@ for i = 1:numel(f)
     if length(temp) < 300 || temp(300)==0
         error("This sim did not make it to the endpoint.")
     end
-    N(i) = temp(end);
+    switch endpoint
+        case "final_size"
+            N(i) = temp(end);
+        case "AUC"
+            N(i) = trapz(t,[100;temp]);
+    end
 end
 
 N = reshape(N,npoints,nfacs+1,[]); % final dimension is for samples (I first loop over all parameter values, then over samples)
@@ -49,7 +65,7 @@ sigma = std(abs(ee),[],2);
 sigma = sigma(order);
 ordered_par_names = display_par_names(order);
 
-% save("data/GlobalSensitivityMOATDirect","mu_star","sigma","ordered_par_names","npoints");
+save("data/GlobalSensitivityMOATDirect_" + endpoint,"mu_star","sigma","ordered_par_names","npoints");
 
 
 

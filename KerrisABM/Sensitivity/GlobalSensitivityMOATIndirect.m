@@ -7,14 +7,14 @@ addpath("../ODEFitting/")
 addpath("../../ProfileLikelihoodFns/")
 addpath("../../SensitivityFns/")
 
-npoints = 3; % number of points to sample in LHS for ABM pars
+npoints = 1000; % number of points to sample in LHS for ABM pars
 nsamps = 100; % number of points to sample in LHS for ODE pars
 
 suffix = dictionary([15,25,1000],["","_large","_very_large"]);
 
-model_type = "exponential";
+% model_type = "exponential";
 % model_type = "logistic";
-% fn_opts.model_type = "von_bertalanffy";
+model_type = "von_bertalanffy";
 
 
 sm_functional = @(p) computeSMEndpoint(p,[],model_type);
@@ -53,12 +53,12 @@ T = makeParameterTransformations(display_par_names);
 %% run MOAT
 % studied_function = @(x) sampleFromSM(x,BS,vals,sm_functional,D=D,T=T,nsamps=nsamps,par_names=display_par_names,sum_fn=sum_fn);
 % studied_function = @(x) sampleFromSM(x,files,sm_functional,D=D,T=T,nsamps=nsamps,sum_fn=sum_fn);
-studied_function = setupSampleFromSMFunction(files,sm_functional,D=D,T=T,nsamps=nsamps,sum_fn=sum_fn);
+studied_function = setupSampleFromSMFunction(files,sm_functional,D=D,T=T,nsamps=nsamps,sum_fn=sum_fn,par_names = display_par_names, warnings=false);
 [mu_star,sigma,order] = morris_simple(studied_function,n_abm_pars,npoints);
 display_par_names = display_par_names(order);
 
 %% save result
-% save(sprintf("data/GlobalSensitivityMOATIndirect_%s%s.mat",model_type,suffix(npoints)),"mu_star","sigma","display_par_names","npoints","nsamps")
+save(sprintf("data/GlobalSensitivityMOATIndirect_%s%s.mat",model_type,suffix(npoints)),"mu_star","sigma","display_par_names","npoints","nsamps")
 
 %% clean path
 rmpath("../ODEFitting/")

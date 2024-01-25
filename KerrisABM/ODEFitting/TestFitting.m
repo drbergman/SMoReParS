@@ -4,8 +4,9 @@
 clearvars;
 
 sm.fn = @computeTimeSeries;
+model_type = "exponential";
 % model_type = "logistic";
-model_type = "von_bertalanffy";
+% model_type = "von_bertalanffy";
 
 sm.opts.model_type = model_type;
 
@@ -30,7 +31,7 @@ switch model_type
 end
 
 nsamps = 36;
-files.optimal_parameters = sprintf("data/OptimalParameters_%s.mat",model_type);
+files.optimal_parameters = sprintf("data/OptimalParameters_%s_3.mat",model_type);
 files.data = "../PostAnalysis/data/summary.mat";
 
 opts.par_names = par_names;
