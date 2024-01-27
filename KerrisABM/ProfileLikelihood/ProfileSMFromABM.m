@@ -16,13 +16,15 @@ save_all_pars = true;
 
 resample_t = 15:15:75;
 
-model_type = "logistic";
+% model_type = "exponential";
+% model_type = "logistic";
+model_type = "von_bertalanffy";
 
 
 %% files
 files.optimal_parameters = sprintf("../ODEFitting/data/OptimalParameters_%s.mat",model_type);
 files.data = "../PostAnalysis/data/summary.mat";
-files.previous_profile_file = "data/ProfileLikelihoods_logistic.mat";
+% files.previous_profile_file = "data/ProfileLikelihoods_logistic.mat";
 
 load(files.optimal_parameters,"sm")
 
@@ -72,7 +74,8 @@ switch model_type
         profile_params.para_ranges = [0,100;     % alpha
             1,1e3;  % nu
             0,100]; % beta for chemo activating apoptosis
-
+        resample_t = 0:.25:75;
+        sm.opts.enforce_inequality = true;
     otherwise
         error("%s is an unspecified SM model.\n",objfn_constants.fn_opts.model_type);
 end
@@ -84,7 +87,7 @@ profiles = performProfile(files,sm,profile_params,force_serial=force_serial,...
 if isfield(files,"previous_profile_file")
     files = rmfield(files,"previous_profile_file");
 end
-save(sprintf("data/ProfileLikelihoods_%s.mat",model_type),"profiles","files")
+% save(sprintf("data/ProfileLikelihoods_%s.mat",model_type),"profiles","files","profile_params")
 
 %% reset path
 rmpath("../ODEFitting/")

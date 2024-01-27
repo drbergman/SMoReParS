@@ -16,10 +16,10 @@ switch fn_opts.model_type
 
     case "von_bertalanffy"
 
-        % if p(3)>p(1) % beta should not be bigger than alpha (or else the solution will immediately start to decrease for any x>1 since theta<1)
-        %     out = 100*exp((p(1)-p(3))*tt'); % just approximate this as exponential decay to avoid issues of the solution going negative and giving complex answers that even NonNegativity constraints cannot fix
-        %     return;
-        % end
+        if isfield(fn_opts,"enforce_inequality") && fn_opts.enforce_inequality && p(3)>p(1) % beta should not be bigger than alpha (or else the solution will immediately start to decrease for any x>1 since theta<1)
+            out = 100*exp((p(1)-p(3))*tt'); % just approximate this as exponential decay to avoid issues of the solution going negative and giving complex answers that even NonNegativity constraints cannot fix
+            return;
+        end
         p(2) = 1 - 1/p(2); % p(2) is nu coming in and theta going forward
         opts = odeset("NonNegative",1);
         sol = ode45(@(t,x) odefn(x,p),[0 tt(end)],100,opts);

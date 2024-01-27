@@ -1,7 +1,7 @@
 clearvars
 
 save_fig_opts.save_figs = true;
-save_fig_opts.reprint = false;
+save_fig_opts.reprint = true;
 save_fig_opts.file_types = ["fig";"png"];
 save_fig_opts.resolution = "-r1200";
 
@@ -18,7 +18,10 @@ for i = 1:3
     else
         fstar = fstar ./ 300;
     end
-    histogram(log10(fstar(:)),"FaceColor",sm_model_palette(model_type(i)))
+    h = histogram(log10(fstar(:)),"FaceColor",sm_model_palette(model_type(i)));
+    if i==2
+        h.morebins
+    end
 end
 
 display_names = ["Exponential","Logistic","Von Bertalanffy"];

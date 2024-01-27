@@ -13,18 +13,27 @@ nsamps = 100; % number of points to sample in LHS for ODE pars
 suffix = dictionary([15,25,1000],["","_large","_very_large"]);
 
 % model_type = "exponential";
-% model_type = "logistic";
-model_type = "von_bertalanffy";
+model_type = "logistic";
+% model_type = "von_bertalanffy";
+endpoint = "AUC";
+switch endpoint
+    case "final_size"
+        sm_functional = @(p) computeSMEndpoint(p,[],model_type);
+    case "AUC"
+        sm_functional = @(p) computeSMAUC(p,[],model_type);
+end
 
-
-sm_functional = @(p) computeSMEndpoint(p,[],model_type);
 switch model_type
     case "exponential"
         sum_fn = @mean;
     case "logistic"
         sum_fn = @mean; % use this for logistic growth
     case "von_bertalanffy"
-        sum_fn = @summarizeSMLHS; % use this for the VB model when the parameters make it likely that simulations blow up
+        if endpoint == "final_size"
+            sum_fn = @summarizeSMLHS; % use this for the VB model when the parameters make it likely that simulations blow up
+        elseif endpoint == "AUC"
+            sum_fn = @mean;
+        end
 end
 
 files.profiles = sprintf("../ProfileLikelihood/data/ProfileLikelihoods_%s.mat",model_type);
@@ -58,7 +67,7 @@ studied_function = setupSampleFromSMFunction(files,sm_functional,D=D,T=T,nsamps=
 display_par_names = display_par_names(order);
 
 %% save result
-save(sprintf("data/GlobalSensitivityMOATIndirect_%s%s.mat",model_type,suffix(npoints)),"mu_star","sigma","display_par_names","npoints","nsamps")
+save(sprintf("data/GlobalSensitivityMOATIndirect_%s%s_%s.mat",model_type,suffix(npoints),endpoint),"mu_star","sigma","display_par_names","npoints","nsamps")
 
 %% clean path
 rmpath("../ODEFitting/")
