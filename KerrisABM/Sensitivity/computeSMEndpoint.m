@@ -1,7 +1,10 @@
-function out = computeSMEndpoint(p,~,fn_opts)
+function out = computeSMEndpoint(p,~,model_type)
 
 % y0 = 100;
-switch fn_opts.model_type
+switch model_type
+    case "exponential"
+        out = 100 * exp(75*p);
+
     case "logistic"
         % r = p(1);
         % K = p(2);
@@ -24,6 +27,6 @@ switch fn_opts.model_type
         out = (1/(1-p(2))) * (log(p(1))-log(p(3))); % set it to the (log of) the equilibrium value
 
     otherwise
-        error("%s is an unspecified SM model.\n",fn_opts.model_type);
+        error("%s is an unspecified SM model.\n",model_type);
 
 end

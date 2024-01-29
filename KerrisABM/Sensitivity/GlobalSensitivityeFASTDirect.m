@@ -8,6 +8,10 @@ f = dir("data/sims/*eFAST*/Number*.txt");
 load("data/EFASTSample.mat","points"); % points at which the MOAT samples were taken
 load("../PostAnalysis/data/summary.mat","display_par_names")
 
+%% what is the endpoint?
+endpoint = "AUC";
+t = 0:0.25:75;
+
 %% process points
 [nfacs,Ns,Nr,~] = size(points);
 
@@ -25,7 +29,12 @@ for i = 1:numel(f)
     if length(temp) < 300 || temp(300)==0
         error("This sim did not make it to the endpoint.")
     end
-    N(i) = temp(end);
+    switch endpoint
+        case "final_size"
+            N(i) = temp(end);
+        case "AUC"
+            N(i) = trapz(t,[100;temp]);
+    end
 end
 
 %% reshape and compute average
@@ -36,7 +45,7 @@ S = std(N,[],ndims(N));
 %% compute Fourier coefficients
 % copy details from MakeeFASTSamplePars.m
 omega_max = 8;
-MI = 4;
+M = 4;
 AA = A - mean(A,1);
 NQ = (Ns-1)/2;
 N0 = NQ+1;
@@ -61,9 +70,9 @@ for i=1:nfacs %loop through parameters
         end
         % Computation of V_{(ci)}.
         Vci(ri) = 2*complement_total;
-        % Fourier coeff. at [P*omega_max, for P=1:MI].
+        % Fourier coeff. at [P*omega_max, for P=1:M].
         first_order = 0;
-        for j=omega_max:omega_max:omega_max*MI
+        for j=omega_max:omega_max:omega_max*M
             % ANGLE = j*2*(1:NQ)*pi/Ns;
             theta = j*s(N0+1:end);
             cos_theta = cos(theta');
@@ -84,8 +93,8 @@ for i=1:nfacs %loop through parameters
 end
 
 %% save
-[ST,order] = sort(ST,"descend");
-S1 = S1(order);
-ordered_par_names_by_ST = display_par_names(order);
+% [ST,order] = sort(ST,"descend");
+% S1 = S1(order);
+% ordered_par_names_by_ST = display_par_names(order);
 
-save("data/GlobalSensitivityeFASTDirect","S1","ST","ordered_par_names_by_ST");
+save("data/GlobalSensitivityeFASTDirect_" + endpoint,"M","Nr","Ns","S1","ST","display_par_names","omega_max");

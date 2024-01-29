@@ -59,8 +59,10 @@ if nsamps>1 || isempty(opts.parameter_layout)
         end
     end
 
-    for i = 1:nsamps
-        ylabel(ax(i,1),sprintf("#%04d",I(i)),"FontWeight","bold")
+    if opts.show_y_label
+        for i = 1:nsamps
+            ylabel(ax(i,1),sprintf("#%04d",I(i)),"FontWeight","bold")
+        end
     end
 
 else % one sample (so likely a profile from data) and a given parameter layout
@@ -102,5 +104,6 @@ default_options.LineColor = lines(1);
 
 default_options.parameter_layout = []; % rows x columns of parameter layout
 
+default_options.show_y_label = true;
 
 end

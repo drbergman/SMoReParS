@@ -1,4 +1,4 @@
-function P = optimizeSMParsFromABM(files,sm,p0,lb,ub,optim_opts,weights,opts,raw_error_opts)
+function [P,fstar] = optimizeSMParsFromABM(files,sm,p0,lb,ub,optim_opts,weights,opts,raw_error_opts)
 
 % THIS IS A USER-FACING FUNCTION
 
@@ -168,8 +168,10 @@ else
 
 end
 
-[~,best_case_inds] = min(f_all,[],1);
+[fstar,best_case_inds] = min(f_all,[],1);
+fstar = reshape(fstar,cohort_size);
 P = zeros(npars,n_abm_vecs);
+ 
 for i = 1:n_abm_vecs
     P(:,i) = p_all(:,best_case_inds(i),i);
 end

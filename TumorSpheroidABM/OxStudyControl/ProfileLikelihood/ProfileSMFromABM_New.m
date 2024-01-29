@@ -21,7 +21,7 @@ files.optimal_parameters = "../ODEFitting/data/SMFitToABM_New.mat";
 load(files.optimal_parameters,"cohort_name")
 
 files.data = sprintf("../../data/%s/summary.mat",cohort_name);
-% files.previous_profile_file = "data/temp_profile.mat";
+files.previous_profile_file = "data/Profiles_SMFromABM_New_clean.mat";
 
 save_all_pars = true;
 force_serial = true;
@@ -60,7 +60,10 @@ profiles = performProfile(files,sm,profile_params,...
     save_every_iter = save_every_iter, save_every_sec = save_every_sec );
 
 %% save
-% save("data/" + file_name + "2","profiles")
+if isfield(files,"previous_profile_file")
+    files = rmfield(files,"previous_profile_file");
+end
+save("data/" + file_name,"profiles","files","profile_params")
 
 %% reset path
 rmpath("../ODEFitting/")

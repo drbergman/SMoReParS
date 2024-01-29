@@ -10,11 +10,11 @@ suffix = "_very_large";
 save_fig_opts.save_figs = true;
 save_fig_opts.reprint = true;
 save_fig_opts.file_types = ["fig","png"];
-save_fig_opts.fig_names = sprintf("GlobalSensitivityIndirect_%s%s",model_type,suffix);
+save_fig_opts.fig_names = sprintf("GlobalSensitivityMOATIndirect_%s%s",model_type,suffix);
 
 line_width = 1;
 
-load(sprintf("data/GlobalSensitivityIndirect_%s%s.mat",model_type,suffix),"mu_star","display_par_names","sigma","npoints")
+load(sprintf("data/GlobalSensitivityMOATIndirect_%s%s.mat",model_type,suffix),"mu_star","display_par_names","sigma","npoints")
 
 c = categorical(display_par_names,display_par_names);
 

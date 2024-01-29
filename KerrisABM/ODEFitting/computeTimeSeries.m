@@ -2,6 +2,11 @@ function out = computeTimeSeries(p,tt,~,fn_opts,~)
 
 % y0 = 100;
 switch fn_opts.model_type
+    case "exponential"
+        % lambda = p(1);
+        % y' = lambda*y
+        out = 100 * exp(p * tt');
+
     case "logistic"
         % r = p(1);
         % K = p(2);
@@ -11,7 +16,7 @@ switch fn_opts.model_type
 
     case "von_bertalanffy"
 
-        if p(3)>p(1) % beta should not be bigger than alpha (or else the solution will immediately start to decrease for any x>1 since theta<1)
+        if isfield(fn_opts,"enforce_inequality") && fn_opts.enforce_inequality && p(3)>p(1) % beta should not be bigger than alpha (or else the solution will immediately start to decrease for any x>1 since theta<1)
             out = 100*exp((p(1)-p(3))*tt'); % just approximate this as exponential decay to avoid issues of the solution going negative and giving complex answers that even NonNegativity constraints cannot fix
             return;
         end
@@ -28,7 +33,7 @@ switch fn_opts.model_type
             out((length(out)+1):length(tt)) = -1e6;
         end
 
-        out = min(out,1e10); % for plenty of chosen parameters (alpha >> beta for example) the solutions can grow large, but finite, s.t. the error they produce is Inf
+        % out = min(out,1e10); % for plenty of chosen parameters (alpha >> beta for example) the solutions can grow large, but finite, s.t. the error they produce is Inf
 
     otherwise
         error("%s is an unspecified SM model.\n",fn_opts.model_type)

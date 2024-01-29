@@ -2,11 +2,11 @@ clearvars;
 
 addpath("~/Documents/MATLAB/myfunctions/")
 
-filename = "GlobalSensitivityDirect";
+filename = "GlobalSensitivityMOATDirect";
 
 line_width = 1;
 
-load("data/GlobalSensitivityDirect.mat","mu_star","ordered_par_names","sigma","npoints")
+load("data/GlobalSensitivityMOATDirect.mat","mu_star","ordered_par_names","sigma","npoints")
 
 c = categorical(ordered_par_names,ordered_par_names);
 

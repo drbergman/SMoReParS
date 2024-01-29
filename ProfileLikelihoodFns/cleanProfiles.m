@@ -1,9 +1,17 @@
-function profiles = cleanProfiles(profiles,threshold)
+function profiles = cleanProfiles(files,options)
 
 % this function will take in a collection of profiles (out) along with a
 % threshold and "clean" them. Clean means make sure the value does not
 % cross the threshold more than once in either direction AND trim the ends
 % so that we only have the 95% CI and not however far over that we stepped.
+
+arguments
+    files struct
+    options.boundary_tolerance double = 0
+end
+
+load(files.profiles,"profiles","profile_params") % profiles from ABM
+threshold = chi2inv(0.95,size(profiles,1));
 
 sz = size(profiles);
 npars = size(profiles,1);
@@ -13,6 +21,9 @@ n_abm_vecs = size(profiles,2);
 for i = 1:n_abm_vecs
     for j = 1:npars
         profiles{j,i} = cleanThisProfile(profiles{j,i},i,j,threshold);
+        if any(options.boundary_tolerance > 0)
+            profiles{j,i} = applyBoundaryThreshold(j,profiles{j,i},profile_params,options.boundary_tolerance);
+        end
     end
 end
 
@@ -56,4 +67,51 @@ catch % but if there's an error, then there's multiple crosses, remove extraneou
     end
 end
 
+end
+
+function profile = applyBoundaryThreshold(profile_par_index,profile,profile_params,boundary_tolerance)
+
+lb = profile_params.lb;
+ub = profile_params.ub;
+if size(boundary_tolerance,2)==2
+    tol = boundary_tolerance;
+else
+    d = ub-lb;
+    tol = boundary_tolerance .* d;
+    tol = [tol,tol];
+end
+
+for i = 1:(size(profile,1)-1)
+    if i==profile_par_index
+        continue
+    end
+    % idx = profile(i,:) <= lb(i) + tol(i,1) | profile(i,:) >= ub(i) - tol(i,2);
+    % if any(idx)
+    %     figureOnRight();
+    %     for k = 1:size(profile,1)
+    %         subplot(size(profile,1),1,k)
+    %         hold on;
+    %         plot(profile(profile_par_index,~idx),profile(k,~idx),"Marker","+")
+    %         plot(profile(profile_par_index,idx),profile(k,idx),"Marker","+")
+    %     end
+    %     disp('')
+    % end
+
+    % check if any parameter approaches boundary within tolerance at end points
+    while true
+        if profile(i,1) <= lb(i) + tol(i,1) || profile(i,1) >= ub(i) - tol(i,2)
+
+            profile = profile(:,2:end);
+        else
+            break
+        end
+    end
+    while true
+        if profile(i,end) <= lb(i) + tol(i,1) || profile(i,end) >= ub(i) - tol(i,2)
+            profile = profile(:,1:end-1);
+        else
+            break
+        end
+    end
+end
 end

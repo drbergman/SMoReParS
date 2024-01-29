@@ -2,10 +2,19 @@
 
 clearvars;
 
+save_fig_opts.save_figs = true;
+save_fig_opts.reprint = true;
 save_fig_opts.file_types = ["fig","png"];
 
-ABM = load("data/GlobalSensitivityDirect.mat");
-ABM_SM = load("data/GlobalSensitivityIndirect_logistic.mat");
+% model_type = "exponential";
+% model_type = "logistic";
+model_type = "von_bertalanffy";
+% suffix = "";
+% suffix = "_large";
+suffix = "_very_large";
+
+ABM = load("data/GlobalSensitivityMOATDirect.mat");
+ABM_SM = load(sprintf("data/GlobalSensitivityMOATIndirect_%s%s.mat",model_type,suffix));
 
 C = categorical(ABM.ordered_par_names,ABM.ordered_par_names);
 line_width = 1;
@@ -20,7 +29,7 @@ temp = temp(order_abm_inv); % put it in same order as direct method
 y = [ABM.mu_star(:),temp'];
 
 %% raw mu
-f=figureOnRight("Name","CompareABMSensitivityMethods");
+f=figureOnRight("Name",sprintf("CompareABMSensitivityMethods_%s%s",model_type,suffix));
 hold on;
 b=bar(y,"LineWidth",line_width);
 xticks(1:size(y,1))
@@ -40,7 +49,7 @@ set(gca,'FontSize',16)
 %% normalized mu
 y_sum = sum(y,1); 
 y_normalized = y./y_sum;
-f(2) = figureOnRight("Name","CompareABMSensitivityMethods_NormalizedMu");
+f(2) = figureOnRight("Name",sprintf("CompareABMSensitivityMethods_NormalizedMu_%s%s",model_type,suffix));
 hold on;
 b=bar(y_normalized,"LineWidth",line_width);
 xticks(1:size(y_normalized,1))
@@ -58,12 +67,13 @@ legend({"Sensitivity on ABM directly","Sensitivity on ABM via SM"},"location","n
 set(gca,'FontSize',16)
 
 %% stacked histogram
-f(3) = figureOnRight("Name","CompareABMSensitivityMethods_NormalizedMu_Stacked");
+f(3) = figureOnRight("Name",sprintf("CompareABMSensitivityMethods_NormalizedMu_Stacked_%s%s",model_type,suffix));
 s = ["Direct","Indirect"];
 B = bar(categorical(s,s),y_normalized,"stacked");
 ylabel("\mu^* / <\mu^*>")
 legend(flip(B),flip(C),"location","bestoutside","FontSize",16)
 set(gca,"FontSize",16)
+ylim([0 1])
 
 %% save figs
 saveFigures(f,save_fig_opts)
