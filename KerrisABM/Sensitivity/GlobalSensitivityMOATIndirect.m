@@ -12,15 +12,20 @@ nsamps = 100; % number of points to sample in LHS for ODE pars
 
 suffix = dictionary([15,25,1000],["","_large","_very_large"]);
 
-% model_type = "exponential";
-model_type = "logistic";
+model_type = "exponential";
+% model_type = "logistic";
 % model_type = "von_bertalanffy";
-endpoint = "AUC";
+
+% endpoint = "AUC";
+endpoint = "time_to_half";
+
 switch endpoint
     case "final_size"
         sm_functional = @(p) computeSMEndpoint(p,[],model_type);
     case "AUC"
         sm_functional = @(p) computeSMAUC(p,[],model_type);
+    case "time_to_half"
+        sm_functional = @(p) computeTimeToHalf(p,model_type);
 end
 
 switch model_type

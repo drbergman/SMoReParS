@@ -22,7 +22,14 @@ legend_entries = ["Direct","Exponential","Logistic","Von Bertalanffy"];
 % suffix = "_large";
 suffix = "_big_sample";
 
-endpoint = "AUC";
+% endpoint = "final_size";
+% endpoint = "AUC";
+endpoint = "time_to_half";
+
+if endpoint == "time_to_half"
+    model_type(model_type=="von_bertalanffy") = [];
+    legend_entries(legend_entries=="Von Bertalanffy") = [];
+end
 
 ABM = load(sprintf("data/GlobalSensitivityeFASTDirect_%s.mat",endpoint));
 for i = 1:length(model_type)

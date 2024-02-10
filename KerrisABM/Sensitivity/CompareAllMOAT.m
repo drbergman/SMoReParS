@@ -6,7 +6,7 @@ addpath("~/Documents/MATLAB/myfunctions/")
 addpath("../ODEFitting/")
 addpath("..")
 
-save_fig_opts.save_figs = false;
+save_fig_opts.save_figs = true;
 save_fig_opts.reprint = true;
 save_fig_opts.file_types = ["fig","png"];
 save_fig_opts.resolution = "-r1200";
@@ -23,7 +23,13 @@ legend_entries = ["Direct","Exponential","Logistic","Von Bertalanffy"];
 suffix = "_very_large";
 
 % endpoint = "final_size";
-endpoint = "AUC";
+% endpoint = "AUC";
+endpoint = "time_to_half";
+
+if endpoint == "time_to_half"
+    model_type(model_type=="von_bertalanffy") = [];
+    legend_entries(legend_entries=="Von Bertalanffy") = [];
+end
 
 ABM = load(sprintf("data/GlobalSensitivityMOATDirect_%s.mat",endpoint));
 for i = 1:length(model_type)
