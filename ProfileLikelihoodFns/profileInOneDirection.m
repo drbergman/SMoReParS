@@ -130,7 +130,7 @@ while true
         temp_val_prev = Inf;
         while temp_val_prev > 10*temp_val
             temp_val_prev = temp_val;
-            [x0_new,temp_val] = fmincon(F,x0_new,profile_params.A,profile_params.b,[],[],lb_temp,ub_temp,[],profile_params.opts);
+            [x0_new,temp_val] = fmincon(F,x0_new,profile_params.A,profile_params.b,[],[],lb_temp,ub_temp,[],profile_params.opts); % keep optimizing until the returned best fit stabilizes (again, hacky but it worked in some cases for me)
         end
     end
     if temp_val < min_val + profile_params.threshold % then record this and continue profiling
@@ -149,7 +149,7 @@ while true
         if dxi * profile_params.step_growth_factor(i) < max_allowable_step
             dxi = dxi * profile_params.step_growth_factor(i); % try taking bigger steps if staying within threshold
         else
-            dxi = 0.5*(dxi+max_allowable_step);
+            dxi = 0.5*(dxi+max_allowable_step); % try taking a bigger step, just not too big
             max_allowable_step = max_allowable_step * 1.1; % slowly relax the max_allowable_step size
         end
         x0 = x0_new;

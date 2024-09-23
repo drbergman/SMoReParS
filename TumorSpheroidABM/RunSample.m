@@ -21,8 +21,12 @@ M.save_pars.t_min = [0 10 24 36 48 72] * 60;
 M.save_pars.fields_to_keep = ["t","phases"];
 
 M.pars.max_dt = 0.25 / 24; % number of days per step
-M.pars.occmax_3d = 20;
-M.pars.occmax_2d = 5;
+
+% contact inhibition = threshold number of neighboring cells that allow for proliferation
+%   neighboring = in Moore neighborhood (8 spots in 2D, 26 in 3D)
+%   > threshold ==> cannot proliferate, <= threshold ==> can proliferate (see if phase==M.cycle.m block of performEvents.m)
+M.pars.occmax_3d = 20; % contact inhibition when in 3D simulation
+M.pars.occmax_2d = 5; % contact inhibition when in 2D simulation
 M.pars.move_rate_microns = 8.791732909379968;
 M.pars.apop_rate = 0;
 

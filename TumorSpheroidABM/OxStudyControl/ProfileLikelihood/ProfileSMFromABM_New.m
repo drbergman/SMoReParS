@@ -35,10 +35,12 @@ optim_opts.Display = "off";
 %% setup profile params
 n_sm_pars = numel(p);
 
-profile_params.initial_step_prop = .01*ones(n_sm_pars,1);
-profile_params.min_num_steps = 10*ones(n_sm_pars,1);
+optim_opts.Display = "off";
+
+profile_params.initial_step_prop = .01*ones(n_sm_pars,1); % proportion of best parameter value to begin stepping
+profile_params.min_num_steps = 10*ones(n_sm_pars,1); % number of steps to force it to take in the first phase
 profile_params.smallest_par_step = [1e-1;1e-1;1e-1]; % do not let the step size go below this as it steps towards the boundary/threshold
-profile_params.shrinking_factor = 0.9; % factor by which to shrink dx as it gets close to lower boundary
+profile_params.shrinking_factor = 0.9; % factor by which to shrink dx as it gets close to the boundary
 profile_params.threshold = chi2inv(0.95,n_sm_pars); % compute threshold value for the parameter confidence intervals
 
 profile_params.secondary_step_factor = 2*ones(n_sm_pars,1); % factor by which to increase the step size after the initial search

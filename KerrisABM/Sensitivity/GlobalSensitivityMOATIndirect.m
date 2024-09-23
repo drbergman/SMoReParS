@@ -7,7 +7,7 @@ addpath("../ODEFitting/")
 addpath("../../ProfileLikelihoodFns/")
 addpath("../../SensitivityFns/")
 
-npoints = 1000; % number of points to sample in LHS for ABM pars
+npoints = 15; % number of points to sample in LHS for ABM pars
 nsamps = 100; % number of points to sample in LHS for ODE pars
 
 suffix = dictionary([15,25,1000],["","_large","_very_large"]);

@@ -86,7 +86,7 @@ hold on
 vb_log = model_type=="von_bertalanffy";
 rel_log_likelihood = (AIC(~vb_log,:) - AIC(vb_log,:));
 rel_log_likelihood_pos_log = rel_log_likelihood > 0;
-rel_log_likelihood_pos = rel_log_likelihood(rel_log_likelihood_pos_log);
+rel_log_likelihood_pos = rel_log_likel     zihood(rel_log_likelihood_pos_log);
 log_rel_log_likelihood_pos = log10(rel_log_likelihood_pos);
 rel_log_likelihood_neg = rel_log_likelihood(~rel_log_likelihood_pos_log);
 log_rel_log_likelihood_neg = log10(-rel_log_likelihood_neg);
