@@ -24,15 +24,18 @@ switch nsamps
         error("Suffix not yet set.")
 end
 % model_type = "exponential";
-% model_type = "logistic";
-model_type = "von_bertalanffy";
+model_type = "logistic";
+% model_type = "von_bertalanffy";
 
-endpoint = "AUC";
+% endpoint = "AUC";
+endpoint = "time_to_half";
 switch endpoint
     case "final_size"
         sm_functional = @(p) computeSMEndpoint(p,[],model_type);
     case "AUC"
         sm_functional = @(p) computeSMAUC(p,[],model_type);
+    case "time_to_half"
+        sm_functional = @(p) computeTimeToHalf(p,model_type);
 end
 
 switch model_type

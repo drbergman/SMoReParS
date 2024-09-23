@@ -2,13 +2,16 @@
 
 clearvars;
 
-save_fig_opts.save_figs = true;
-save_fig_opts.reprint = true;
-save_fig_opts.file_types = ["fig","png"];
-% save_fig_opts.reprint_warning = false;
-save_fig_opts.fig_names = ["AICComparisonBySM","ModelLikelihood"];
-
+addpath("~/Documents/MATLAB/myfunctions/")
 addpath("../../SurrogateModelFns/")
+
+save_figs = true;
+reprint = true;
+file_types = ["fig","png"];
+resolution = '-r300';
+% save_fig_opts.reprint_warning = false;
+fig_names = ["AICComparisonBySM","ModelLikelihood"];
+
 
 sm_model_palette = smModelPalette();
 
@@ -22,20 +25,27 @@ resample = true;
 resample_t = 15:15:75;
 
 
-
-
 n_models = numel(model_type);
 load(data_file,"t","D","C","cohort_size")
 D = reshape(D,1,[]);
 AIC = zeros([n_models,prod(cohort_size)]);
+RSS = cell(n_models,1);
+RSS_bar = cell(n_models,1);
 for i = 1:n_models
-    rel_log_likelihood = load(sprintf("data/OptimalParameters_%s.mat",model_type(i)),"fstar","resample_t");
-    if isfield(rel_log_likelihood,"resample_t")
-        rel_log_likelihood.fstar = rel_log_likelihood.fstar ./ length(rel_log_likelihood.resample_t);
+    if model_type(i)=="von_bertalanffy"
+        model_ode_fitting = load(sprintf("data/OptimalParameters_%s_resampled.mat",model_type(i)),"fstar","resample_t");
     else
-        rel_log_likelihood.fstar = rel_log_likelihood.fstar ./ 300;
+        model_ode_fitting = load(sprintf("data/OptimalParameters_%s.mat",model_type(i)),"fstar","resample_t");
     end
-    AIC(i,:) = rel_log_likelihood.fstar(:);
+    % model_ode_fitting = load(sprintf("data/OptimalParameters_%s.mat",model_type(i)),"fstar","resample_t");
+    if isfield(model_ode_fitting,"resample_t")
+        RSS{i} = model_ode_fitting.fstar;
+        RSS_bar{i} = RSS{i} ./ length(model_ode_fitting.resample_t);
+    else
+        RSS{i} = model_ode_fitting.fstar;
+        RSS_bar{i} = RSS{i} ./ 300;
+    end
+    AIC(i,:) = 2*i + RSS{i}(:);
 end
 
 %% make comparisons
@@ -74,7 +84,7 @@ f(end+1) = figureOnRight("Name","AllAICvVBScatter");
 ax = gca;
 hold on
 vb_log = model_type=="von_bertalanffy";
-rel_log_likelihood = 0.5*(AIC(~vb_log,:) - AIC(vb_log,:));
+rel_log_likelihood = (AIC(~vb_log,:) - AIC(vb_log,:));
 rel_log_likelihood_pos_log = rel_log_likelihood > 0;
 rel_log_likelihood_pos = rel_log_likelihood(rel_log_likelihood_pos_log);
 log_rel_log_likelihood_pos = log10(rel_log_likelihood_pos);
@@ -93,38 +103,57 @@ temp(~rel_log_likelihood_pos_log) = -log_rel_log_likelihood_neg_relative_to_smal
 % temp3(temp3>0) = log10(temp3(temp3>0));
 % temp3(temp3<0) = -log10(-temp3(temp3<0));
 % temp3 = reshape(temp3,2,[]);
-temp1 = temp(:,all(temp>0,1));
-temp2 = temp(:,temp(1,:)>0 & rel_log_likelihood(2,:)<0);
+temp1 = temp(:,all(rel_log_likelihood>0,1)); % those where vB is best
+temp2 = temp(:,rel_log_likelihood(1,:)>0 & rel_log_likelihood(2,:)<0); % those were log > vB > exp
+temp3 = temp(:,all(rel_log_likelihood<0,1) & rel_log_likelihood(1,:)<rel_log_likelihood(2,:)); % those where exp > log > vB
+temp4 = temp(:,all(rel_log_likelihood<0,1) & rel_log_likelihood(2,:)<rel_log_likelihood(1,:)); % those where log > exp > vB
 % scatter(temp1(1,:),temp1(2,:),"filled","MarkerFaceColor",sm_model_palette("von_bertalanffy"))
 % scatter(temp1(1,:),temp1(2,:),"filled","MarkerFaceColor","black")
 % scatter(temp2(1,:),temp2(2,:),"filled","MarkerFaceColor",sm_model_palette("logistic"))
-scatter(temp2(1,:),temp2(2,:),"filled","MarkerEdgeColor",sm_model_palette("logistic"),"MarkerFaceColor",sm_model_palette("logistic"))
-scatter(temp1(1,:),temp1(2,:),"filled","MarkerEdgeColor",sm_model_palette("von_bertalanffy"),"MarkerFaceColor",sm_model_palette("von_bertalanffy"))
+
+sz = 2;
+
+scatter(temp(1,[51,57,79]),temp(2,[51,57,79]),2*sz,"MarkerEdgeColor","black","MarkerFaceColor","none")
+
+scatter(temp2(1,:),temp2(2,:),sz,"filled","MarkerEdgeColor",sm_model_palette("logistic"),"MarkerFaceColor",sm_model_palette("logistic"))
+scatter(temp1(1,:),temp1(2,:),sz,"filled","MarkerEdgeColor",sm_model_palette("von_bertalanffy"),"MarkerFaceColor",sm_model_palette("von_bertalanffy"))
+scatter(temp3(1,:),temp3(2,:),sz,"filled","MarkerEdgeColor",sm_model_palette("exponential"),"MarkerFaceColor",sm_model_palette("exponential"))
+scatter(temp4(1,:),temp4(2,:),sz,"filled","MarkerEdgeColor",sm_model_palette("logistic"),"MarkerFaceColor",sm_model_palette("logistic"))
+
 % scatter(temp2(1,:),temp2(2,:),"filled","MarkerFaceColor","black")
 xL = xlim;
 yL = ylim;
-xlim(max(abs(xL))*[-1 1])
-ylim(max(abs(yL))*[-1 1])
+xlim(max(abs([xL,yL]))*[-1 1])
+ylim(max(abs([xL,yL]))*[-1 1])
 xL = xlim;
 yL = ylim;
 patch([xL(2), sn_diff, sn_diff, xL(2)],[yL(2) ,yL(2), sn_diff, sn_diff],sm_model_palette("von_bertalanffy"),"FaceAlpha",0.2,"EdgeColor","none")
 patch([xL(1), -sn_diff, -sn_diff, xL(1)],[yL(2) ,yL(2), sn_diff, sn_diff],sm_model_palette("exponential"),"FaceAlpha",0.2,"EdgeColor","none")
 patch([xL(2), sn_diff, sn_diff, xL(2)],[yL(1) ,yL(1), -sn_diff, -sn_diff],sm_model_palette("logistic"),"FaceAlpha",0.2,"EdgeColor","none")
-patch([xL(1), -sn_diff, -sn_diff, xL(1)],[yL(1) ,yL(1), -sn_diff, -sn_diff],[0.2 0.2 0.2],"FaceAlpha",0.2,"EdgeColor","none")
+patch([xL(1), -sn_diff, xL(1)],[yL(1), -sn_diff, -sn_diff],sm_model_palette("exponential"),"FaceAlpha",0.2,"EdgeColor","none")
+patch([xL(1), -sn_diff, -sn_diff],[yL(1), -sn_diff, yL(1)],sm_model_palette("logistic"),"FaceAlpha",0.2,"EdgeColor","none")
 line([xL(1), -sn_diff],[0 0],"LineStyle","--","Color","black")
 line([sn_diff xL(2)],[0 0],"LineStyle","--","Color","black")
 line([0 0],[yL(1), -sn_diff],"LineStyle","--","Color","black")
 line([0 0],[sn_diff yL(2)],"LineStyle","--","Color","black")
 ax.Children = flip(ax.Children);
 xT = ceil(xL(1)):floor(xL(2));
+xT(mod(xT,2)==1) = [];
 xticks(xT);
 xticklabels(10.^(abs(xT)+smallest_neg_floor).*sign(xT))
 yT = ceil(yL(1)):floor(yL(2));
+yT(mod(yT,2)==1) = [];
 yticks(yT);
 yticklabels(10.^(abs(yT)+smallest_neg_floor).*sign(yT))
 
+%%
+ax.FontSize = 8;
+f(end).Units = "inches";
+f(end).Position(3:4) = [2,1.5];
+
+f = f(end);
 %% save figures
-saveFigures(f,save_fig_opts);
+saveFigures(f, save_figs=save_figs, reprint=reprint, file_types=file_types, resolution=resolution, fig_names=fig_names);
 
 %% reset path
 rmpath("../../SurrogateModelFns/")

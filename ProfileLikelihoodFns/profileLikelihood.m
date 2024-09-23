@@ -43,22 +43,26 @@ pbest = reshape(pbest,[],1); % make sure it is a column vector
 npars = numel(pbest);
 
 profiles = cell(npars,1);
-for i = 1:npars
-    if opts.save_all_pars
-        profiles{i} = [pbest;val_at_center];
-        par_ind = i;
-    else
-        profiles{i} = [pbest(i);val_at_center];
-        par_ind = 1;
+try
+    for i = 1:npars
+        if opts.save_all_pars
+            profiles{i} = [pbest;val_at_center];
+            par_ind = i;
+        else
+            profiles{i} = [pbest(i);val_at_center];
+            par_ind = 1;
+        end
+        for dir = [-1,1] % move left and right along this parameter dimension
+            [profiles{i},pbest,val_at_center] = profileInOneDirection(profiles{i},F,pbest,val_at_center,i,dir,profile_params,opts.save_all_pars);
+        end
+        [~,order] = sort(profiles{i}(par_ind,:),"ascend");
+        profiles{i} = profiles{i}(:,order);
+        if any(profiles{i}<0,"all")
+            error("Some negative")
+        end
     end
-    for dir = [-1,1] % move left and right along this parameter dimension
-        [profiles{i},pbest,val_at_center] = profileInOneDirection(profiles{i},F,pbest,val_at_center,i,dir,profile_params,opts.save_all_pars);
-    end
-    [~,order] = sort(profiles{i}(par_ind,:),"ascend");
-    profiles{i} = profiles{i}(:,order);
-    if any(profiles{i}<0,"all")
-        error("Some negative")
-    end
+catch
+    profiles = cell(npars,1);
 end
 
 end

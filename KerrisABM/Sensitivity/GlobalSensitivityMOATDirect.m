@@ -9,9 +9,11 @@ load("data/MOATLHSSample.mat","points"); % points at which the MOAT samples were
 load("../PostAnalysis/data/summary.mat","display_par_names")
 
 %% what is the endpoint?
-endpoint = "AUC";
+% endpoint = "final_size";
+% endpoint = "AUC";
+endpoint = "time_to_half";
 t = 0:0.25:75;
-
+dt = t(2)-t(1);
 %% make sure only MOAT samples
 keepers = false(size(f));
 for i = 1:numel(f)
@@ -42,6 +44,18 @@ for i = 1:numel(f)
             N(i) = temp(end);
         case "AUC"
             N(i) = trapz(t,[100;temp]);
+        case "time_to_half"
+            temp = [100;temp];
+            N_final = temp(end);
+            if N_final <= 200
+                N(i) = 0;
+                continue;
+            end
+            t2 = find(temp>=0.5*N_final,1);
+            t1 = t2-1;
+              
+            prop_dt = (0.5*N_final - temp(t1))/(temp(t2)-temp(t1));
+            N(i) = t(t1) + prop_dt * dt;
     end
 end
 

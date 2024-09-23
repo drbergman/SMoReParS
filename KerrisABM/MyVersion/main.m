@@ -2185,11 +2185,11 @@ for time = 1:n_loops                                                            
         % dlmwrite(namedataH1, HypCell, 'delimiter', '\t')
 
         name_cart = strcat('XYZcart_t_',num2str(time),'.txt');
-        if ~isempty(XYZcart>0)
-            % dlmwrite(name_cart, XYZcart, 'delimiter','\t')
-        else
-            % dlmwrite(name_cart, [], 'delimiter','\t')
-        end
+        % if ~isempty(XYZcart>0)
+        %     % dlmwrite(name_cart, XYZcart, 'delimiter','\t')
+        % else
+        %     % dlmwrite(name_cart, [], 'delimiter','\t')
+        % end
 
         namehet = strcat("AntigenExp_t_",num2str(time),'.txt');
         % dlmwrite(namehet,AntigenHet, 'delimiter','\t')

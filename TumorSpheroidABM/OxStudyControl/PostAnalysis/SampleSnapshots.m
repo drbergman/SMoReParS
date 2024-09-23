@@ -1,9 +1,9 @@
 clearvars;
 
-sim_id = "230303112334699";
-
-load("../data/sims/230303112334699/output_constants.mat","grid_size")
-load(sprintf("../data/sims/%s/output_00000288.mat",sim_id))
+sim_id = "2403122307";
+day = 2;
+load(sprintf("../../data/sims/%s/output_constants.mat",sim_id),"grid_size")
+load(sprintf("../../data/sims/%s/output_%08d.mat",sim_id,day))
 
 f = figure;
 ax = gca;
@@ -29,4 +29,8 @@ f.Position(3:4) = [2,1.25];
 ax.Units = "inches";
 ax.Position = [0.15 0.15 1 1];
 
-print(f,"ABM_Snapshot_t3","-dsvg")
+% print(f,"ABM_Snapshot_t3","-dsvg")
+print(f,sprintf("~/Documents/Research/SMoReParS_Comm/GlobalSensitivity/MATLAB_Figures/ABM_Snapshot_t%d",day),"-dsvg")
+
+
+

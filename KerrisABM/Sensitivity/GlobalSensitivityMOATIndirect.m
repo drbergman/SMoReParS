@@ -13,14 +13,20 @@ nsamps = 100; % number of points to sample in LHS for ODE pars
 suffix = dictionary([15,25,1000],["","_large","_very_large"]);
 
 % model_type = "exponential";
-model_type = "logistic";
-% model_type = "von_bertalanffy";
+% model_type = "logistic";
+model_type = "von_bertalanffy";
+
+% endpoint = "final_size";
 endpoint = "AUC";
+% endpoint = "time_to_half";
+
 switch endpoint
     case "final_size"
         sm_functional = @(p) computeSMEndpoint(p,[],model_type);
     case "AUC"
         sm_functional = @(p) computeSMAUC(p,[],model_type);
+    case "time_to_half"
+        sm_functional = @(p) computeTimeToHalf(p,model_type);
 end
 
 switch model_type
@@ -36,8 +42,11 @@ switch model_type
         end
 end
 
-files.profiles = sprintf("../ProfileLikelihood/data/ProfileLikelihoods_%s.mat",model_type);
-
+if model_type ~= "von_bertalanffy"
+    files.profiles = sprintf("../ProfileLikelihood/data/ProfileLikelihoods_%s.mat",model_type);
+else
+    files.profiles = sprintf("../ProfileLikelihood/data/ProfileLikelihoods_%s_resampled_clean.mat",model_type);
+end
 % PL = load(sprintf("../ProfileLikelihood/data/ProfileLikelihoods_%s.mat",model_type),"profiles");
 load("../PostAnalysis/data/summary.mat","vals","cohort_size","display_par_names")
 
@@ -67,7 +76,7 @@ studied_function = setupSampleFromSMFunction(files,sm_functional,D=D,T=T,nsamps=
 display_par_names = display_par_names(order);
 
 %% save result
-save(sprintf("data/GlobalSensitivityMOATIndirect_%s%s_%s.mat",model_type,suffix(npoints),endpoint),"mu_star","sigma","display_par_names","npoints","nsamps")
+save(sprintf("data/GlobalSensitivityMOATIndirect_%s%s_%s_resampled_clean.mat",model_type,suffix(npoints),endpoint),"mu_star","sigma","display_par_names","npoints","nsamps")
 
 %% clean path
 rmpath("../ODEFitting/")

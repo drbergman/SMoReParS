@@ -2,36 +2,79 @@
 
 clearvars;
 
-ABM = load("data/ABM_Sensitivity_noapop.mat");
-ABM_SM = load("data/ABM_Sensitivity_Via_SM_noapop_UPDATED.mat");
+direct_method_color = 0.1*[1 1 1];
+sm_model_palette = containers.Map("sm",lines(1));
 
-C = regexprep(ABM.par_names(ABM.order),"_"," ");
+
+ABM = load("data/ABM_Sensitivity_noapop.mat","par_names","order","mu_star");
+ABM_SM = load("data/ABM_Sensitivity_Via_SM_noapop_UPDATED.mat","mu_star");
+
+C = convertParNames(ABM.par_names(ABM.order));
+% C = regexprep(ABM.par_names(ABM.order),"_"," ");
 C = categorical(C,C);
 y = [ABM.mu_star;ABM_SM.mu_star];
 
-figure;
-bar(C,y)
+f=figureOnRight;
+ax = gca;
+ax.XAxis.TickLabelInterpreter = "latex";
+b = bar(C,y);
+b(1).FaceColor = direct_method_color;
+b(2).FaceColor = sm_model_palette("sm");
 ylabel("\mu^*")
-legend({"Sensitivity on ABM directly","Sensitivity on ABM via SM"},"location","northeast","FontSize",16)
-set(gca,'FontSize',16)
-savefig("figures/fig/CompareABMSensitivityMethods")
-print("figures/png/CompareABMSensitivityMethods","-dpng")
+legend({"Direct","Indirect"},"location","northeast","FontSize",8)
 
+%% 
+f.Units = "inches";
+f.Position(3:4) = [2.5,1.5];
+set(ax,'FontSize',8)
+
+%% set margins
+margin = struct("left",.16,"right",.01,"top",.05,"bottom",.23);
+spacing = struct("horizontal",.01,"vertical",.09);
+uniformAxisSpacing(ax,margin,spacing);
+
+%%
+savefig("figures/fig/CompareABMSensitivityMethods")
+print("-r300","figures/png/CompareABMSensitivityMethods","-dpng")
+
+%%
 y = y./sum(y,2);
 figure;
 bar(C,y)
 ylabel("\mu^* / <\mu^*>")
 legend({"Sensitivity on ABM directly","Sensitivity on ABM via SM"},"location","northeast","FontSize",16)
 set(gca,'FontSize',16)
-savefig("figures/fig/CompareABMSensitivityMethods_NormalizedMu")
-print("figures/png/CompareABMSensitivityMethods_NormalizedMu","-dpng")
 
 %%
-figure;
+savefig("figures/fig/CompareABMSensitivityMethods_NormalizedMu")
+print("-r300","figures/png/CompareABMSensitivityMethods_NormalizedMu","-dpng")
+
+%%
+f=figureOnRight;
+ax = gca;
 s = ["Direct","Indirect"];
-B = bar(categorical(s,s),y,"stacked");
+% B = bar(categorical(s,s),y,"stacked");
+B = bar(1:2,y,"stacked");
+B(1).BarWidth = 0.8;
+B(2).BarWidth = 0.8;
 ylabel("\mu^* / <\mu^*>")
-legend(flip(B),flip(C),"location","bestoutside","FontSize",16)
-set(gca,"FontSize",16)
+xticklabels(s)
+legend(flip(B),flip(C),"location","bestoutside","FontSize",8)
+set(ax,"FontSize",8)
+
+%% 
+f.Units = "inches";
+f.Position(3:4) = [2.5,1.5];
+set(ax,'FontSize',8)
+
+%%
+xlim([0.4 2.6])
+
+%% set margins
+margin = struct("left",.17,"right",.4,"top",.04,"bottom",.1);
+spacing = struct("horizontal",.01,"vertical",.09);
+uniformAxisSpacing(ax,margin,spacing);
+
+%%
 savefig("figures/fig/CompareABMSensitivityMethods_NormalizedMu_Stacked")
-print("figures/png/CompareABMSensitivityMethods_NormalizedMu_Stacked","-dpng")
+print("-r300","figures/png/CompareABMSensitivityMethods_NormalizedMu_Stacked","-dpng")

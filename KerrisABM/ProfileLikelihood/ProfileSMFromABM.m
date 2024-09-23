@@ -11,7 +11,7 @@ addpath("../../ProfileLikelihoodFns/")
 addpath("~/Documents/MATLAB/myfunctions/")
 addpath("../ODEFitting/")
 
-force_serial = true;
+force_serial = false;
 save_all_pars = true;
 
 resample_t = 15:15:75;
@@ -22,9 +22,9 @@ model_type = "von_bertalanffy";
 
 
 %% files
-files.optimal_parameters = sprintf("../ODEFitting/data/OptimalParameters_%s.mat",model_type);
+files.optimal_parameters = sprintf("../ODEFitting/data/OptimalParameters_%s_resampled.mat",model_type);
 files.data = "../PostAnalysis/data/summary.mat";
-% files.previous_profile_file = "data/ProfileLikelihoods_logistic.mat";
+files.previous_profile_file = "data/temp_profile_01.mat";
 
 load(files.optimal_parameters,"sm")
 
@@ -42,7 +42,7 @@ profile_params.min_num_steps = 10*ones(n_sm_pars,1);
 profile_params.shrinking_factor = 0.9; % factor by which to shrink dx as it gets close to lower boundary
 profile_params.threshold = chi2inv(0.95,n_sm_pars); % compute threshold value for the parameter confidence intervals
 profile_params.secondary_step_factor = 2*ones(n_sm_pars,1); % factor by which to increase the step size after the initial search
-profile_params.step_growth_factor = 2*ones(n_sm_pars,1); % factor by which to increase the step size after successfully extending the profile
+profile_params.step_growth_factor = 1.5*ones(n_sm_pars,1); % factor by which to increase the step size after successfully extending the profile
 switch model_type
     case "exponential"
         profile_params.smallest_par_step = 0.01; % do not let the step size go below this as it steps towards the boundary/threshold
@@ -74,7 +74,7 @@ switch model_type
         profile_params.para_ranges = [0,100;     % alpha
             1,1e3;  % nu
             0,100]; % beta for chemo activating apoptosis
-        resample_t = 0:.25:75;
+        % resample_t = 0:.25:75;
         sm.opts.enforce_inequality = true;
     otherwise
         error("%s is an unspecified SM model.\n",objfn_constants.fn_opts.model_type);
@@ -82,12 +82,13 @@ end
 
 %% perform profile
 profiles = performProfile(files,sm,profile_params,force_serial=force_serial,...
+    save_every_iter=1,save_every_sec=0,...
     save_all_pars=save_all_pars,resample_t=resample_t);
 
 if isfield(files,"previous_profile_file")
     files = rmfield(files,"previous_profile_file");
 end
-% save(sprintf("data/ProfileLikelihoods_%s.mat",model_type),"profiles","files","profile_params")
+save(sprintf("data/ProfileLikelihoods_%s_resampled.mat",model_type),"profiles","files","profile_params")
 
 %% reset path
 rmpath("../ODEFitting/")

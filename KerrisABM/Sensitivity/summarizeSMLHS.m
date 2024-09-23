@@ -4,7 +4,7 @@ function out = summarizeSMLHS(in)
 % geometric mean is used to avoid exponentiating each element of in, some
 % of which are expected to be large enough to return Inf upon exponentiation
 
-out = exp(mean(in)-1e9);
+out = exp(mean(in));
 
 if out==Inf
     disp('')
