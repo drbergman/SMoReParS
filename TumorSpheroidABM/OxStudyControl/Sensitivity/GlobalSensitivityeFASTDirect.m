@@ -48,7 +48,7 @@ Model.plot_pars.plot_location = false;
 nsamps = 10;
 par_names = ["carrying_capacity";"occmax_2d";"move_rate_microns";"g1_to_s";"s_to_g2";"g2_to_m";"m_to_g1"];
 % par_names = ["carrying_capacity";"g1_to_s"];
-D = makeABMParameterDistributionsDictionary(par_names);
+D = makeABMParameterDistributionsDictionary();
 
 %%
 
@@ -63,13 +63,10 @@ n_abm_pars = length(par_names);
 
 %% run eFAST
 studied_function = @(x) moatSample(x,Model,par_names,D,nsamps,alpha,ci_relative_spread);
-[S1,ST,ST_desc_order] = efast(studied_function,n_abm_pars,Nr,omega_max,M,Ns);
-[~,S1_desc_order] = sort(S1,"descend");
-par_names_desc_S1_order = par_names(S1_desc_order);
-par_names_desc_ST_order = par_names(ST_desc_order);
+[S1,ST] = efast(studied_function,n_abm_pars,Nr,omega_max,M,Ns);
 
 %% save result
-save("data/GlobalSensitivityeFASTDirect.mat")
+save("data/GlobalSensitivityeFASTDirect2.mat")
 
 %% clean path
 rmpath("../../../SensitivityFns/")

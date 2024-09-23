@@ -99,15 +99,14 @@ for i = 1:(size(profile,1)-1)
 
     % check if any parameter approaches boundary within tolerance at end points
     while true
-        if profile(i,1) <= lb(i) + tol(i,1) || profile(i,1) >= ub(i) - tol(i,2)
-
+        if profile(end,1) > min(profile(end,:)) && (profile(i,1) <= lb(i) + tol(i,1) || profile(i,1) >= ub(i) - tol(i,2))
             profile = profile(:,2:end);
         else
             break
         end
     end
     while true
-        if profile(i,end) <= lb(i) + tol(i,1) || profile(i,end) >= ub(i) - tol(i,2)
+        if profile(end,end) > min(profile(end,:)) && (profile(i,end) <= lb(i) + tol(i,1) || profile(i,end) >= ub(i) - tol(i,2))
             profile = profile(:,1:end-1);
         else
             break

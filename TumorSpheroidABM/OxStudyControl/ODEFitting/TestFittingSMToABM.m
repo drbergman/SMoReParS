@@ -22,7 +22,7 @@ par_names = ["\lambda","\alpha","K"];
 
 rss_color = [102, 51, 153]/255;
 nsamps = 4;
-files.data = sprintf("../../data/%s/summary.mat",cohort_name);
+files.data = sprintf("../../data/%s/summary_short.mat",cohort_name);
 
 sm.fn = @(p,t,c,opts,data) computeTimeSeries(p,t,data,opts.condition_on_previous,[]);
 sm.opts.condition_on_previous = false;
@@ -47,47 +47,48 @@ opts.fit_color = fit_color;
 [f,I] = testSMFitToABM(files,nsamps,sm,opts);
 f(1).Children = flip(f(1).Children);
 f(1).Children = reshape(reshape(f(1).Children,2,4)',[],1);
-%% add total cell count to final column of sample fits
-f_old = f(1);
-f_new = figure;
-ax = gobjects(4,3);
-for i = 1:8
-    ax(i) = subplot(4,3,r2c(4,3,i));
-    copyobj(f_old.Children(i).Children,ax(i));
-end
-for i = 9:12
-    ax(i) = subplot(4,3,r2c(4,3,i));
-    hold on;
-end
-load(sprintf("../../data/%s/output.mat",cohort_name),"ids","nsamps_per_condition")
-ids = reshape(ids,[],nsamps_per_condition);
-xx = ax(1).Children(1).XData;
-for ri = 1:4
-    yy = ax(ri,1).Children(2).YData + ax(ri,2).Children(2).YData;
-    copyobj(ax(ri,1).Children(2),ax(ri,3))
-    ax(ri,3).Children(1).YData = yy;
-    totals = zeros(6,nsamps_per_condition);
-    for si = 1:nsamps_per_condition
-        temp = load(sprintf("../../data/sims/%s/output_final.mat",ids(I(ri),si)),"tracked");
-        if ~isfield(temp.tracked,"NT")
-            temp.tracked.NT = sum(temp.tracked.phases,2);
-        end
-        totals(:,si) = interp1(round(temp.tracked.t*1440)/1440,temp.tracked.NT,xx);
-    end
-    y_mean = mean(totals,2);
-    y_std = std(totals,[],2);
-    copyobj(ax(ri,1).Children(3),ax(ri,3))
-    ax(ri,3).Children(1).YData = [y_mean;flip(y_mean)] + [-y_std;flip(y_std)];
-    % pp = ax(ri,1).Children(3).YData + ax(ri,2).Children(3).YData;
-    yy = ax(ri,1).Children(1).YData + ax(ri,2).Children(1).YData;
-    copyobj(ax(ri,1).Children(1),ax(ri,3))
-    ax(ri,3).Children(1).YData = yy;
-    ax(ri,3).Children = ax(ri,3).Children([1,3,2]);
-    ylabel(ax(ri,1),sprintf("#%04d",I(ri)),"FontWeight","bold")
-end
-ax(1,1).Title = f_old.Children(1).Title;
-ax(1,2).Title = f_old.Children(5).Title;
-title(ax(1,3),"Total Count")
+
+% %% add total cell count to final column of sample fits
+% f_old = f(1);
+% f_new = figure;
+% ax = gobjects(4,3);
+% for i = 1:8
+%     ax(i) = subplot(4,3,r2c(4,3,i));
+%     copyobj(f_old.Children(i).Children,ax(i));
+% end
+% for i = 9:12
+%     ax(i) = subplot(4,3,r2c(4,3,i));
+%     hold on;
+% end
+% load(sprintf("../../data/%s/output.mat",cohort_name),"ids","nsamps_per_condition")
+% ids = reshape(ids,[],nsamps_per_condition);
+% xx = ax(1).Children(1).XData;
+% for ri = 1:4
+%     yy = ax(ri,1).Children(2).YData + ax(ri,2).Children(2).YData;
+%     copyobj(ax(ri,1).Children(2),ax(ri,3))
+%     ax(ri,3).Children(1).YData = yy;
+%     totals = zeros(6,nsamps_per_condition);
+%     for si = 1:nsamps_per_condition
+%         temp = load(sprintf("../../data/sims/%s/output_final.mat",ids(I(ri),si)),"tracked");
+%         if ~isfield(temp.tracked,"NT")
+%             temp.tracked.NT = sum(temp.tracked.phases,2);
+%         end
+%         totals(:,si) = interp1(round(temp.tracked.t*1440)/1440,temp.tracked.NT,xx);
+%     end
+%     y_mean = mean(totals,2);
+%     y_std = std(totals,[],2);
+%     copyobj(ax(ri,1).Children(3),ax(ri,3))
+%     ax(ri,3).Children(1).YData = [y_mean;flip(y_mean)] + [-y_std;flip(y_std)];
+%     % pp = ax(ri,1).Children(3).YData + ax(ri,2).Children(3).YData;
+%     yy = ax(ri,1).Children(1).YData + ax(ri,2).Children(1).YData;
+%     copyobj(ax(ri,1).Children(1),ax(ri,3))
+%     ax(ri,3).Children(1).YData = yy;
+%     ax(ri,3).Children = ax(ri,3).Children([1,3,2]);
+%     ylabel(ax(ri,1),sprintf("#%04d",I(ri)),"FontWeight","bold")
+% end
+% ax(1,1).Title = f_old.Children(1).Title;
+% ax(1,2).Title = f_old.Children(5).Title;
+% title(ax(1,3),"Total Count")
 
 %% finish sample fitting figures
 f(1) = f_new;

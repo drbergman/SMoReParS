@@ -1,11 +1,12 @@
 clearvars
 
 addpath("~/Documents/MATLAB/myfunctions/")
+addpath("../../ProfileLikelihoodFns/")
 
-save_fig_opts.save_figs = true;
-save_fig_opts.reprint = true;
-save_fig_opts.file_types = ["fig";"png"];
-save_fig_opts.resolution = "-r1200";
+save_figs = true;
+reprint = true;
+file_types = ["fig";"png"];
+resolution = "-r300";
 
 model_type = ["exponential","logistic","von_bertalanffy"];
 
@@ -14,12 +15,16 @@ color_order = [identifiability_index_palette("0");identifiability_index_palette(
 f = gobjects(6,1);
 k = 0;
 for i = 1:length(model_type)
-    load(sprintf("data/IdentifiabilityIndex_%s",model_type(i)),"indices")
+    if model_type(i) ~= "von_bertalanffy"
+        load(sprintf("data/IdentifiabilityIndex_%s",model_type(i)),"indices")
+    else
+        load(sprintf("data/IdentifiabilityIndex_%s_resampled_clean",model_type(i)),"indices")
+    end
     for j = 1:size(indices,1)
         k = k+1;
         f(k) = figureOnRight("Name",sprintf("IdentifiabilityIndex_%s_%d",model_type(i),j));
         C = categorical(indices(j,:),0:2);
-        d = donutchart(C,InnerRadius=0.2);
+        d = donutchart(C,InnerRadius=0.6);
         d.Labels(:) = "";
         % d.Labels(d.CategoryCounts==0) = "";
         colororder(color_order)
@@ -35,4 +40,8 @@ for i = 1:numel(f)
 end
 
 %%
-saveFigures(f,save_fig_opts)
+saveFigures(f,save_figs=save_figs,reprint=reprint,file_types=file_types,resolution=resolution)
+
+
+%% reset path
+rmpath("../../ProfileLikelihoodFns/")

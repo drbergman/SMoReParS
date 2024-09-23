@@ -150,6 +150,7 @@ while true
             dxi = dxi * profile_params.step_growth_factor(i); % try taking bigger steps if staying within threshold
         else
             dxi = 0.5*(dxi+max_allowable_step);
+            max_allowable_step = max_allowable_step * 1.1; % slowly relax the max_allowable_step size
         end
         x0 = x0_new;
         last_val = temp_val;
@@ -170,6 +171,7 @@ while true
         else
             dxi = 0.5 * dxi;
         end
+        dxi = max(dxi, profile_params.smallest_par_step(i)); % do not allow the step size to go below smallest_par_step
     end
 
 end

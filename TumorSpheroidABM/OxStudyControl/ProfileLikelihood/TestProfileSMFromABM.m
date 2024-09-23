@@ -4,16 +4,16 @@ addpath("~/Documents/MATLAB/myfunctions/")
 addpath("../../../ProfileLikelihoodFns/")
 addpath("../ODEFitting/")
 
-profile_file = "data/Profiles_SMFromABM_New2_clean.mat";
+profile_file = "data/Profiles_SMFromABM_New_clean.mat";
 
-save_opts.save_figs = false;
-save_opts.reprint = false;
-save_opts.file_types = ["fig","png"];
-save_opts.fig_names = "SampleProfilesOfSMFromABM_New";
-save_opts.resolution = '-r1200';
+save_figs = false;
+reprint = false;
+file_types = ["fig","png"];
+fig_names = "SampleProfilesOfSMFromABM_New_SMoReGloS_version";
+resolution = '-r300';
 
 opts = struct();
-opts.abm_vec_inds = [2,12];
+% opts.abm_vec_inds = [2,12];
 opts.LineWidth = 0.5;
 opts.place_par_names = "xlabel";
 
@@ -23,6 +23,7 @@ nsamps = 4;
 fit_color = lines(2);
 fit_color = sqrt(prod(fit_color,1));
 opts.LineColor = fit_color;
+opts.abm_vec_inds = 1346;
 
 %% test profile
 [f,ax,I] = testProfileSMFromABM(profile_file,nsamps,sm_par_display_names,opts);
@@ -46,7 +47,7 @@ spacing = struct("horizontal",.08,"vertical",.09);
 uniformAxisSpacing(ax,margin,spacing);
 
 %% save figures
-saveFigures(f,save_opts)
+    saveFigures(f,save_figs=save_figs,reprint=reprint,file_types=file_types,fig_names=fig_names,resolution=resolution)
 
 %% reset path
 rmpath("../../../ProfileLikelihoodFns/")

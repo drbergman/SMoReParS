@@ -3,7 +3,7 @@ clearvars;
 addpath("../../ProfileLikelihoodFns/")
 
 model_type = "von_bertalanffy";
-files.profiles = sprintf("data/ProfileLikelihoods_%s",model_type);
+files.profiles = sprintf("data/ProfileLikelihoods_%s_resampled",model_type);
 boundary_tolerance = [[1e-4;1e-4;1e-4],[1e-1;1;1e-1]];
 
 overwrite_profile = false;

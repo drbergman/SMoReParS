@@ -83,6 +83,7 @@ num_to_run = numel(ind_to_run);
 if isfield(sm,"custom_raw_error_fn")
     rE_fn = @(p,d,c) sm.custom_raw_error_fn(sm,p,t,d,c,raw_error_opts);
 else
+    clear rawError
     rE_fn = @(p,d,c) rawError(sm,p,t,d,c,raw_error_opts);
 end
 

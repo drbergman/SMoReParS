@@ -4,9 +4,9 @@
 clearvars;
 
 sm.fn = @computeTimeSeries;
-model_type = "exponential";
+% model_type = "exponential";
 % model_type = "logistic";
-% model_type = "von_bertalanffy";
+model_type = "von_bertalanffy";
 
 sm.opts.model_type = model_type;
 
@@ -30,11 +30,12 @@ switch model_type
         par_names = ["\alpha","\nu","\beta"];
 end
 
-nsamps = 36;
-files.optimal_parameters = sprintf("data/OptimalParameters_%s_3.mat",model_type);
+nsamps = 1;
+files.optimal_parameters = sprintf("data/OptimalParameters_%s.mat",model_type);
 files.data = "../PostAnalysis/data/summary.mat";
 
 opts.par_names = par_names;
+opts.abm_vec_inds = 1;
 f = testSMFitToABM(files,nsamps,sm,opts);
 
-saveFigures(f,save_fig_opts)
+% saveFigures(f,save_fig_opts)

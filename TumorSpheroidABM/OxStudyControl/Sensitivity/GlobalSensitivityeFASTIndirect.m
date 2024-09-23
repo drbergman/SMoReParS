@@ -32,15 +32,11 @@ sm_functional = @(p) sum(computeTimeSeries(p, [], [], false, 3));
 %% run MOAT
 [studied_function,par_names] = setupSampleFromSMFunction(files,sm_functional,T=T,D=D,nsamps=nsamps,use_profiles=use_profiles);
 n_abm_pars = length(par_names);
-[S1,ST,order] = efast(studied_function,n_abm_pars,Nr,omega_max,M,Ns,sort_output=sort_output);
-[~,S1_desc_order] = sort(S1,"descend");
-[~,ST_desc_order] = sort(ST,"descend");
-par_names_desc_S1_order = par_names(S1_desc_order);
-par_names_desc_ST_order = par_names(ST_desc_order);
+[S1,ST] = efast(studied_function,n_abm_pars,Nr,omega_max,M,Ns);
 
 %% save result
-% save("data/GlobalSensitivityeFASTIndirect.mat","S1","ST","S1_desc_order",...
-%     "ST_desc_order","par_names","par_names_desc_S1_order","par_names_desc_ST_order","Nr","nsamps","Ns","M","omega_max")
+save("data/GlobalSensitivityeFASTIndirect2.mat","S1","ST",...
+    "par_names","Nr","nsamps","Ns","M","omega_max")
 
 %% clean path
 rmpath("../ODEFitting/")

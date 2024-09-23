@@ -7,7 +7,7 @@ model_type = "logistic";
 
 suffix = "_very_large";
 
-save_fig_opts.save_figs = true;
+save_fig_opts.save_figs = false;
 save_fig_opts.reprint = true;
 save_fig_opts.file_types = ["fig","png"];
 save_fig_opts.fig_names = sprintf("GlobalSensitivityMOATIndirect_%s%s",model_type,suffix);

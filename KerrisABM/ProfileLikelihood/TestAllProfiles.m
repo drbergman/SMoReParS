@@ -4,7 +4,7 @@ save_figure = false;
 
 addpath("../../ProfileLikelihoodFns/")
 
-model_type = "exponential";
+model_type = "von_bertalanffy";
 
 switch model_type
     case "exponential"
@@ -14,7 +14,7 @@ switch model_type
     case "von_bertalanffy"
         sm_par_display_names = ["\alpha","\nu","\beta"];
 end
-profile_file = sprintf("data/ProfileLikelihoods_%s.mat",model_type);
+profile_file = sprintf("data/ProfileLikelihoods_%s_resampled_clean.mat",model_type);
 n_per_fig = 10;
 f = testAllProfileSMFromABM(profile_file,n_per_fig,sm_par_display_names);
 

@@ -10,11 +10,12 @@ M.setup.ndims = 2;
 M.setup.censor_date = 3;
 M.setup.N0 = 1e2;
 M.setup.agent_initialization_location = "uniform";
-M.setup.carrying_capacity = 1167.726550079491289579891599714756011962890625;
+% M.setup.carrying_capacity = 1167.726550079491289579891599714756011962890625;
+M.setup.carrying_capacity = 500;
 M.setup.use_rates_for_intitial_proportions = false;
 
-M.save_pars.make_save = false;
-M.save_pars.dt = Inf; % set to Inf to not save anything spatial; otherwise dt is in days
+M.save_pars.make_save = true;
+M.save_pars.dt = 1; % set to Inf to not save anything spatial; otherwise dt is in days
 M.save_pars.interpolate_tracked = true; % only save certain interpolated values
 M.save_pars.t_min = [0 10 24 36 48 72] * 60;
 M.save_pars.fields_to_keep = ["t","phases"];
@@ -32,7 +33,7 @@ M.cycle_pars.m_to_g1 = 24.038155802861748355780946440063416957855224609375;
 
 M.flags.arrest_is_death = false;
 
-M.chemo_pars.concentration = 0.75;
+M.chemo_pars.concentration = 0;
 
 M.chemo_pars.apoptosis_function = "hill";
 M.chemo_pars.apop_c0 = 0;

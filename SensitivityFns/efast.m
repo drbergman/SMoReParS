@@ -1,4 +1,5 @@
-function [S1,ST,order] = efast(f,n,Nr,omega_max,M,Ns,options)
+% function [S1,ST,order] = efast(f,n,Nr,omega_max,M,Ns,options)
+function [S1,ST] = efast(f,n,Nr,omega_max,M,Ns)
 
 % f = studied function
 % n = number of factors
@@ -11,7 +12,7 @@ arguments
     omega_max double {mustBeInteger} = 8
     M double {mustBeInteger} = 4;
     Ns double {mustBeInteger} = 2*M*omega_max + 1
-    options.sort_output logical = true
+    % options.sort_output_by_st logical = true
 end
 
 % equally-spaced points on (-pi,pi) but only include left endpoint
@@ -83,12 +84,12 @@ end
 S1 = mean(first_order_var,1)./mean(total_var,1);
 ST = 1-mean(complement_var,1)./mean(total_var,1);
 
-if options.sort_output
-    [ST,order] = sort(ST,"descend");
-    S1 = S1(order);
-else
-    order = 1:length(S1);
-end
+% if options.sort_output_by_st
+%     [ST,order] = sort(ST,"descend");
+%     S1 = S1(order);
+% else
+%     order = 1:length(S1);
+% end
 
 
 end
