@@ -2,6 +2,8 @@
 
 clearvars;
 
+addpath("~/Documents/MATLAB/myfunctions/")
+
 direct_method_color = 0.1*[1 1 1];
 sm_model_palette = containers.Map("sm",lines(1));
 
@@ -11,25 +13,29 @@ ABM_SM = load("data/ABM_Sensitivity_Via_SM_noapop_UPDATED.mat","mu_star");
 
 C = convertParNames(ABM.par_names(ABM.order));
 % C = regexprep(ABM.par_names(ABM.order),"_"," ");
-C = categorical(C,C);
+% C = categorical(C,C);
 y = [ABM.mu_star;ABM_SM.mu_star];
 
 f=figureOnRight;
+hold on;
+rectangle('Position',[1.5, 0, 2, 350], 'FaceColor', 'yellow', "EdgeColor", "none")
 ax = gca;
-ax.XAxis.TickLabelInterpreter = "latex";
-b = bar(C,y);
+% ax.XAxis.TickLabelInterpreter = "latex";
+b = bar(1:length(C),y);
+xticks(ax, 1:length(C))
+xticklabels(ax, C)
 b(1).FaceColor = direct_method_color;
 b(2).FaceColor = sm_model_palette("sm");
-ylabel("\mu^*")
+% ylabel("\mu^*")
 legend({"Direct","Indirect"},"location","northeast","FontSize",8)
 
 %% 
 f.Units = "inches";
-f.Position(3:4) = [2.5,1.5];
+f.Position(3:4) = [2.5,1];
 set(ax,'FontSize',8)
 
 %% set margins
-margin = struct("left",.16,"right",.01,"top",.05,"bottom",.23);
+margin = struct("left",.16,"right",.01,"top",.05,"bottom",.33);
 spacing = struct("horizontal",.01,"vertical",.09);
 uniformAxisSpacing(ax,margin,spacing);
 

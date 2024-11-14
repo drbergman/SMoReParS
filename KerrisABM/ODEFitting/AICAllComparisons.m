@@ -86,7 +86,7 @@ hold on
 vb_log = model_type=="von_bertalanffy";
 rel_log_likelihood = (AIC(~vb_log,:) - AIC(vb_log,:));
 rel_log_likelihood_pos_log = rel_log_likelihood > 0;
-rel_log_likelihood_pos = rel_log_likel     zihood(rel_log_likelihood_pos_log);
+rel_log_likelihood_pos = rel_log_likelihood(rel_log_likelihood_pos_log);
 log_rel_log_likelihood_pos = log10(rel_log_likelihood_pos);
 rel_log_likelihood_neg = rel_log_likelihood(~rel_log_likelihood_pos_log);
 log_rel_log_likelihood_neg = log10(-rel_log_likelihood_neg);
@@ -113,7 +113,8 @@ temp4 = temp(:,all(rel_log_likelihood<0,1) & rel_log_likelihood(2,:)<rel_log_lik
 
 sz = 2;
 
-scatter(temp(1,[51,57,79]),temp(2,[51,57,79]),2*sz,"MarkerEdgeColor","black","MarkerFaceColor","none")
+% scatter(temp(1,[51,57,79]),temp(2,[51,57,79]),2*sz,"MarkerEdgeColor","black","MarkerFaceColor","none")
+scatter(temp(1,57),temp(2,57),2*sz,"MarkerEdgeColor","black","MarkerFaceColor","none")
 
 scatter(temp2(1,:),temp2(2,:),sz,"filled","MarkerEdgeColor",sm_model_palette("logistic"),"MarkerFaceColor",sm_model_palette("logistic"))
 scatter(temp1(1,:),temp1(2,:),sz,"filled","MarkerEdgeColor",sm_model_palette("von_bertalanffy"),"MarkerFaceColor",sm_model_palette("von_bertalanffy"))
