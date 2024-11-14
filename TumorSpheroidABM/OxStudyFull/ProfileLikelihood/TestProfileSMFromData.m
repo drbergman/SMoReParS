@@ -6,7 +6,7 @@ save_fig_opts.file_types = ["fig","png"];
 save_fig_opts.fig_names = "SampleProfilesOfSMFromData_LMS_bounded_converted";
 save_fig_opts.resolution = '-r1200';
 
-addpath("~/Documents/MATLAB/myfunctions/")
+addpath("~/Documents/MATLAB/myfunctions/") % replace with path (rel or abs) to myfunctions
 addpath("../../../ProfileLikelihoodFns/")
 addpath("../ODEFitting/")
 

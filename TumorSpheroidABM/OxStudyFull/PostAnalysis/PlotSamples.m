@@ -1,7 +1,7 @@
 clearvars;
 
 addpath("../..")
-addpath("~/Documents/MATLAB/myfunctions/")
+addpath("~/Documents/MATLAB/myfunctions/") % replace with path (rel or abs) to myfunctions
 cohort_id = "cohort_2306062207";
 
 load(sprintf("../../data/%s/output.mat",cohort_id),"ids","lattice_parameters","nsamps_per_condition")

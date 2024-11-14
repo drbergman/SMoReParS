@@ -1,7 +1,7 @@
 clearvars;
 
 addpath("../../../SurrogateModelFns/")
-addpath("~/Documents/MATLAB/myfunctions/")
+addpath("~/Documents/MATLAB/myfunctions/") % replace with path (rel or abs) to myfunctions
 
 file_name = "SMFitToData_LMS_bounded";
 save_fig_opts.save_figs = true;

@@ -1,6 +1,6 @@
 clearvars;
 
-addpath("~/Documents/MATLAB/myfunctions/")
+addpath("~/Documents/MATLAB/myfunctions/") % replace with path (rel or abs) to myfunctions
 
 model_type = "logistic";
 % model_type = "von_bertalanffy";

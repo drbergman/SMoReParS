@@ -1,7 +1,7 @@
 % a quick script for plotting parameter combinations after doing profile
 % likelihood of the surrogate model on exp data (main_data.m)
 
-addpath("~/Documents/MATLAB/myfunctions/")
+addpath("~/Documents/MATLAB/myfunctions/") % replace with path (rel or abs) to myfunctions
 load("ProfileLikelihoods_DataRestricted.mat")
 
 %% profiles

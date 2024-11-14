@@ -9,7 +9,7 @@ clearvars;
 addpath("../../../SurrogateModelFns/")
 addpath("../../../ProfileLikelihoodFns/")
 addpath("../ODEFitting/")
-addpath("~/Documents/MATLAB/myfunctions/")
+addpath("~/Documents/MATLAB/myfunctions/") % replace with path (rel or abs) to myfunctions
 
 %% clear persistent variables
 clear rawError solveSM customRawError

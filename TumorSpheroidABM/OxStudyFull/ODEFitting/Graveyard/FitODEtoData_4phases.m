@@ -3,7 +3,7 @@
 
 clearvars;
 addpath("../../../ODEFittingFns/")
-addpath("~/Documents/MATLAB/myfunctions/")
+addpath("~/Documents/MATLAB/myfunctions/") % replace with path (rel or abs) to myfunctions
 
 p = zeros(6,1);
 p(1) = 24/11; % lambda

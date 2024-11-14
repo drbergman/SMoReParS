@@ -10,7 +10,7 @@ if contains(path,"myfunctions")
     path_changed = false;
 else
     path_changed = true;
-    addpath("~/Documents/MATLAB/myfunctions/")
+    addpath("~/Documents/MATLAB/myfunctions/") % replace with path (rel or abs) to myfunctions
 end
 
 if isfield(files,"optimal_parameters")

@@ -5,7 +5,7 @@
 
 clearvars;
 
-addpath("~/Documents/MATLAB/myfunctions/")
+addpath("~/Documents/MATLAB/myfunctions/") % replace with path (rel or abs) to myfunctions
 
 %% cohort structure
 cohort_pars.nsamps_per_condition = 6;

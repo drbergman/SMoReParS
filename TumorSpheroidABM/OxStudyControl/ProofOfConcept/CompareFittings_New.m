@@ -5,7 +5,7 @@
 % new workflow.
 
 clearvars;
-addpath("~/Documents/MATLAB/myfunctions/")
+addpath("~/Documents/MATLAB/myfunctions/") % replace with path (rel or abs) to myfunctions
 cohort_name = "cohort_230124175743017";
 files.abm_profile = "../SampleABM/data/AcceptedParameters_New_all_profiles_resampled.mat";
 files.experimental_data = "../ODEFitting/data/ExperimentalData_New.mat";

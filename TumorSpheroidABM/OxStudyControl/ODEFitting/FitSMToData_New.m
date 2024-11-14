@@ -4,7 +4,7 @@
 % This is a new version that is being fit into the new workflow
 
 clearvars;
-addpath("~/Documents/MATLAB/myfunctions/")
+addpath("~/Documents/MATLAB/myfunctions/") % replace with path (rel or abs) to myfunctions
 addpath("../../../SurrogateModelFns/")
 
 %% reset persistent variables first

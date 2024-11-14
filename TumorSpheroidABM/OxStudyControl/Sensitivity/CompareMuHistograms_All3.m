@@ -2,7 +2,7 @@
 
 clearvars;
 
-addpath("~/Documents/MATLAB/myfunctions/")
+addpath("~/Documents/MATLAB/myfunctions/") % replace with path (rel or abs) to myfunctions
 
 direct_method_color = 0.1*[1 1 1];
 sm_model_palette = containers.Map("sm",lines(1));

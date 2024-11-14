@@ -7,7 +7,7 @@
 
 clearvars;
 
-addpath("~/Documents/MATLAB/myfunctions/")
+addpath("~/Documents/MATLAB/myfunctions/") % replace with path (rel or abs) to myfunctions
 addpath("../../ODEFitting/OxControl/")
 
 % folder to store plots and text files

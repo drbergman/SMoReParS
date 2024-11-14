@@ -6,7 +6,7 @@ force_serial = true;
 raw_error_opts.resample = true;
 % raw_error_opts.t = 15:15:75;
 resample_t = 15:15:75;
-addpath("~/Documents/MATLAB/myfunctions/")
+addpath("~/Documents/MATLAB/myfunctions/") % replace with path (rel or abs) to myfunctions
 addpath("../../SurrogateModelFns/")
 
 % sm.opts.model_type = "exponential";

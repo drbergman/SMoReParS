@@ -1,6 +1,6 @@
 % A script to test drawing from ABM parameter space
 
-addpath("~/Documents/MATLAB/myfunctions/")
+addpath("~/Documents/MATLAB/myfunctions/") % replace with path (rel or abs) to myfunctions
 clearvars
 
 b1 = 2;

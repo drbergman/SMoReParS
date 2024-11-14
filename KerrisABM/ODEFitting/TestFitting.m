@@ -18,7 +18,7 @@ for i = numel(fig_names_spec):-1:1
     save_fig_opts.fig_names(i) = sprintf(fig_names_spec(i),model_type);
 end
 
-addpath("~/Documents/MATLAB/myfunctions/")
+addpath("~/Documents/MATLAB/myfunctions/") % replace with path (rel or abs) to myfunctions
 addpath("../../SurrogateModelFns/")
 
 switch model_type

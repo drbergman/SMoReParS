@@ -11,7 +11,7 @@ save_fig_opts.fig_names = "SMFitToData";
 
 addpath("../../../ODEFittingFns/")
 
-addpath("~/Documents/MATLAB/myfunctions/")
+addpath("~/Documents/MATLAB/myfunctions/") % replace with path (rel or abs) to myfunctions
 
 p = zeros(4,1);
 p(1) = 24/19; % lambda

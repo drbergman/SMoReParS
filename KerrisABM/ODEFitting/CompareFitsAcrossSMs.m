@@ -10,7 +10,7 @@ file_types = ["fig","png"];
 
 resample_vb = true;
 
-addpath("~/Documents/MATLAB/myfunctions/")
+addpath("~/Documents/MATLAB/myfunctions/") % replace with path (rel or abs) to myfunctions
 addpath("../../SurrogateModelFns/")
 
 nsamps = 3;

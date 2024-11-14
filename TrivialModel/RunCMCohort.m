@@ -2,7 +2,7 @@
 
 clearvars
 
-addpath("~/Documents/MATLAB/myfunctions/")
+addpath("~/Documents/MATLAB/myfunctions/") % replace with path (rel or abs) to myfunctions
 
 a = 1:3;
 b = 4:7;

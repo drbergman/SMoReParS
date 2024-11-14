@@ -10,7 +10,7 @@
 
 clearvars;
 
-addpath("~/Documents/MATLAB/myfunctions/")
+addpath("~/Documents/MATLAB/myfunctions/") % replace with path (rel or abs) to myfunctions
 
 %% load the ABM parameters using the best fit values of lambda, alpha, and K; identify the admitted/accepted pars
 load("../../OxStudyControl/ProfileLikelihood/data/ABMParamEstimates_FromProfile_WithK.mat","LP1","abm_region_1_log")

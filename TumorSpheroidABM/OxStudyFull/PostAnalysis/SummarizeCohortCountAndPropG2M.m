@@ -2,7 +2,7 @@
 
 clearvars;
 cohort_name = "cohort_2306160948";
-addpath("~/Documents/MATLAB/myfunctions/")
+addpath("~/Documents/MATLAB/myfunctions/") % replace with path (rel or abs) to myfunctions
 
 %% load cohort data
 cohort = load(sprintf("../../data/%s/output.mat",cohort_name));

@@ -6,7 +6,7 @@ clearvars;
 file_name = "SMFitToABM_LMS_bounded";
 make_save = false;
 addpath("../../../SurrogateModelFns/")
-addpath("~/Documents/MATLAB/myfunctions/")
+addpath("~/Documents/MATLAB/myfunctions/") % replace with path (rel or abs) to myfunctions
 
 force_serial = true;
 n_starts = 1;

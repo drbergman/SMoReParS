@@ -3,7 +3,7 @@
 
 clearvars;
 
-addpath("~/Documents/MATLAB/myfunctions/")
+addpath("~/Documents/MATLAB/myfunctions/") % replace with path (rel or abs) to myfunctions
 
 lambda = 5.96;
 alphaRP = 0.99;

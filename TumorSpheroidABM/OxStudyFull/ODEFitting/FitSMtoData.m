@@ -11,7 +11,7 @@ save_fig_opts.fig_names = file_name;
 
 addpath("../../../SurrogateModelFns/")
 
-addpath("~/Documents/MATLAB/myfunctions/")
+addpath("~/Documents/MATLAB/myfunctions/") % replace with path (rel or abs) to myfunctions
 
 model_type = "LogisticModelSimplified";
 %         1     2   3   4      5      6    7   8       9  10  11

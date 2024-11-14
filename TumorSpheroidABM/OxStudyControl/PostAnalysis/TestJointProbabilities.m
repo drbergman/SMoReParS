@@ -3,7 +3,7 @@
 
 clearvars;
 cohort_name = "cohort_230124175743017";
-addpath("~/Documents/MATLAB/myfunctions/")
+addpath("~/Documents/MATLAB/myfunctions/") % replace with path (rel or abs) to myfunctions
 save_figs = false;
 
 %% load data

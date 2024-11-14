@@ -2,7 +2,7 @@
 
 clearvars;
 cohort_name = "cohort_2306062212";
-addpath("~/Documents/MATLAB/myfunctions/")
+addpath("~/Documents/MATLAB/myfunctions/") % replace with path (rel or abs) to myfunctions
 load(sprintf("../../data/%s/output.mat",cohort_name),"ids","nsamps_per_condition","cohort_size","lattice_parameters");
 nsamps_per_parameter_vector = nsamps_per_condition;
 n_conditions = 1;

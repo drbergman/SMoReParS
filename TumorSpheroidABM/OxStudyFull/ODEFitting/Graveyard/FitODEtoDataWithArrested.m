@@ -13,7 +13,7 @@ save_fig_opts.fig_names = "SMFitToDataWithArrestedCompartments";
 
 addpath("../../../ODEFittingFns/")
 
-addpath("~/Documents/MATLAB/myfunctions/")
+addpath("~/Documents/MATLAB/myfunctions/") % replace with path (rel or abs) to myfunctions
 fixed_pars = [];
 
 % p = [lambda,alphaRP,theta,VT,V0,alphaP,kalpha,a,rho0,delta0,kdelta,b,alphaR]

@@ -3,7 +3,7 @@
 
 clearvars;
 
-addpath("~/Documents/MATLAB/myfunctions/")
+addpath("~/Documents/MATLAB/myfunctions/") % replace with path (rel or abs) to myfunctions
 
 save_fig_opts.save_figs = true;
 save_fig_opts.reprint = false;
